@@ -1,4 +1,14 @@
-import * as p from "@clack/prompts";
+import {
+  cancel,
+  intro,
+  isCancel,
+  log,
+  note,
+  outro,
+  select,
+  spinner,
+  text,
+} from "@clack/prompts";
 import chalk from "chalk";
 import { convertGdoc } from "./converters/gdoc.js";
 import { convertImage } from "./converters/image.js";
@@ -34,26 +44,26 @@ const converterFns: Record<
 };
 
 function cancelled(): never {
-  p.cancel("Cancelled.");
+  cancel("Cancelled.");
   process.exit(0);
 }
 
 export async function runInteractive(): Promise<void> {
-  p.intro(chalk.cyan("allmd"));
+  intro(chalk.cyan("allmd"));
 
-  const type = await p.select({
+  const type = await select({
     message: "What would you like to convert?",
     options: Object.entries(CONVERTERS).map(([value, { label }]) => ({
       value: value as ConverterKey,
       label,
     })),
   });
-  if (p.isCancel(type)) {
+  if (isCancel(type)) {
     cancelled();
   }
 
   const converter = CONVERTERS[type];
-  const input = await p.text({
+  const input = await text({
     message:
       converter.inputType === "url" ? "Enter the URL:" : "Enter the file path:",
     validate: (v) => {
@@ -62,13 +72,13 @@ export async function runInteractive(): Promise<void> {
       }
     },
   });
-  if (p.isCancel(input)) {
+  if (isCancel(input)) {
     cancelled();
   }
 
   const options: ConversionOptions = {};
 
-  const s = p.spinner();
+  const s = spinner();
   s.start("Converting...");
 
   try {
@@ -79,12 +89,12 @@ export async function runInteractive(): Promise<void> {
 
     const outputPath = generateOutputPath(result.title);
     await writeOutput(result.markdown, { output: outputPath });
-    p.note(`Saved to ${outputPath}`, "Output");
+    note(`Saved to ${outputPath}`, "Output");
   } catch (err) {
     s.stop("Conversion failed.");
-    p.log.error(err instanceof Error ? err.message : String(err));
+    log.error(err instanceof Error ? err.message : String(err));
     process.exit(1);
   }
 
-  p.outro(chalk.green("Done!"));
+  outro(chalk.green("Done!"));
 }

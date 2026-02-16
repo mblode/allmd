@@ -41,7 +41,10 @@ export async function convertVideo(
     );
   }
 
-  verbose(`Processing ${isVideo ? "video" : "audio"} file: ${filePath}`, options.verbose);
+  verbose(
+    `Processing ${isVideo ? "video" : "audio"} file: ${filePath}`,
+    options.verbose
+  );
 
   let audioPath: string;
   let tempDir: string | undefined;
@@ -58,19 +61,29 @@ export async function convertVideo(
 
   try {
     const audioBuffer = await readFile(audioPath);
-    verbose(`Audio size: ${Math.round(audioBuffer.byteLength / 1024)} KB`, options.verbose);
+    verbose(
+      `Audio size: ${Math.round(audioBuffer.byteLength / 1024)} KB`,
+      options.verbose
+    );
 
     const transcription = await transcribeAudio(audioBuffer, options.verbose);
 
     const rawText = transcription.text;
     const filename = basename(filePath);
-    verbose(`Transcription: ${rawText.length.toLocaleString()} chars`, options.verbose);
+    verbose(
+      `Transcription: ${rawText.length.toLocaleString()} chars`,
+      options.verbose
+    );
 
-    const markdown = await formatAsMarkdown(rawText, {
-      title: filename,
-      source: filePath,
-      type: "video/audio transcription",
-    }, options.verbose);
+    const markdown = await formatAsMarkdown(
+      rawText,
+      {
+        title: filename,
+        source: filePath,
+        type: "video/audio transcription",
+      },
+      options.verbose
+    );
 
     const withFrontmatter = addFrontmatter(markdown, {
       title: filename,
@@ -79,7 +92,10 @@ export async function convertVideo(
       type: "video",
     });
 
-    verbose(`Final output: ${withFrontmatter.length.toLocaleString()} chars`, options.verbose);
+    verbose(
+      `Final output: ${withFrontmatter.length.toLocaleString()} chars`,
+      options.verbose
+    );
 
     return {
       title: filename,
@@ -89,7 +105,9 @@ export async function convertVideo(
     };
   } finally {
     if (tempDir) {
-      await unlink(audioPath).catch(() => {});
+      await unlink(audioPath).catch(() => {
+        /* cleanup best-effort */
+      });
     }
   }
 }

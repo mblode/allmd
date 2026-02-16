@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: intentional public API entrypoint
 export { convertGdoc, extractDocId } from "./converters/gdoc.js";
 export { convertImage } from "./converters/image.js";
 export { convertPdf } from "./converters/pdf.js";

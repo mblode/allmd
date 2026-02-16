@@ -33,7 +33,7 @@ export async function extractReadableContent(url: string) {
   const reader = new Readability(document);
   const article = reader.parse();
 
-  if (!(article && article.content)) {
+  if (!article?.content) {
     throw new Error(`Could not extract readable content from ${url}`);
   }
 
@@ -51,16 +51,26 @@ export async function convertWeb(
 ): Promise<ConversionResult> {
   verbose(`Fetching ${url}`, options.verbose);
   const article = await extractReadableContent(url);
-  verbose(`Extracted "${article.title}" (${article.content.length.toLocaleString()} chars HTML)`, options.verbose);
+  verbose(
+    `Extracted "${article.title}" (${article.content.length.toLocaleString()} chars HTML)`,
+    options.verbose
+  );
 
   const rawMarkdown = htmlToMarkdown(article.content);
-  verbose(`Converted to ${rawMarkdown.length.toLocaleString()} chars raw markdown`, options.verbose);
+  verbose(
+    `Converted to ${rawMarkdown.length.toLocaleString()} chars raw markdown`,
+    options.verbose
+  );
 
-  const markdown = await formatAsMarkdown(rawMarkdown, {
-    title: article.title,
-    source: url,
-    type: "web article",
-  }, options.verbose);
+  const markdown = await formatAsMarkdown(
+    rawMarkdown,
+    {
+      title: article.title,
+      source: url,
+      type: "web article",
+    },
+    options.verbose
+  );
 
   const withFrontmatter = addFrontmatter(markdown, {
     title: article.title,
@@ -71,7 +81,10 @@ export async function convertWeb(
     siteName: article.siteName,
   });
 
-  verbose(`Final output: ${withFrontmatter.length.toLocaleString()} chars`, options.verbose);
+  verbose(
+    `Final output: ${withFrontmatter.length.toLocaleString()} chars`,
+    options.verbose
+  );
 
   return {
     title: article.title,

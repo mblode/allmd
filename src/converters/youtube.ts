@@ -31,15 +31,15 @@ async function fetchVideoMetadata(videoId: string): Promise<VideoMetadata> {
   };
 }
 
-export function extractVideoId(url: string): string {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
-    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
-  ];
+const VIDEO_ID_PATTERNS = [
+  /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+  /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+  /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+  /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+];
 
-  for (const pattern of patterns) {
+export function extractVideoId(url: string): string {
+  for (const pattern of VIDEO_ID_PATTERNS) {
     const match = url.match(pattern);
     if (match) {
       return match[1];
@@ -77,16 +77,26 @@ export async function convertYoutube(
     throw new Error("No captions available for this video");
   }
 
-  verbose(`Fetched ${segments.length} caption segments for "${metadata.title}"`, options.verbose);
+  verbose(
+    `Fetched ${segments.length} caption segments for "${metadata.title}"`,
+    options.verbose
+  );
 
   const rawTranscript = formatTranscript(segments);
-  verbose(`Raw transcript: ${rawTranscript.length.toLocaleString()} chars`, options.verbose);
+  verbose(
+    `Raw transcript: ${rawTranscript.length.toLocaleString()} chars`,
+    options.verbose
+  );
 
-  const markdown = await formatAsMarkdown(rawTranscript, {
-    title: metadata.title,
-    source: url,
-    type: "YouTube video transcript",
-  }, options.verbose);
+  const markdown = await formatAsMarkdown(
+    rawTranscript,
+    {
+      title: metadata.title,
+      source: url,
+      type: "YouTube video transcript",
+    },
+    options.verbose
+  );
 
   const withFrontmatter = addFrontmatter(markdown, {
     title: metadata.title,
@@ -97,7 +107,10 @@ export async function convertYoutube(
     author: metadata.author,
   });
 
-  verbose(`Final output: ${withFrontmatter.length.toLocaleString()} chars`, options.verbose);
+  verbose(
+    `Final output: ${withFrontmatter.length.toLocaleString()} chars`,
+    options.verbose
+  );
 
   return {
     title: metadata.title,

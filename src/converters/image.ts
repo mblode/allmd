@@ -30,10 +30,16 @@ export async function convertImage(
     );
   }
 
-  verbose(`Reading image: ${filePath} (${getMimeType(filePath)})`, options.verbose);
+  verbose(
+    `Reading image: ${filePath} (${getMimeType(filePath)})`,
+    options.verbose
+  );
   const imageBuffer = await readFile(filePath);
   const filename = basename(filePath);
-  verbose(`Image size: ${Math.round(imageBuffer.byteLength / 1024)} KB`, options.verbose);
+  verbose(
+    `Image size: ${Math.round(imageBuffer.byteLength / 1024)} KB`,
+    options.verbose
+  );
 
   const markdown = await describeImage(imageBuffer, undefined, options.verbose);
 
@@ -46,7 +52,10 @@ export async function convertImage(
     fileSize: imageBuffer.byteLength,
   });
 
-  verbose(`Final output: ${withFrontmatter.length.toLocaleString()} chars`, options.verbose);
+  verbose(
+    `Final output: ${withFrontmatter.length.toLocaleString()} chars`,
+    options.verbose
+  );
 
   return {
     title: filename,

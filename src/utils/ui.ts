@@ -6,23 +6,23 @@ export function createSpinner(text: string): Ora {
 }
 
 export function success(message: string): void {
-  console.log(chalk.green("✓") + " " + message);
+  console.log(`${chalk.green("✓")} ${message}`);
 }
 
 export function error(message: string): void {
-  console.error(chalk.red("✗") + " " + message);
+  console.error(`${chalk.red("✗")} ${message}`);
 }
 
 export function info(message: string): void {
-  console.log(chalk.blue("ℹ") + " " + message);
+  console.log(`${chalk.blue("ℹ")} ${message}`);
 }
 
 export function warn(message: string): void {
-  console.log(chalk.yellow("⚠") + " " + message);
+  console.log(`${chalk.yellow("⚠")} ${message}`);
 }
 
 export function verbose(message: string, isVerbose?: boolean): void {
   if (isVerbose) {
-    console.error(chalk.dim("  " + message));
+    console.error(chalk.dim(`  ${message}`));
   }
 }

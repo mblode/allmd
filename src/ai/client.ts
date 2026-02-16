@@ -87,7 +87,10 @@ async function formatChunk(
     : "";
 
   if (chunkInfo) {
-    log(`Formatting chunk ${chunkInfo.index + 1}/${chunkInfo.total} (${rawText.length.toLocaleString()} chars)`, isVerbose);
+    log(
+      `Formatting chunk ${chunkInfo.index + 1}/${chunkInfo.total} (${rawText.length.toLocaleString()} chars)`,
+      isVerbose
+    );
   }
 
   const { text } = await generateText({
@@ -97,7 +100,10 @@ async function formatChunk(
   });
 
   if (chunkInfo) {
-    log(`Chunk ${chunkInfo.index + 1} done (${text.length.toLocaleString()} chars output)`, isVerbose);
+    log(
+      `Chunk ${chunkInfo.index + 1} done (${text.length.toLocaleString()} chars output)`,
+      isVerbose
+    );
   }
 
   return text;
@@ -108,7 +114,10 @@ export async function formatAsMarkdown(
   context: { title?: string; source?: string; type: string },
   isVerbose?: boolean
 ): Promise<string> {
-  log(`AI formatting ${rawText.length.toLocaleString()} chars of ${context.type} content`, isVerbose);
+  log(
+    `AI formatting ${rawText.length.toLocaleString()} chars of ${context.type} content`,
+    isVerbose
+  );
 
   const chunks = splitIntoChunks(rawText, MAX_INPUT_CHARS);
 
@@ -118,7 +127,10 @@ export async function formatAsMarkdown(
 
   if (chunks.length === 1) {
     const result = await formatChunk(rawText, context, undefined, isVerbose);
-    log(`AI formatting complete (${result.length.toLocaleString()} chars output)`, isVerbose);
+    log(
+      `AI formatting complete (${result.length.toLocaleString()} chars output)`,
+      isVerbose
+    );
     return result;
   }
 
@@ -129,7 +141,10 @@ export async function formatAsMarkdown(
   );
 
   const combined = results.join("\n\n");
-  log(`AI formatting complete (${combined.length.toLocaleString()} chars output)`, isVerbose);
+  log(
+    `AI formatting complete (${combined.length.toLocaleString()} chars output)`,
+    isVerbose
+  );
   return combined;
 }
 
@@ -153,7 +168,11 @@ export async function describeImage(
   const image =
     typeof imageData === "string" ? imageData : imageData.toString("base64");
 
-  const sizeKB = Math.round((typeof imageData === "string" ? imageData.length * 0.75 : imageData.byteLength) / 1024);
+  const sizeKB = Math.round(
+    (typeof imageData === "string"
+      ? imageData.length * 0.75
+      : imageData.byteLength) / 1024
+  );
   log(`Analyzing image (${sizeKB} KB) with vision model`, isVerbose);
 
   const { text } = await generateText({
@@ -171,11 +190,17 @@ export async function describeImage(
     temperature: 0,
   });
 
-  log(`Image analysis complete (${text.length.toLocaleString()} chars output)`, isVerbose);
+  log(
+    `Image analysis complete (${text.length.toLocaleString()} chars output)`,
+    isVerbose
+  );
   return text;
 }
 
-export async function transcribeAudio(audioData: Buffer, isVerbose?: boolean): Promise<{
+export async function transcribeAudio(
+  audioData: Buffer,
+  isVerbose?: boolean
+): Promise<{
   text: string;
   segments?: Array<{ start: number; text: string }>;
 }> {
@@ -187,7 +212,10 @@ export async function transcribeAudio(audioData: Buffer, isVerbose?: boolean): P
     audio: audioData,
   });
 
-  log(`Transcription complete (${result.text.length.toLocaleString()} chars, ${result.segments?.length ?? 0} segments)`, isVerbose);
+  log(
+    `Transcription complete (${result.text.length.toLocaleString()} chars, ${result.segments?.length ?? 0} segments)`,
+    isVerbose
+  );
 
   return {
     text: result.text,

@@ -33,7 +33,7 @@ export async function convertGdoc(
   verbose(`Document ID: ${docId}`, options.verbose);
 
   const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=markdown`;
-  verbose(`Fetching markdown export...`, options.verbose);
+  verbose("Fetching markdown export...", options.verbose);
 
   const response = await fetch(exportUrl);
   if (!response.ok) {
@@ -49,13 +49,20 @@ export async function convertGdoc(
 
   const rawMarkdown = await response.text();
   const title = extractTitle(rawMarkdown);
-  verbose(`Exported "${title}" (${rawMarkdown.length.toLocaleString()} chars)`, options.verbose);
+  verbose(
+    `Exported "${title}" (${rawMarkdown.length.toLocaleString()} chars)`,
+    options.verbose
+  );
 
-  const markdown = await formatAsMarkdown(rawMarkdown, {
-    title,
-    source: url,
-    type: "Google Docs document",
-  }, options.verbose);
+  const markdown = await formatAsMarkdown(
+    rawMarkdown,
+    {
+      title,
+      source: url,
+      type: "Google Docs document",
+    },
+    options.verbose
+  );
 
   const withFrontmatter = addFrontmatter(markdown, {
     title,
@@ -65,7 +72,10 @@ export async function convertGdoc(
     docId,
   });
 
-  verbose(`Final output: ${withFrontmatter.length.toLocaleString()} chars`, options.verbose);
+  verbose(
+    `Final output: ${withFrontmatter.length.toLocaleString()} chars`,
+    options.verbose
+  );
 
   return {
     title,
