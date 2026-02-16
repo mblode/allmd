@@ -50,7 +50,7 @@ export async function convertPdf(
       parsed.text;
   }
 
-  if (parsed.info?.Title) {
+  if (parsed.info?.Title && typeof parsed.info.Title === "string") {
     title = parsed.info.Title;
   }
 
