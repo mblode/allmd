@@ -1,0 +1,121 @@
+import {
+  type TranscriptItem,
+  YoutubeTranscript,
+} from "youtube-transcript-scraper";
+import { formatAsMarkdown } from "../ai/client.js";
+import type { ConversionOptions, ConversionResult } from "../types.js";
+import { addFrontmatter } from "../utils/frontmatter.js";
+
+interface VideoMetadata {
+  title: string;
+  author: string;
+}
+
+async function fetchVideoMetadata(videoId: string): Promise<VideoMetadata> {
+  const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch video metadata (HTTP ${response.status})`);
+  }
+
+  const data = (await response.json()) as {
+    title?: string;
+    author_name?: string;
+  };
+
+  return {
+    title: data.title ?? "Untitled Video",
+    author: data.author_name ?? "",
+  };
+}
+
+export function extractVideoId(url: string): string {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) {
+      return match[1];
+    }
+  }
+
+  throw new Error(`Could not extract video ID from URL: ${url}`);
+}
+
+function formatTranscript(segments: TranscriptItem[]): string {
+  return segments.map((s) => s.text).join(" ");
+}
+
+function formatTranscriptWithTimestamps(segments: TranscriptItem[]): string {
+  return segments
+    .map((s) => {
+      const seconds = Math.floor(s.start);
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `[${minutes}:${secs.toString().padStart(2, "0")}] ${s.text}`;
+    })
+    .join("\n");
+}
+
+export async function convertYoutube(
+  url: string,
+  options: ConversionOptions
+): Promise<ConversionResult> {
+  const videoId = extractVideoId(url);
+
+  const [metadata, segments] = await Promise.all([
+    fetchVideoMetadata(videoId).catch(
+      (): VideoMetadata => ({
+        title: "Untitled Video",
+        author: "",
+      })
+    ),
+    YoutubeTranscript.fetchTranscript(videoId, {
+      lang: ["en", "en-US", "en-GB"],
+    }),
+  ]);
+
+  if (!segments || segments.length === 0) {
+    throw new Error("No captions available for this video");
+  }
+
+  const rawTranscript = formatTranscript(segments);
+
+  let markdown: string;
+  if (options.ai) {
+    markdown = await formatAsMarkdown(rawTranscript, {
+      title: metadata.title,
+      source: url,
+      type: "YouTube video transcript",
+    });
+  } else {
+    markdown =
+      `# ${metadata.title}\n\n` + formatTranscriptWithTimestamps(segments);
+  }
+
+  const withFrontmatter = addFrontmatter(markdown, {
+    title: metadata.title,
+    source: url,
+    date: new Date().toISOString(),
+    type: "youtube",
+    videoId,
+    author: metadata.author,
+  });
+
+  return {
+    title: metadata.title,
+    markdown: withFrontmatter,
+    rawContent: rawTranscript,
+    metadata: {
+      videoId,
+      author: metadata.author,
+      captionCount: segments.length,
+    },
+  };
+}
