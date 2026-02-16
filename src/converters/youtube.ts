@@ -5,6 +5,7 @@ import {
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { addFrontmatter } from "../utils/frontmatter.js";
+import { verbose } from "../utils/ui.js";
 
 interface VideoMetadata {
   title: string;
@@ -54,10 +55,12 @@ function formatTranscript(segments: TranscriptItem[]): string {
 
 export async function convertYoutube(
   url: string,
-  _options: ConversionOptions
+  options: ConversionOptions
 ): Promise<ConversionResult> {
   const videoId = extractVideoId(url);
+  verbose(`Video ID: ${videoId}`, options.verbose);
 
+  verbose("Fetching metadata and transcript...", options.verbose);
   const [metadata, segments] = await Promise.all([
     fetchVideoMetadata(videoId).catch(
       (): VideoMetadata => ({
@@ -74,13 +77,16 @@ export async function convertYoutube(
     throw new Error("No captions available for this video");
   }
 
+  verbose(`Fetched ${segments.length} caption segments for "${metadata.title}"`, options.verbose);
+
   const rawTranscript = formatTranscript(segments);
+  verbose(`Raw transcript: ${rawTranscript.length.toLocaleString()} chars`, options.verbose);
 
   const markdown = await formatAsMarkdown(rawTranscript, {
     title: metadata.title,
     source: url,
     type: "YouTube video transcript",
-  });
+  }, options.verbose);
 
   const withFrontmatter = addFrontmatter(markdown, {
     title: metadata.title,
@@ -90,6 +96,8 @@ export async function convertYoutube(
     videoId,
     author: metadata.author,
   });
+
+  verbose(`Final output: ${withFrontmatter.length.toLocaleString()} chars`, options.verbose);
 
   return {
     title: metadata.title,

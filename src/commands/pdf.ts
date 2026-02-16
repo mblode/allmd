@@ -26,6 +26,7 @@ export function registerPdfCommand(program: Command): void {
         spinner.start();
         const result = await convertPdf(file, {
           output: opts.output,
+          verbose: opts.verbose,
         });
         spinner.stop();
 

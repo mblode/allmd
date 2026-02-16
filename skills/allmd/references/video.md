@@ -58,10 +58,10 @@ Temporary audio files are always deleted, even if transcription fails (uses `fin
 ## CLI Usage
 
 ```bash
-md video <file>
-md video recording.mp4 -o transcript.md
-md video podcast.mp3 --no-ai
-md video interview.wav -o raw-transcript.md
+allmd video <file>
+allmd video recording.mp4 -o transcript.md
+allmd video podcast.mp3 --no-ai
+allmd video interview.wav -o raw-transcript.md
 ```
 
 ## Best Practices

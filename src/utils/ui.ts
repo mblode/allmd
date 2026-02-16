@@ -20,3 +20,9 @@ export function info(message: string): void {
 export function warn(message: string): void {
   console.log(chalk.yellow("⚠") + " " + message);
 }
+
+export function verbose(message: string, isVerbose?: boolean): void {
+  if (isVerbose) {
+    console.error(chalk.dim("  " + message));
+  }
+}

@@ -28,7 +28,7 @@ If the extracted text is fewer than 100 characters, the PDF is likely scanned or
 
 > This PDF appears to be scanned/image-based. Text extraction may be incomplete.
 
-For scanned PDFs, consider using `md image` on individual page screenshots instead.
+For scanned PDFs, consider using `allmd image` on individual page screenshots instead.
 
 ### Step 4: Apply AI formatting (optional)
 
@@ -44,10 +44,10 @@ For scanned PDFs, consider using `md image` on individual page screenshots inste
 ## CLI Usage
 
 ```bash
-md pdf <file>
-md pdf report.pdf -o report.md
-md pdf paper.pdf --no-ai
-md pdf document.pdf --no-ai -o raw.md
+allmd pdf <file>
+allmd pdf report.pdf -o report.md
+allmd pdf paper.pdf --no-ai
+allmd pdf document.pdf --no-ai -o raw.md
 ```
 
 ## Best Practices
@@ -66,7 +66,7 @@ md pdf document.pdf --no-ai -o raw.md
 
 ## Troubleshooting
 
-- **Empty or garbage output** — the PDF is likely scanned; use `md image` on page screenshots instead
+- **Empty or garbage output** — the PDF is likely scanned; use `allmd image` on page screenshots instead
 - **"File not found"** — verify the file path exists
 - **Jumbled text ordering** — PDFs with multi-column layouts may extract text in unexpected order; AI formatting can help reorder
 - **Missing title** — the PDF metadata may not include a Title field; the filename is used as fallback

@@ -16,6 +16,7 @@ export function registerGdocCommand(program: Command): void {
         spinner.start();
         const result = await convertGdoc(url, {
           output: opts.output,
+          verbose: opts.verbose,
         });
         spinner.stop();
 

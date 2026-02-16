@@ -5,6 +5,7 @@ import { gfm } from "turndown-plugin-gfm";
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { addFrontmatter } from "../utils/frontmatter.js";
+import { verbose } from "../utils/ui.js";
 
 function createTurndown(): TurndownService {
   const td = new TurndownService({
@@ -46,16 +47,20 @@ export async function extractReadableContent(url: string) {
 
 export async function convertWeb(
   url: string,
-  _options: ConversionOptions
+  options: ConversionOptions
 ): Promise<ConversionResult> {
+  verbose(`Fetching ${url}`, options.verbose);
   const article = await extractReadableContent(url);
+  verbose(`Extracted "${article.title}" (${article.content.length.toLocaleString()} chars HTML)`, options.verbose);
+
   const rawMarkdown = htmlToMarkdown(article.content);
+  verbose(`Converted to ${rawMarkdown.length.toLocaleString()} chars raw markdown`, options.verbose);
 
   const markdown = await formatAsMarkdown(rawMarkdown, {
     title: article.title,
     source: url,
     type: "web article",
-  });
+  }, options.verbose);
 
   const withFrontmatter = addFrontmatter(markdown, {
     title: article.title,
@@ -65,6 +70,8 @@ export async function convertWeb(
     excerpt: article.excerpt,
     siteName: article.siteName,
   });
+
+  verbose(`Final output: ${withFrontmatter.length.toLocaleString()} chars`, options.verbose);
 
   return {
     title: article.title,

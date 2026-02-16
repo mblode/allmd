@@ -1,11 +1,10 @@
-import { parseHTML } from "linkedom";
-import TurndownService from "turndown";
-import { gfm } from "turndown-plugin-gfm";
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { addFrontmatter } from "../utils/frontmatter.js";
+import { verbose } from "../utils/ui.js";
 
 const GDOC_ID_RE = /docs\.google\.com\/document\/d\/([a-zA-Z0-9_-]+)/;
+const FIRST_HEADING_RE = /^#\s+(.+)$/m;
 
 export function extractDocId(url: string): string {
   const match = url.match(GDOC_ID_RE);
@@ -16,95 +15,25 @@ export function extractDocId(url: string): string {
 }
 
 /**
- * Clean Google Docs HTML in-place: strip styles, base64 images, and empty spans.
+ * Extract the document title from the first markdown heading.
  */
-function preprocessGdocHtml(
-  document: ReturnType<typeof parseHTML>["document"]
-): void {
-  // Remove all <style> elements
-  for (const style of document.querySelectorAll("style")) {
-    style.remove();
+function extractTitle(markdown: string): string {
+  const match = markdown.match(FIRST_HEADING_RE);
+  if (match?.[1]?.trim()) {
+    return match[1].trim();
   }
-
-  // Replace base64 data URI images with [image] placeholder
-  for (const img of document.querySelectorAll("img")) {
-    const src = img.getAttribute("src") ?? "";
-    if (src.startsWith("data:")) {
-      const placeholder = document.createTextNode("[image]");
-      img.parentNode?.replaceChild(placeholder, img);
-    }
-  }
-
-  // Strip style attributes from all elements
-  for (const el of document.querySelectorAll("[style]")) {
-    el.removeAttribute("style");
-  }
-
-  // Unwrap spans with no remaining attributes
-  for (const span of document.querySelectorAll("span")) {
-    if (span.attributes.length === 0) {
-      span.replaceWith(...span.childNodes);
-    }
-  }
-}
-
-/**
- * Extract the document title with multiple fallback strategies.
- */
-function extractTitle(
-  document: ReturnType<typeof parseHTML>["document"]
-): string {
-  const titleEl = document.querySelector("title");
-  if (titleEl?.textContent?.trim()) {
-    return titleEl.textContent.trim();
-  }
-
-  const h1 = document.querySelector("h1");
-  if (h1?.textContent?.trim()) {
-    return h1.textContent.trim();
-  }
-
-  const firstP = document.querySelector("p");
-  if (firstP) {
-    const bold = firstP.querySelector("b, strong");
-    if (bold?.textContent?.trim() && firstP.children.length <= 2) {
-      return bold.textContent.trim();
-    }
-  }
-
   return "Untitled Google Doc";
-}
-
-/**
- * Google Docs-specific HTML-to-markdown conversion with data URI image handling.
- */
-function gdocHtmlToMarkdown(html: string): string {
-  const td = new TurndownService({
-    headingStyle: "atx",
-    codeBlockStyle: "fenced",
-    bulletListMarker: "-",
-  });
-  td.use(gfm);
-
-  // Belt-and-suspenders: catch any remaining data URI images
-  td.addRule("dataUriImages", {
-    filter: (node) =>
-      node.nodeName === "IMG" &&
-      (node.getAttribute("src") ?? "").startsWith("data:"),
-    replacement: () => "[image]",
-  });
-
-  td.remove(["script", "noscript"]);
-
-  return td.turndown(html);
 }
 
 export async function convertGdoc(
   url: string,
-  _options: ConversionOptions
+  options: ConversionOptions
 ): Promise<ConversionResult> {
   const docId = extractDocId(url);
-  const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=html`;
+  verbose(`Document ID: ${docId}`, options.verbose);
+
+  const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=markdown`;
+  verbose(`Fetching markdown export...`, options.verbose);
 
   const response = await fetch(exportUrl);
   if (!response.ok) {
@@ -118,24 +47,15 @@ export async function convertGdoc(
     );
   }
 
-  const html = await response.text();
+  const rawMarkdown = await response.text();
+  const title = extractTitle(rawMarkdown);
+  verbose(`Exported "${title}" (${rawMarkdown.length.toLocaleString()} chars)`, options.verbose);
 
-  // Parse and preprocess (strip styles, base64 images, empty spans)
-  const { document } = parseHTML(html);
-  preprocessGdocHtml(document);
-  const title = extractTitle(document);
-
-  // Convert body content directly (skip Readability — Google's export IS the content)
-  const body = document.querySelector("body");
-  const bodyHtml = body ? body.innerHTML : html;
-  let markdown = gdocHtmlToMarkdown(bodyHtml);
-
-  // AI formatting
-  markdown = await formatAsMarkdown(markdown, {
+  const markdown = await formatAsMarkdown(rawMarkdown, {
     title,
     source: url,
     type: "Google Docs document",
-  });
+  }, options.verbose);
 
   const withFrontmatter = addFrontmatter(markdown, {
     title,
@@ -145,10 +65,12 @@ export async function convertGdoc(
     docId,
   });
 
+  verbose(`Final output: ${withFrontmatter.length.toLocaleString()} chars`, options.verbose);
+
   return {
     title,
     markdown: withFrontmatter,
-    rawContent: html,
+    rawContent: rawMarkdown,
     metadata: { docId },
   };
 }

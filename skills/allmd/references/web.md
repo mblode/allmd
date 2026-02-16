@@ -48,10 +48,10 @@ Frontmatter fields: `title`, `source`, `date`, `type` ("web"), `excerpt`, `siteN
 ## CLI Usage
 
 ```bash
-md web <url>
-md web <url> -o article.md
-md web <url> --no-ai
-md web <url> --no-ai -o raw-article.md
+allmd web <url>
+allmd web <url> -o article.md
+allmd web <url> --no-ai
+allmd web <url> --no-ai -o raw-article.md
 ```
 
 ## Best Practices

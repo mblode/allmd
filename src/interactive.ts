@@ -39,7 +39,7 @@ function cancelled(): never {
 }
 
 export async function runInteractive(): Promise<void> {
-  p.intro(chalk.cyan("md-tools"));
+  p.intro(chalk.cyan("allmd"));
 
   const type = await p.select({
     message: "What would you like to convert?",

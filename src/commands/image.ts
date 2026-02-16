@@ -26,6 +26,7 @@ export function registerImageCommand(program: Command): void {
         spinner.start();
         const result = await convertImage(file, {
           output: opts.output,
+          verbose: opts.verbose,
         });
         spinner.stop();
 

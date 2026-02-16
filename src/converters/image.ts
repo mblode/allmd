@@ -3,6 +3,7 @@ import { basename, extname } from "node:path";
 import { describeImage } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { addFrontmatter } from "../utils/frontmatter.js";
+import { verbose } from "../utils/ui.js";
 
 const SUPPORTED = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
 
@@ -20,7 +21,7 @@ function getMimeType(filePath: string): string {
 
 export async function convertImage(
   filePath: string,
-  _options: ConversionOptions
+  options: ConversionOptions
 ): Promise<ConversionResult> {
   const ext = extname(filePath).toLowerCase();
   if (!SUPPORTED.has(ext)) {
@@ -29,10 +30,12 @@ export async function convertImage(
     );
   }
 
+  verbose(`Reading image: ${filePath} (${getMimeType(filePath)})`, options.verbose);
   const imageBuffer = await readFile(filePath);
   const filename = basename(filePath);
+  verbose(`Image size: ${Math.round(imageBuffer.byteLength / 1024)} KB`, options.verbose);
 
-  const markdown = await describeImage(imageBuffer);
+  const markdown = await describeImage(imageBuffer, undefined, options.verbose);
 
   const withFrontmatter = addFrontmatter(markdown, {
     title: filename,
@@ -42,6 +45,8 @@ export async function convertImage(
     mimeType: getMimeType(filePath),
     fileSize: imageBuffer.byteLength,
   });
+
+  verbose(`Final output: ${withFrontmatter.length.toLocaleString()} chars`, options.verbose);
 
   return {
     title: filename,

@@ -1,12 +1,12 @@
 {
-  "name": "md-tools",
+  "name": "allmd",
   "version": "1.0.0",
   "description": "CLI tool to convert various content types to markdown",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "md": "./dist/cli.js"
+    "allmd": "./dist/cli.js"
   },
   "exports": {
     ".": {
@@ -45,11 +45,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mblode/md-tools.git"
+    "url": "git+https://github.com/mblode/allmd.git"
   },
-  "homepage": "https://github.com/mblode/md-tools#readme",
+  "homepage": "https://github.com/mblode/allmd#readme",
   "bugs": {
-    "url": "https://github.com/mblode/md-tools/issues"
+    "url": "https://github.com/mblode/allmd/issues"
   },
   "engines": {
     "node": ">=20"

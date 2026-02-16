@@ -16,6 +16,7 @@ export function registerWebCommand(program: Command): void {
         spinner.start();
         const result = await convertWeb(url, {
           output: opts.output,
+          verbose: opts.verbose,
         });
         spinner.stop();
 

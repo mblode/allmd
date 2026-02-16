@@ -52,10 +52,10 @@ Frontmatter fields: `title`, `source`, `date`, `type` ("youtube"), `videoId`, `a
 ## CLI Usage
 
 ```bash
-md youtube <url>
-md yt <url>                    # alias
-md youtube <url> -o transcript.md
-md youtube <url> --no-ai       # timestamped raw output
+allmd youtube <url>
+allmd yt <url>                    # alias
+allmd youtube <url> -o transcript.md
+allmd youtube <url> --no-ai       # timestamped raw output
 ```
 
 ## Best Practices

@@ -1,4 +1,4 @@
-# md-tools
+# allmd
 
 CLI tool that converts web pages, Google Docs, PDFs, images, video/audio, and YouTube videos into markdown.
 
@@ -30,7 +30,7 @@ src/
   ai/client.ts        # OpenAI client: formatAsMarkdown, describeImage, transcribeAudio
   utils/              # output, frontmatter, slug, path, ui helpers
   vendor.d.ts         # Type declarations for untyped deps (pdf-parse, ffmpeg-extract-audio, turndown-plugin-gfm)
-skills/md/            # Claude Code skill definition (SKILL.md + references/)
+skills/allmd/     # Claude Code skill definition (SKILL.md + references/)
 ```
 
 Every converter follows: validate → extract → AI format → add frontmatter → output.
@@ -40,10 +40,10 @@ Every converter follows: validate → extract → AI format → add frontmatter 
 1. Create `src/converters/<name>.ts` exporting `convert<Name>(input, options): Promise<ConversionResult>`
 2. Create `src/commands/<name>.ts` exporting `register<Name>Command(program)` — wire converter + spinner + writeOutput
 3. Register in `src/cli.ts`
-4. Add skill reference in `skills/md/references/<name>.md` and update `skills/md/SKILL.md` dispatch table
+4. Add skill reference in `skills/allmd/references/<name>.md` and update `skills/allmd/SKILL.md` dispatch table
 
 ## Gotchas
 
 - **`vendor.d.ts`**: `pdf-parse`, `ffmpeg-extract-audio`, and `turndown-plugin-gfm` have no published types. Hand-written declarations live in `src/vendor.d.ts`. Update these if you upgrade those packages.
 - **AI is always on**: All converters always use AI formatting. There is no `--no-ai` flag. Tests that exercise converters will make API calls unless mocked.
-- **Skill structure changed**: The old per-converter skill directories (`skills/md-web/`, `skills/md-pdf/`, etc.) were consolidated into a single `skills/md/` directory. Don't recreate the old structure.
+- **Skill structure changed**: The old per-converter skill directories were consolidated into a single `skills/allmd/` directory. Don't recreate per-converter skill directories.

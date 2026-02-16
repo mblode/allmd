@@ -1,5 +1,5 @@
 ---
-name: md
+name: allmd
 description: Converts content to clean markdown. Supports web pages, Google Docs, PDFs, images, videos, audio files, and YouTube videos. Use when the user wants to convert a URL to markdown, extract text from a PDF or image, transcribe a video or audio file, save a web article, export a Google Doc, or get a YouTube transcript.
 ---
 
@@ -23,13 +23,13 @@ A CLI tool that converts web pages, Google Docs, PDFs, images, video/audio files
 
 | Input | Command | Reference |
 |-------|---------|-----------|
-| Web URL (http/https) | `md web <url>` | `references/web.md` |
-| Google Docs URL (`docs.google.com/document/d/...`) | `md gdoc <url>` | `references/gdoc.md` |
-| YouTube URL (`youtube.com`, `youtu.be`) | `md youtube <url>` or `md yt <url>` | `references/youtube.md` |
-| PDF file (`.pdf`) | `md pdf <file>` | `references/pdf.md` |
-| Image file (`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`) | `md image <file>` | `references/image.md` |
-| Video file (`.mp4`, `.mkv`, `.avi`, `.mov`, `.webm`, `.flv`, `.wmv`, `.m4v`) | `md video <file>` | `references/video.md` |
-| Audio file (`.mp3`, `.wav`, `.m4a`, `.ogg`, `.flac`, `.aac`, `.wma`) | `md video <file>` | `references/video.md` |
+| Web URL (http/https) | `allmd web <url>` | `references/web.md` |
+| Google Docs URL (`docs.google.com/document/d/...`) | `allmd gdoc <url>` | `references/gdoc.md` |
+| YouTube URL (`youtube.com`, `youtu.be`) | `allmd youtube <url>` or `allmd yt <url>` | `references/youtube.md` |
+| PDF file (`.pdf`) | `allmd pdf <file>` | `references/pdf.md` |
+| Image file (`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`) | `allmd image <file>` | `references/image.md` |
+| Video file (`.mp4`, `.mkv`, `.avi`, `.mov`, `.webm`, `.flv`, `.wmv`, `.m4v`) | `allmd video <file>` | `references/video.md` |
+| Audio file (`.mp3`, `.wav`, `.m4a`, `.ogg`, `.flac`, `.aac`, `.wma`) | `allmd video <file>` | `references/video.md` |
 
 ## Shared Workflow
 
@@ -47,9 +47,9 @@ All commands accept `-o <file>` and `--no-ai` flags.
 
 | Command | Example |
 |---------|---------|
-| `md web <url>` | `md web https://example.com/article` |
-| `md gdoc <url>` | `md gdoc "https://docs.google.com/document/d/abc123/edit"` |
-| `md youtube <url>` | `md yt https://youtu.be/dQw4w9WgXcQ` |
-| `md pdf <file>` | `md pdf report.pdf -o report.md` |
-| `md image <file>` | `md image screenshot.png` |
-| `md video <file>` | `md video recording.mp4 --no-ai` |
+| `allmd web <url>` | `allmd web https://example.com/article` |
+| `allmd gdoc <url>` | `allmd gdoc "https://docs.google.com/document/d/abc123/edit"` |
+| `allmd youtube <url>` | `allmd yt https://youtu.be/dQw4w9WgXcQ` |
+| `allmd pdf <file>` | `allmd pdf report.pdf -o report.md` |
+| `allmd image <file>` | `allmd image screenshot.png` |
+| `allmd video <file>` | `allmd video recording.mp4 --no-ai` |

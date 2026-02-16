@@ -18,7 +18,7 @@ interface ConversionResult {
 
 ## CLI Global Flags
 
-All `md` commands accept:
+All `allmd` commands accept:
 
 | Flag | Effect |
 |------|--------|

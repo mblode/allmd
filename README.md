@@ -1,4 +1,4 @@
-# md-tools
+# allmd
 
 CLI tool that converts web pages, YouTube videos, PDFs, Google Docs, video/audio files, and images into markdown.
 
@@ -7,7 +7,7 @@ CLI tool that converts web pages, YouTube videos, PDFs, Google Docs, video/audio
 - **6 Converters** - Web pages, YouTube transcripts, PDFs, Google Docs, video/audio, and images
 - **AI-Powered Formatting** - Cleans and structures output using OpenAI (GPT-5-mini)
 - **Full Content Preservation** - Retains all source content without summarizing or condensing
-- **Interactive Mode** - Run `md` with no arguments to be guided through conversion
+- **Interactive Mode** - Run `allmd` with no arguments to be guided through conversion
 - **Programmatic API** - Import converters directly in TypeScript/JavaScript
 - **AI Agent Skill** - Works with Claude Code, Codex, Cursor, and other AI coding assistants
 
@@ -22,13 +22,13 @@ CLI tool that converts web pages, YouTube videos, PDFs, Google Docs, video/audio
 ### 1. Install
 
 ```bash
-npm install -g md-tools
+npm install -g allmd
 ```
 
 Or use directly with npx:
 
 ```bash
-npx md-tools web https://example.com
+npx allmd web https://example.com
 ```
 
 ### 2. Set your API key
@@ -47,10 +47,10 @@ OPENAI_API_KEY=your-key
 
 ### Interactive mode
 
-Run `md` with no arguments:
+Run `allmd` with no arguments:
 
 ```bash
-md
+allmd
 ```
 
 You'll be prompted to select a conversion type and provide input.
@@ -60,28 +60,28 @@ You'll be prompted to select a conversion type and provide input.
 #### Web
 
 ```bash
-md web <url>
-md web https://example.com -o output.md
+allmd web <url>
+allmd web https://example.com -o output.md
 ```
 
 #### YouTube
 
 ```bash
-md youtube <url>
-md yt https://youtube.com/watch?v=... -o output.md
+allmd youtube <url>
+allmd yt https://youtube.com/watch?v=... -o output.md
 ```
 
 #### PDF
 
 ```bash
-md pdf <file>
-md pdf document.pdf -o output.md
+allmd pdf <file>
+allmd pdf document.pdf -o output.md
 ```
 
 #### Google Docs
 
 ```bash
-md gdoc <url>
+allmd gdoc <url>
 ```
 
 The document must be publicly shared.
@@ -89,8 +89,8 @@ The document must be publicly shared.
 #### Video / Audio
 
 ```bash
-md video <file>
-md video recording.mp4 -o output.md
+allmd video <file>
+allmd video recording.mp4 -o output.md
 ```
 
 Requires ffmpeg (bundled automatically).
@@ -98,8 +98,8 @@ Requires ffmpeg (bundled automatically).
 #### Image
 
 ```bash
-md image <file>
-md image screenshot.png -o output.md
+allmd image <file>
+allmd image screenshot.png -o output.md
 ```
 
 ### Options
@@ -114,19 +114,19 @@ md image screenshot.png -o output.md
 
 ```bash
 # Convert a web page
-md web https://example.com
+allmd web https://example.com
 
 # Convert a PDF with custom output path
-md pdf whitepaper.pdf -o whitepaper.md
+allmd pdf whitepaper.pdf -o whitepaper.md
 
 # Describe an image
-md image diagram.png -o diagram.md
+allmd image diagram.png -o diagram.md
 ```
 
 ## Programmatic API
 
 ```typescript
-import { convertWeb, convertPdf, convertYoutube } from "md-tools";
+import { convertWeb, convertPdf, convertYoutube } from "allmd";
 
 const result = await convertWeb("https://example.com", { ai: true });
 console.log(result.markdown);
@@ -157,7 +157,7 @@ console.log(result.markdown);
 ### Just ask the agent
 
 ```
-Use md-tools to convert this PDF to markdown. Run md --help to see available commands.
+Use allmd to convert this PDF to markdown. Run allmd --help to see available commands.
 ```
 
 ### AI Coding Assistants
@@ -165,7 +165,7 @@ Use md-tools to convert this PDF to markdown. Run md --help to see available com
 Add the skill to your AI coding assistant:
 
 ```bash
-npx skills add mblode/md-tools
+npx skills add mblode/allmd
 ```
 
 This works with Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Goose, OpenCode, and Windsurf.
@@ -177,22 +177,22 @@ For more consistent results, add to your project or global instructions file:
 ```markdown
 ## Markdown Conversion
 
-Use `md-tools` to convert content to markdown. Run `md --help` for all commands.
+Use `allmd` to convert content to markdown. Run `allmd --help` for all commands.
 
 Core commands:
-- `md web <url>` - Convert web page
-- `md pdf <file>` - Convert PDF
-- `md youtube <url>` - Convert YouTube transcript
-- `md gdoc <url>` - Convert Google Doc
-- `md video <file>` - Transcribe video/audio
-- `md image <file>` - Describe image
+- `allmd web <url>` - Convert web page
+- `allmd pdf <file>` - Convert PDF
+- `allmd youtube <url>` - Convert YouTube transcript
+- `allmd gdoc <url>` - Convert Google Doc
+- `allmd video <file>` - Transcribe video/audio
+- `allmd image <file>` - Describe image
 ```
 
 ## Contributing
 
 ```bash
-git clone https://github.com/mblode/md-tools.git
-cd md-tools
+git clone https://github.com/mblode/allmd.git
+cd allmd
 npm install
 npm run build
 npm run test

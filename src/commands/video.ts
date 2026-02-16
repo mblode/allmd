@@ -27,6 +27,7 @@ export function registerVideoCommand(program: Command): void {
         spinner.text = "Extracting audio...";
         const result = await convertVideo(file, {
           output: opts.output,
+          verbose: opts.verbose,
         });
         spinner.stop();
 

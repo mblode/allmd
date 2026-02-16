@@ -7,4 +7,5 @@ export interface ConversionResult {
 
 export interface ConversionOptions {
   output?: string;
+  verbose?: boolean;
 }

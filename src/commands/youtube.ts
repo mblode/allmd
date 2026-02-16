@@ -17,6 +17,7 @@ export function registerYoutubeCommand(program: Command): void {
         spinner.start();
         const result = await convertYoutube(url, {
           output: opts.output,
+          verbose: opts.verbose,
         });
         spinner.stop();
 

@@ -11,11 +11,12 @@ import { runInteractive } from "./interactive.js";
 const program = new Command();
 
 program
-  .name("md")
+  .name("allmd")
   .description("Convert various content types to markdown")
   .version("1.0.0");
 
 program.option("-o, --output <file>", "Write output to file instead of stdout");
+program.option("-v, --verbose", "Enable verbose output");
 
 registerWebCommand(program);
 registerYoutubeCommand(program);

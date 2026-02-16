@@ -1,5 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, experimental_transcribe as transcribe } from "ai";
+import { verbose as log } from "../utils/ui.js";
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -78,37 +79,58 @@ function splitIntoChunks(text: string, maxChars: number): string[] {
 async function formatChunk(
   rawText: string,
   context: { title?: string; source?: string; type: string },
-  chunkInfo?: { index: number; total: number }
+  chunkInfo?: { index: number; total: number },
+  isVerbose?: boolean
 ): Promise<string> {
   const chunkLabel = chunkInfo
     ? `\n\n(Part ${chunkInfo.index + 1} of ${chunkInfo.total})`
     : "";
+
+  if (chunkInfo) {
+    log(`Formatting chunk ${chunkInfo.index + 1}/${chunkInfo.total} (${rawText.length.toLocaleString()} chars)`, isVerbose);
+  }
 
   const { text } = await generateText({
     model: MODEL,
     system: SYSTEM_PROMPT,
     prompt: `Convert this ${context.type} content into clean markdown:\n\nTitle: ${context.title ?? "Unknown"}\nSource: ${context.source ?? "Unknown"}${chunkLabel}\n\n---\n\n${rawText}`,
   });
+
+  if (chunkInfo) {
+    log(`Chunk ${chunkInfo.index + 1} done (${text.length.toLocaleString()} chars output)`, isVerbose);
+  }
+
   return text;
 }
 
 export async function formatAsMarkdown(
   rawText: string,
-  context: { title?: string; source?: string; type: string }
+  context: { title?: string; source?: string; type: string },
+  isVerbose?: boolean
 ): Promise<string> {
+  log(`AI formatting ${rawText.length.toLocaleString()} chars of ${context.type} content`, isVerbose);
+
   const chunks = splitIntoChunks(rawText, MAX_INPUT_CHARS);
 
+  if (chunks.length > 1) {
+    log(`Split into ${chunks.length} chunks`, isVerbose);
+  }
+
   if (chunks.length === 1) {
-    return formatChunk(rawText, context);
+    const result = await formatChunk(rawText, context, undefined, isVerbose);
+    log(`AI formatting complete (${result.length.toLocaleString()} chars output)`, isVerbose);
+    return result;
   }
 
   const results = await Promise.all(
     chunks.map((chunk, index) =>
-      formatChunk(chunk, context, { index, total: chunks.length })
+      formatChunk(chunk, context, { index, total: chunks.length }, isVerbose)
     )
   );
 
-  return results.join("\n\n");
+  const combined = results.join("\n\n");
+  log(`AI formatting complete (${combined.length.toLocaleString()} chars output)`, isVerbose);
+  return combined;
 }
 
 const IMAGE_SYSTEM_PROMPT = `You are an OCR tool. Your only job is to extract visible text from images and output it as markdown.
@@ -125,10 +147,14 @@ Rules:
 
 export async function describeImage(
   imageData: string | Buffer,
-  prompt = "Extract all text from this image as clean markdown. Use a markdown table for any structured or columnar data."
+  prompt = "Extract all text from this image as clean markdown. Use a markdown table for any structured or columnar data.",
+  isVerbose?: boolean
 ): Promise<string> {
   const image =
     typeof imageData === "string" ? imageData : imageData.toString("base64");
+
+  const sizeKB = Math.round((typeof imageData === "string" ? imageData.length * 0.75 : imageData.byteLength) / 1024);
+  log(`Analyzing image (${sizeKB} KB) with vision model`, isVerbose);
 
   const { text } = await generateText({
     model: MODEL,
@@ -144,17 +170,25 @@ export async function describeImage(
     ],
     temperature: 0,
   });
+
+  log(`Image analysis complete (${text.length.toLocaleString()} chars output)`, isVerbose);
   return text;
 }
 
-export async function transcribeAudio(audioData: Buffer): Promise<{
+export async function transcribeAudio(audioData: Buffer, isVerbose?: boolean): Promise<{
   text: string;
   segments?: Array<{ start: number; text: string }>;
 }> {
+  const sizeKB = Math.round(audioData.byteLength / 1024);
+  log(`Transcribing audio (${sizeKB} KB) with Whisper`, isVerbose);
+
   const result = await transcribe({
     model: openai.transcription("whisper-1"),
     audio: audioData,
   });
+
+  log(`Transcription complete (${result.text.length.toLocaleString()} chars, ${result.segments?.length ?? 0} segments)`, isVerbose);
+
   return {
     text: result.text,
     segments: result.segments?.map((s) => ({

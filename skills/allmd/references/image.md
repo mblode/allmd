@@ -41,16 +41,16 @@ Frontmatter fields: `title` (filename), `source` (file path), `date`, `type` ("i
 ## CLI Usage
 
 ```bash
-md image <file>
-md image screenshot.png -o notes.md
-md image diagram.jpg
-md image photo.webp -o description.md
+allmd image <file>
+allmd image screenshot.png -o notes.md
+allmd image diagram.jpg
+allmd image photo.webp -o description.md
 ```
 
 ## Best Practices
 
 - Higher resolution images produce better OCR and descriptions
-- For multi-page documents, use the `md pdf` command instead — image only processes a single file
+- For multi-page documents, use the `allmd pdf` command instead — image only processes a single file
 - Screenshots with clear text and minimal noise transcribe most accurately
 - For complex diagrams, the AI will describe the structure rather than recreate it in markdown
 
