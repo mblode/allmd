@@ -1,17 +1,6 @@
----
-name: md-video
-description: Converts video and audio files to markdown via transcription. Use when the user wants to transcribe a video recording, convert a podcast to text, create a transcript from an audio file, or extract speech from media files.
----
-
 # Convert Video/Audio to Markdown
 
 Extracts audio from video files using ffmpeg, transcribes it with OpenAI Whisper via the Vercel AI Gateway, and formats the transcript as markdown.
-
-## Reference Files
-
-| File | Read when |
-|------|-----------|
-| `references/conversion-options.md` | You need details on shared types, CLI flags, AI formatting, or output options |
 
 ## Conversion Workflow
 

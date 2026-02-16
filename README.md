@@ -1,10 +1,25 @@
 # md-tools
 
-CLI tool to convert various content types to markdown.
+CLI tool that converts web pages, YouTube videos, PDFs, Google Docs, video/audio files, and images into markdown.
 
-Supports websites, YouTube videos, PDFs, Google Docs, video/audio files, and images — with optional AI-powered formatting.
+## Features
 
-## Installation
+- **6 Converters** - Web pages, YouTube transcripts, PDFs, Google Docs, video/audio, and images
+- **AI-Powered Formatting** - Cleans and structures output using OpenAI (GPT-5-mini)
+- **Full Content Preservation** - Retains all source content without summarizing or condensing
+- **Interactive Mode** - Run `md` with no arguments to be guided through conversion
+- **Programmatic API** - Import converters directly in TypeScript/JavaScript
+- **AI Agent Skill** - Works with Claude Code, Codex, Cursor, and other AI coding assistants
+
+## Requirements
+
+- **Node.js** 20+
+- **OPENAI_API_KEY** environment variable (for AI features)
+- **ffmpeg** for video/audio transcription (bundled via `ffmpeg-static`)
+
+## Setup
+
+### 1. Install
 
 ```bash
 npm install -g md-tools
@@ -16,39 +31,33 @@ Or use directly with npx:
 npx md-tools web https://example.com
 ```
 
-## Setup
-
-### AI Features
-
-AI formatting requires an API key for the [Vercel AI Gateway](https://ai-gateway.vercel.sh):
+### 2. Set your API key
 
 ```bash
-export AI_GATEWAY_API_KEY=your-key
+export OPENAI_API_KEY=your-key
 ```
 
-Optionally override the gateway URL:
+Or create a `.env` file in the project root:
 
-```bash
-export AI_GATEWAY_URL=https://your-gateway.example.com
 ```
-
-Use `--no-ai` to skip AI formatting and get raw conversions.
+OPENAI_API_KEY=your-key
+```
 
 ## Usage
 
-### Interactive Mode
+### Interactive mode
 
-Run `md` with no arguments to enter interactive mode:
+Run `md` with no arguments:
 
 ```bash
 md
 ```
 
+You'll be prompted to select a conversion type and provide input.
+
 ### Commands
 
 #### Web
-
-Convert a website to markdown:
 
 ```bash
 md web <url>
@@ -57,16 +66,12 @@ md web https://example.com -o output.md
 
 #### YouTube
 
-Convert a YouTube video transcript to markdown:
-
 ```bash
 md youtube <url>
 md yt https://youtube.com/watch?v=... -o output.md
 ```
 
 #### PDF
-
-Convert a PDF file to markdown:
 
 ```bash
 md pdf <file>
@@ -75,67 +80,85 @@ md pdf document.pdf -o output.md
 
 #### Google Docs
 
-Convert a Google Doc to markdown:
-
 ```bash
 md gdoc <url>
 ```
 
-#### Video / Audio
+The document must be publicly shared.
 
-Convert a video or audio file to markdown via transcription:
+#### Video / Audio
 
 ```bash
 md video <file>
+md video recording.mp4 -o output.md
 ```
+
+Requires ffmpeg (bundled automatically).
 
 #### Image
 
-Convert an image to markdown via AI description:
-
 ```bash
 md image <file>
+md image screenshot.png -o output.md
 ```
 
-### Global Options
+### Options
 
-| Option | Description |
-|---|---|
-| `-o, --output <file>` | Write output to a file instead of stdout |
-| `--no-ai` | Skip AI formatting (raw conversion only) |
-| `-V, --version` | Show version number |
-| `-h, --help` | Show help |
+```
+-o, --output <file>   Write output to a file instead of auto-generating
+-V, --version         Show version number
+-h, --help            Show help
+```
+
+### Examples
+
+```bash
+# Convert a web page
+md web https://example.com
+
+# Convert a PDF with custom output path
+md pdf whitepaper.pdf -o whitepaper.md
+
+# Describe an image
+md image diagram.png -o diagram.md
+```
 
 ## Programmatic API
 
 ```typescript
-import { convertWeb, convertYoutube, convertPdf } from "md-tools";
+import { convertWeb, convertPdf, convertYoutube } from "md-tools";
 
 const result = await convertWeb("https://example.com", { ai: true });
 console.log(result.markdown);
 ```
 
-### Converter Functions
+### Converter functions
 
-- `convertWeb(url, options)` — Convert a website URL
-- `convertYoutube(url, options)` — Convert a YouTube video transcript
-- `convertPdf(file, options)` — Convert a PDF file
-- `convertVideo(file, options)` — Convert a video/audio file
-- `convertImage(file, options)` — Convert an image
-- `convertGdoc(url, options)` — Convert a Google Doc
+- `convertWeb(url, options)` - Convert a website URL
+- `convertYoutube(url, options)` - Convert a YouTube video transcript
+- `convertPdf(file, options)` - Convert a PDF file
+- `convertGdoc(url, options)` - Convert a Google Doc
+- `convertVideo(file, options)` - Convert a video/audio file
+- `convertImage(file, options)` - Convert an image
 
-### Utility Functions
+### Utility functions
 
-- `htmlToMarkdown(html)` — Convert HTML string to markdown
-- `extractReadableContent(html)` — Extract readable content from HTML
-- `extractVideoId(url)` — Extract YouTube video ID from URL
-- `extractDocId(url)` — Extract Google Doc ID from URL
-- `addFrontmatter(markdown, data)` — Add YAML frontmatter to markdown
-- `parseFrontmatter(markdown)` — Parse YAML frontmatter from markdown
-- `generateOutputPath(title)` — Generate an output file path from a title
-- `slugify(text)` — Convert text to a URL-friendly slug
+- `htmlToMarkdown(html)` - Convert HTML string to markdown
+- `extractReadableContent(html)` - Extract readable content from HTML
+- `extractVideoId(url)` - Extract YouTube video ID from URL
+- `extractDocId(url)` - Extract Google Doc ID from URL
+- `addFrontmatter(markdown, data)` - Add YAML frontmatter to markdown
+- `parseFrontmatter(markdown)` - Parse YAML frontmatter from markdown
+- `generateOutputPath(title)` - Generate an output file path from a title
+- `slugify(text)` - Convert text to a URL-friendly slug
 
 ## Usage with AI Agents
+
+### Just ask the agent
+
+```
+Use md-tools to convert this PDF to markdown. Run md --help to see available commands.
+```
 
 ### AI Coding Assistants
 
@@ -147,11 +170,33 @@ npx skills add mblode/md-tools
 
 This works with Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Goose, OpenCode, and Windsurf.
 
-## Requirements
+### AGENTS.md / CLAUDE.md
 
-- Node.js >= 20
-- `AI_GATEWAY_API_KEY` for AI features
-- `ffmpeg` for video/audio transcription
+For more consistent results, add to your project or global instructions file:
+
+```markdown
+## Markdown Conversion
+
+Use `md-tools` to convert content to markdown. Run `md --help` for all commands.
+
+Core commands:
+- `md web <url>` - Convert web page
+- `md pdf <file>` - Convert PDF
+- `md youtube <url>` - Convert YouTube transcript
+- `md gdoc <url>` - Convert Google Doc
+- `md video <file>` - Transcribe video/audio
+- `md image <file>` - Describe image
+```
+
+## Contributing
+
+```bash
+git clone https://github.com/mblode/md-tools.git
+cd md-tools
+npm install
+npm run build
+npm run test
+```
 
 ## License
 

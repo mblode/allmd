@@ -1,17 +1,6 @@
----
-name: md-web
-description: Converts web pages to clean markdown using Mozilla Readability and Turndown. Use when the user wants to save a website as markdown, extract article content from a URL, convert HTML to markdown, or scrape readable content from a web page.
----
-
 # Convert Web Page to Markdown
 
 Fetches a URL, extracts the main article content using Mozilla Readability, and converts it to markdown via Turndown with GitHub Flavored Markdown support.
-
-## Reference Files
-
-| File | Read when |
-|------|-----------|
-| `references/conversion-options.md` | You need details on shared types, CLI flags, AI formatting, or output options |
 
 ## Conversion Workflow
 

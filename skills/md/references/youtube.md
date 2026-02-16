@@ -1,17 +1,6 @@
----
-name: md-youtube
-description: Converts YouTube video transcripts to markdown. Use when the user wants to extract a transcript from a YouTube video, convert a YouTube talk to text, create notes from a video, or get captions as markdown.
----
-
 # Convert YouTube Video to Markdown
 
 Extracts captions from a YouTube video, fetches video metadata via oEmbed, and formats the transcript as clean markdown.
-
-## Reference Files
-
-| File | Read when |
-|------|-----------|
-| `references/conversion-options.md` | You need details on shared types, CLI flags, AI formatting, or output options |
 
 ## Conversion Workflow
 

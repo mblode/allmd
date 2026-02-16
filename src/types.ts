@@ -6,6 +6,5 @@ export interface ConversionResult {
 }
 
 export interface ConversionOptions {
-  ai: boolean;
   output?: string;
 }

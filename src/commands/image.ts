@@ -3,7 +3,7 @@ import type { Command } from "commander";
 import { convertImage } from "../converters/image.js";
 import { writeOutput } from "../utils/output.js";
 import { cleanFilePath } from "../utils/path.js";
-import { createSpinner, error, success, warn } from "../utils/ui.js";
+import { createSpinner, error, success } from "../utils/ui.js";
 
 export function registerImageCommand(program: Command): void {
   program
@@ -22,16 +22,9 @@ export function registerImageCommand(program: Command): void {
         process.exit(1);
       }
 
-      if (opts.ai === false) {
-        warn(
-          "--no-ai has no effect on image conversion (vision AI is required)"
-        );
-      }
-
       try {
         spinner.start();
         const result = await convertImage(file, {
-          ai: true,
           output: opts.output,
         });
         spinner.stop();

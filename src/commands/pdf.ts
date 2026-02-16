@@ -25,7 +25,6 @@ export function registerPdfCommand(program: Command): void {
       try {
         spinner.start();
         const result = await convertPdf(file, {
-          ai: opts.ai !== false,
           output: opts.output,
         });
         spinner.stop();

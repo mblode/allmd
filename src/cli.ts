@@ -15,9 +15,7 @@ program
   .description("Convert various content types to markdown")
   .version("1.0.0");
 
-program
-  .option("-o, --output <file>", "Write output to file instead of stdout")
-  .option("--no-ai", "Skip AI formatting (raw conversion only)");
+program.option("-o, --output <file>", "Write output to file instead of stdout");
 
 registerWebCommand(program);
 registerYoutubeCommand(program);

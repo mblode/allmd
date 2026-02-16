@@ -52,20 +52,9 @@ function formatTranscript(segments: TranscriptItem[]): string {
   return segments.map((s) => s.text).join(" ");
 }
 
-function formatTranscriptWithTimestamps(segments: TranscriptItem[]): string {
-  return segments
-    .map((s) => {
-      const seconds = Math.floor(s.start);
-      const minutes = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `[${minutes}:${secs.toString().padStart(2, "0")}] ${s.text}`;
-    })
-    .join("\n");
-}
-
 export async function convertYoutube(
   url: string,
-  options: ConversionOptions
+  _options: ConversionOptions
 ): Promise<ConversionResult> {
   const videoId = extractVideoId(url);
 
@@ -87,17 +76,11 @@ export async function convertYoutube(
 
   const rawTranscript = formatTranscript(segments);
 
-  let markdown: string;
-  if (options.ai) {
-    markdown = await formatAsMarkdown(rawTranscript, {
-      title: metadata.title,
-      source: url,
-      type: "YouTube video transcript",
-    });
-  } else {
-    markdown =
-      `# ${metadata.title}\n\n` + formatTranscriptWithTimestamps(segments);
-  }
+  const markdown = await formatAsMarkdown(rawTranscript, {
+    title: metadata.title,
+    source: url,
+    type: "YouTube video transcript",
+  });
 
   const withFrontmatter = addFrontmatter(markdown, {
     title: metadata.title,

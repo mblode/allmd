@@ -16,7 +16,6 @@ export function registerYoutubeCommand(program: Command): void {
       try {
         spinner.start();
         const result = await convertYoutube(url, {
-          ai: opts.ai !== false,
           output: opts.output,
         });
         spinner.stop();

@@ -41,7 +41,7 @@ type: web | youtube | video | image | gdoc | pdf
 
 ## AI Formatting
 
-When AI is enabled (the default), raw extracted text is sent to Claude Sonnet via the Vercel AI Gateway. The model:
+When AI is enabled (the default), raw extracted text is sent to OpenAI GPT-4o. The model:
 
 - Restructures text into clean markdown with headings, lists, and code blocks
 - Preserves all factual content without adding information
@@ -51,8 +51,7 @@ When AI is enabled (the default), raw extracted text is sent to Claude Sonnet vi
 
 | Variable | Required | Default |
 |----------|----------|---------|
-| `AI_GATEWAY_API_KEY` | Yes (for AI features) | — |
-| `AI_GATEWAY_URL` | No | `https://ai-gateway.vercel.sh` |
+| `OPENAI_API_KEY` | Yes (for AI features) | — |
 
 ## Output Handling
 

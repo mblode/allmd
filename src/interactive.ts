@@ -66,7 +66,7 @@ export async function runInteractive(): Promise<void> {
     cancelled();
   }
 
-  const options: ConversionOptions = { ai: true };
+  const options: ConversionOptions = {};
 
   const s = p.spinner();
   s.start("Converting...");

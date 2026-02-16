@@ -46,18 +46,16 @@ export async function extractReadableContent(url: string) {
 
 export async function convertWeb(
   url: string,
-  options: ConversionOptions
+  _options: ConversionOptions
 ): Promise<ConversionResult> {
   const article = await extractReadableContent(url);
-  let markdown = htmlToMarkdown(article.content);
+  const rawMarkdown = htmlToMarkdown(article.content);
 
-  if (options.ai) {
-    markdown = await formatAsMarkdown(markdown, {
-      title: article.title,
-      source: url,
-      type: "web article",
-    });
-  }
+  const markdown = await formatAsMarkdown(rawMarkdown, {
+    title: article.title,
+    source: url,
+    type: "web article",
+  });
 
   const withFrontmatter = addFrontmatter(markdown, {
     title: article.title,

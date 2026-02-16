@@ -7,7 +7,7 @@ import { addFrontmatter } from "../utils/frontmatter.js";
 
 export async function convertPdf(
   filePath: string,
-  options: ConversionOptions
+  _options: ConversionOptions
 ): Promise<ConversionResult> {
   const buffer = await readFile(filePath);
   const filename = basename(filePath);
@@ -19,15 +19,11 @@ export async function convertPdf(
   let title = filename;
 
   if (hasText) {
-    if (options.ai) {
-      markdown = await formatAsMarkdown(parsed.text, {
-        title: filename,
-        source: filePath,
-        type: "PDF document",
-      });
-    } else {
-      markdown = `# ${filename}\n\n${parsed.text}`;
-    }
+    markdown = await formatAsMarkdown(parsed.text, {
+      title: filename,
+      source: filePath,
+      type: "PDF document",
+    });
   } else {
     markdown =
       `# ${filename}\n\n` +

@@ -1,17 +1,6 @@
----
-name: md-image
-description: Converts images to markdown using AI vision analysis. Use when the user wants to extract text from an image, describe a photograph or diagram, transcribe a screenshot, or OCR a document image to markdown.
----
-
 # Convert Image to Markdown
 
-Reads an image file and sends it to Claude Vision for analysis. Produces a markdown description that transcribes visible text or describes visual content.
-
-## Reference Files
-
-| File | Read when |
-|------|-----------|
-| `references/conversion-options.md` | You need details on shared types, CLI flags, AI formatting, or output options |
+Reads an image file and sends it to OpenAI GPT-4o for analysis. Produces a markdown description that transcribes visible text or describes visual content.
 
 ## Conversion Workflow
 
@@ -30,11 +19,11 @@ The file must exist and have a supported extension. Unsupported formats throw an
 
 ### Step 2: Read image to buffer
 
-The image file is read as a binary buffer and base64-encoded for the Claude Vision API.
+The image file is read as a binary buffer and base64-encoded for the OpenAI Vision API.
 
 ### Step 3: AI vision analysis
 
-The base64 image is sent to Claude Vision with a prompt that handles multiple image types:
+The base64 image is sent to OpenAI GPT-4o with a prompt that handles multiple image types:
 
 - **Text documents / screenshots**: Transcribes all visible text
 - **Photographs**: Provides a detailed scene description

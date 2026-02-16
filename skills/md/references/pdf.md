@@ -1,17 +1,6 @@
----
-name: md-pdf
-description: Converts PDF documents to markdown. Use when the user wants to extract text from a PDF, convert a PDF report to markdown, process a research paper, or handle scanned documents.
----
-
 # Convert PDF to Markdown
 
 Extracts text from a PDF file using pdf-parse, detects scanned documents, and optionally formats the content with AI.
-
-## Reference Files
-
-| File | Read when |
-|------|-----------|
-| `references/conversion-options.md` | You need details on shared types, CLI flags, AI formatting, or output options |
 
 ## Conversion Workflow
 

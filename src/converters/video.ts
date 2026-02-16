@@ -28,7 +28,7 @@ const AUDIO_EXTS = new Set([
 
 export async function convertVideo(
   filePath: string,
-  options: ConversionOptions
+  _options: ConversionOptions
 ): Promise<ConversionResult> {
   const ext = extname(filePath).toLowerCase();
   const isAudio = AUDIO_EXTS.has(ext);
@@ -58,26 +58,11 @@ export async function convertVideo(
     const rawText = transcription.text;
     const filename = basename(filePath);
 
-    let markdown: string;
-    if (options.ai) {
-      markdown = await formatAsMarkdown(rawText, {
-        title: filename,
-        source: filePath,
-        type: "video/audio transcription",
-      });
-    } else if (transcription.segments) {
-      markdown =
-        `# ${filename}\n\n` +
-        transcription.segments
-          .map((seg) => {
-            const mins = Math.floor(seg.start / 60);
-            const secs = Math.floor(seg.start % 60);
-            return `[${mins}:${secs.toString().padStart(2, "0")}] ${seg.text.trim()}`;
-          })
-          .join("\n");
-    } else {
-      markdown = `# ${filename}\n\n${rawText}`;
-    }
+    const markdown = await formatAsMarkdown(rawText, {
+      title: filename,
+      source: filePath,
+      type: "video/audio transcription",
+    });
 
     const withFrontmatter = addFrontmatter(markdown, {
       title: filename,
