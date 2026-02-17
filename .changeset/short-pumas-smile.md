@@ -1,5 +1,0 @@
----
-"allmd": patch
----
-
-Simplify README
