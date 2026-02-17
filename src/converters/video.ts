@@ -4,28 +4,9 @@ import { basename, extname, join } from "node:path";
 import extractAudio from "ffmpeg-extract-audio";
 import { formatAsMarkdown, transcribeAudio } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
-import { addFrontmatter } from "../utils/frontmatter.js";
+import { AUDIO_EXTS, VIDEO_EXTS } from "../utils/detect.js";
+import { applyFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
-
-const VIDEO_EXTS = new Set([
-  ".mp4",
-  ".mkv",
-  ".avi",
-  ".mov",
-  ".webm",
-  ".flv",
-  ".wmv",
-  ".m4v",
-]);
-const AUDIO_EXTS = new Set([
-  ".mp3",
-  ".wav",
-  ".m4a",
-  ".ogg",
-  ".flac",
-  ".aac",
-  ".wma",
-]);
 
 export async function convertVideo(
   filePath: string,
@@ -85,10 +66,9 @@ export async function convertVideo(
       options.verbose
     );
 
-    const withFrontmatter = addFrontmatter(markdown, {
+    const withFrontmatter = applyFrontmatter(markdown, options, {
       title: filename,
       source: filePath,
-      date: new Date().toISOString(),
       type: "video",
     });
 

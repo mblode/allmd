@@ -4,7 +4,7 @@ import {
 } from "youtube-transcript-scraper";
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
-import { addFrontmatter } from "../utils/frontmatter.js";
+import { applyFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
 
 interface VideoMetadata {
@@ -98,10 +98,9 @@ export async function convertYoutube(
     options.verbose
   );
 
-  const withFrontmatter = addFrontmatter(markdown, {
+  const withFrontmatter = applyFrontmatter(markdown, options, {
     title: metadata.title,
     source: url,
-    date: new Date().toISOString(),
     type: "youtube",
     videoId,
     author: metadata.author,

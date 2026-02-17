@@ -1,6 +1,6 @@
 # allmd
 
-CLI tool that converts web pages, Google Docs, PDFs, images, video/audio, and YouTube videos into markdown.
+CLI tool that converts web pages, YouTube videos, PDFs, Google Docs, video/audio, images, Word docs, EPUBs, CSVs, PowerPoints, tweets, and RSS feeds into markdown.
 
 ## Commands
 
@@ -20,18 +20,9 @@ Requires `OPENAI_API_KEY` in `.env` or environment — used by `src/ai/client.ts
 
 ## Architecture
 
-```
-src/
-  cli.ts              # Commander entry point, registers all subcommands
-  interactive.ts      # Interactive mode (no subcommand)
-  types.ts            # ConversionResult, ConversionOptions
-  commands/           # One file per subcommand (web, youtube, pdf, image, video, gdoc)
-  converters/         # One file per converter, matching commands/ 1:1
-  ai/client.ts        # OpenAI client: formatAsMarkdown, describeImage, transcribeAudio
-  utils/              # output, frontmatter, slug, path, ui helpers
-  vendor.d.ts         # Type declarations for untyped deps (pdf-parse, ffmpeg-extract-audio, turndown-plugin-gfm)
-skills/allmd/     # Claude Code skill definition (SKILL.md + references/)
-```
+Entry point: `src/cli.ts` (Commander). Public API: `src/index.ts`. Each converter has a matching pair in `src/commands/` and `src/converters/`. AI client at `src/ai/client.ts`. Untyped deps declared in `src/vendor.d.ts`. Skill definition in `skills/allmd/`.
+
+Converters (12): web, youtube, pdf, gdoc, video (also handles audio), image, docx, epub, csv, pptx, tweet, rss. Utility commands: examples, completion. Auto-detection in `src/utils/detect.ts`.
 
 Every converter follows: validate → extract → AI format → add frontmatter → output.
 
@@ -39,7 +30,7 @@ Every converter follows: validate → extract → AI format → add frontmatter 
 
 1. Create `src/converters/<name>.ts` exporting `convert<Name>(input, options): Promise<ConversionResult>`
 2. Create `src/commands/<name>.ts` exporting `register<Name>Command(program)` — wire converter + spinner + writeOutput
-3. Register in `src/cli.ts`
+3. Register in `src/cli.ts` and export from `src/index.ts`
 4. Add skill reference in `skills/allmd/references/<name>.md` and update `skills/allmd/SKILL.md` dispatch table
 
 ## Gotchas

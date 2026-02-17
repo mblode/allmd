@@ -187,7 +187,6 @@ export async function describeImage(
         ],
       },
     ],
-    temperature: 0,
   });
 
   log(

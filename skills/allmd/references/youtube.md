@@ -34,16 +34,7 @@ Regex extraction of the 11-character video ID from any of the 4 URL patterns abo
 
 ### Step 4: Format transcript
 
-**With AI** (`--no-ai` not set): Raw transcript text sent to AI for structured prose formatting.
-
-**Without AI** (`--no-ai`): Timestamped format:
-```
-# Video Title
-
-[0:00] First segment text
-[0:15] Second segment text
-[1:02] Third segment text
-```
+Raw transcript text is sent to AI for structured prose formatting with paragraph breaks at topic changes.
 
 ### Step 5: Add frontmatter and output
 
@@ -55,13 +46,11 @@ Frontmatter fields: `title`, `source`, `date`, `type` ("youtube"), `videoId`, `a
 allmd youtube <url>
 allmd yt <url>                    # alias
 allmd youtube <url> -o transcript.md
-allmd youtube <url> --no-ai       # timestamped raw output
 ```
 
 ## Best Practices
 
 - AI formatting works best for talks and lectures — it adds paragraph breaks at topic changes
-- Raw timestamped format is better when you need to reference specific moments
 - The oEmbed metadata provides the video title and channel name without any API key
 
 ## Edge Cases

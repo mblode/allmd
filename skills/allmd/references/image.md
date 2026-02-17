@@ -32,7 +32,7 @@ The base64 image is sent to OpenAI GPT-4o with a prompt that handles multiple im
 
 The output is structured as clean markdown with appropriate headings.
 
-**The `--no-ai` flag has no effect on this command** — vision AI is the only extraction method. The CLI warns the user if `--no-ai` is passed and proceeds with AI anyway.
+Vision AI is the only extraction method for images.
 
 ### Step 4: Add frontmatter and output
 

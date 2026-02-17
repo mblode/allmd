@@ -30,11 +30,10 @@ If the extracted text is fewer than 100 characters, the PDF is likely scanned or
 
 For scanned PDFs, consider using `allmd image` on individual page screenshots instead.
 
-### Step 4: Apply AI formatting (optional)
+### Step 4: Apply AI formatting
 
-- Default: ON for text-based PDFs. Skip with `--no-ai`
 - AI receives the raw extracted text and restructures it into clean markdown
-- Without AI: outputs `# filename` followed by the raw extracted text
+- For scanned PDFs with insufficient text, outputs `# filename` with a warning and raw text
 
 ### Step 5: Add frontmatter and output
 
@@ -46,14 +45,12 @@ For scanned PDFs, consider using `allmd image` on individual page screenshots in
 ```bash
 allmd pdf <file>
 allmd pdf report.pdf -o report.md
-allmd pdf paper.pdf --no-ai
-allmd pdf document.pdf --no-ai -o raw.md
+allmd pdf "docs/*.pdf" -d output/
 ```
 
 ## Best Practices
 
 - AI formatting is most valuable for PDFs with complex layouts — it restructures columns, headers, and footers into linear markdown
-- The `--no-ai` mode is useful for quick extraction when you just need the raw text
 - Check the page count in frontmatter to verify the full document was processed
 
 ## Edge Cases

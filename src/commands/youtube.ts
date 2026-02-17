@@ -1,34 +1,17 @@
 import type { Command } from "commander";
 import { convertYoutube } from "../converters/youtube.js";
-import { writeOutput } from "../utils/output.js";
-import { createSpinner, error, success } from "../utils/ui.js";
+import { createUrlCommand } from "../utils/command.js";
 
 export function registerYoutubeCommand(program: Command): void {
-  program
-    .command("youtube")
-    .alias("yt")
-    .description("Convert a YouTube video transcript to markdown")
-    .argument("<url>", "YouTube video URL")
-    .action(async (url: string) => {
-      const opts = program.opts();
-      const spinner = createSpinner("Fetching transcript...");
-
-      try {
-        spinner.start();
-        const result = await convertYoutube(url, {
-          output: opts.output,
-          verbose: opts.verbose,
-        });
-        spinner.stop();
-
-        await writeOutput(result.markdown, { output: opts.output });
-        if (opts.output) {
-          success(`Saved to ${opts.output}`);
-        }
-      } catch (err) {
-        spinner.stop();
-        error(err instanceof Error ? err.message : String(err));
-        process.exit(1);
-      }
-    });
+  createUrlCommand({
+    name: "youtube",
+    description: "Convert a YouTube video transcript to markdown",
+    argument: "url",
+    converter: convertYoutube,
+    spinnerText: "Fetching transcript...",
+    aliases: ["yt"],
+    helpText: `Examples:
+  allmd youtube https://www.youtube.com/watch?v=dQw4w9WgXcQ
+  allmd yt https://youtu.be/dQw4w9WgXcQ -o transcript.md`,
+  })(program);
 }

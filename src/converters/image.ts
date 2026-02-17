@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { basename, extname } from "node:path";
 import { describeImage } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
-import { addFrontmatter } from "../utils/frontmatter.js";
+import { applyFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
 
 const SUPPORTED = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
@@ -43,10 +43,9 @@ export async function convertImage(
 
   const markdown = await describeImage(imageBuffer, undefined, options.verbose);
 
-  const withFrontmatter = addFrontmatter(markdown, {
+  const withFrontmatter = applyFrontmatter(markdown, options, {
     title: filename,
     source: filePath,
-    date: new Date().toISOString(),
     type: "image",
     mimeType: getMimeType(filePath),
     fileSize: imageBuffer.byteLength,

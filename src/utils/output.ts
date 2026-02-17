@@ -1,15 +1,17 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
+import clipboardy from "clipboardy";
 import { slugify } from "./slug.js";
 
 export interface OutputOptions {
+  copy?: boolean;
   output?: string;
 }
 
-export function generateOutputPath(title: string): string {
+export function generateOutputPath(title: string, outputDir?: string): string {
   const slug = slugify(title);
-  const dir = process.cwd();
+  const dir = outputDir ? resolve(outputDir) : process.cwd();
   const baseName = slug;
 
   const candidate = join(dir, `${baseName}.md`);
@@ -28,11 +30,15 @@ export async function writeOutput(
   content: string,
   options: OutputOptions
 ): Promise<void> {
+  if (options.copy) {
+    await clipboardy.write(content);
+  }
+
   if (options.output) {
     const filePath = resolve(options.output);
     await mkdir(dirname(filePath), { recursive: true });
     await writeFile(filePath, content, "utf-8");
-  } else {
+  } else if (!options.copy) {
     process.stdout.write(content);
   }
 }

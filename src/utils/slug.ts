@@ -1,3 +1,9 @@
+import { basename, extname } from "node:path";
+
+export function titleFromFilename(filename: string): string {
+  return basename(filename, extname(filename));
+}
+
 export function slugify(text: string, maxLength = 80): string {
   let slug = text
     .toLowerCase()

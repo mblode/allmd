@@ -1,6 +1,6 @@
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
-import { addFrontmatter } from "../utils/frontmatter.js";
+import { applyFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
 
 const GDOC_ID_RE = /docs\.google\.com\/document\/d\/([a-zA-Z0-9_-]+)/;
@@ -64,10 +64,9 @@ export async function convertGdoc(
     options.verbose
   );
 
-  const withFrontmatter = addFrontmatter(markdown, {
+  const withFrontmatter = applyFrontmatter(markdown, options, {
     title,
     source: url,
-    date: new Date().toISOString(),
     type: "gdoc",
     docId,
   });

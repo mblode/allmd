@@ -34,9 +34,8 @@ Turndown configuration:
 - Dash bullet list markers (`-`)
 - GFM plugin enabled (tables, strikethrough, task lists)
 
-### Step 4: Apply AI formatting (optional)
+### Step 4: Apply AI formatting
 
-- Default: ON. Skip with `--no-ai`
 - AI receives raw markdown plus context (title, source URL, type="web article")
 - Restructures into clean, well-organized markdown
 - Preserves all factual content; adds nothing
@@ -50,8 +49,7 @@ Frontmatter fields: `title`, `source`, `date`, `type` ("web"), `excerpt`, `siteN
 ```bash
 allmd web <url>
 allmd web <url> -o article.md
-allmd web <url> --no-ai
-allmd web <url> --no-ai -o raw-article.md
+allmd web <url> --no-frontmatter
 ```
 
 ## Best Practices
@@ -73,6 +71,6 @@ allmd web <url> --no-ai -o raw-article.md
 
 ## Troubleshooting
 
-- **"Could not extract readable content"** — the page has no recognizable article body; try a different URL or use `--no-ai` with manual cleanup
+- **"Could not extract readable content"** — the page has no recognizable article body; try a different URL
 - **"Failed to fetch ... 403"** — the server blocks automated requests; some sites require specific User-Agent headers
 - **Empty or very short output** — the page may be JS-rendered; check view-source to confirm content is in the initial HTML

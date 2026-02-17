@@ -1,9 +1,9 @@
 import { readFile } from "node:fs/promises";
-import { basename } from "node:path";
 import pdfParse from "pdf-parse";
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
-import { addFrontmatter } from "../utils/frontmatter.js";
+import { applyFrontmatter } from "../utils/frontmatter.js";
+import { titleFromFilename } from "../utils/slug.js";
 import { verbose } from "../utils/ui.js";
 
 export async function convertPdf(
@@ -12,7 +12,7 @@ export async function convertPdf(
 ): Promise<ConversionResult> {
   verbose(`Reading PDF: ${filePath}`, options.verbose);
   const buffer = await readFile(filePath);
-  const filename = basename(filePath);
+  const filename = titleFromFilename(filePath);
   verbose(
     `PDF size: ${Math.round(buffer.byteLength / 1024)} KB`,
     options.verbose
@@ -54,10 +54,9 @@ export async function convertPdf(
     title = parsed.info.Title;
   }
 
-  const withFrontmatter = addFrontmatter(markdown, {
+  const withFrontmatter = applyFrontmatter(markdown, options, {
     title,
     source: filePath,
-    date: new Date().toISOString(),
     type: "pdf",
     pages: parsed.numpages,
   });

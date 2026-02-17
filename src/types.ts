@@ -6,6 +6,7 @@ export interface ConversionResult {
 }
 
 export interface ConversionOptions {
+  frontmatter?: boolean;
   output?: string;
   verbose?: boolean;
 }

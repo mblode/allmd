@@ -10,15 +10,22 @@ import {
   text,
 } from "@clack/prompts";
 import chalk from "chalk";
+import { convertCsv } from "./converters/csv.js";
+import { convertDocx } from "./converters/docx.js";
+import { convertEpub } from "./converters/epub.js";
 import { convertGdoc } from "./converters/gdoc.js";
 import { convertImage } from "./converters/image.js";
 import { convertPdf } from "./converters/pdf.js";
+import { convertPptx } from "./converters/pptx.js";
+import { convertRss } from "./converters/rss.js";
+import { convertTweet } from "./converters/tweet.js";
 import { convertVideo } from "./converters/video.js";
 import { convertWeb } from "./converters/web.js";
 import { convertYoutube } from "./converters/youtube.js";
 import type { ConversionOptions, ConversionResult } from "./types.js";
 import { generateOutputPath, writeOutput } from "./utils/output.js";
 import { cleanFilePath } from "./utils/path.js";
+import { formatError } from "./utils/ui.js";
 
 const CONVERTERS = {
   youtube: { label: "YouTube video", inputType: "url" as const },
@@ -27,6 +34,12 @@ const CONVERTERS = {
   image: { label: "Image file", inputType: "file" as const },
   gdoc: { label: "Google Doc", inputType: "url" as const },
   pdf: { label: "PDF file", inputType: "file" as const },
+  docx: { label: "Word document", inputType: "file" as const },
+  epub: { label: "EPUB ebook", inputType: "file" as const },
+  csv: { label: "CSV / TSV file", inputType: "file" as const },
+  pptx: { label: "PowerPoint presentation", inputType: "file" as const },
+  tweet: { label: "Tweet / X post", inputType: "url" as const },
+  rss: { label: "RSS / Atom feed", inputType: "url" as const },
 } as const;
 
 type ConverterKey = keyof typeof CONVERTERS;
@@ -41,6 +54,12 @@ const converterFns: Record<
   image: convertImage,
   gdoc: convertGdoc,
   pdf: convertPdf,
+  docx: convertDocx,
+  epub: convertEpub,
+  csv: convertCsv,
+  pptx: convertPptx,
+  tweet: convertTweet,
+  rss: convertRss,
 };
 
 function cancelled(): never {
@@ -92,7 +111,7 @@ export async function runInteractive(): Promise<void> {
     note(`Saved to ${outputPath}`, "Output");
   } catch (err) {
     s.stop("Conversion failed.");
-    log.error(err instanceof Error ? err.message : String(err));
+    log.error(formatError(err));
     process.exit(1);
   }
 

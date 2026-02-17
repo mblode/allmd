@@ -21,8 +21,45 @@ export function warn(message: string): void {
   console.log(`${chalk.yellow("⚠")} ${message}`);
 }
 
+export function hint(message: string): void {
+  console.error(chalk.dim(`  ${message}`));
+}
+
 export function verbose(message: string, isVerbose?: boolean): void {
   if (isVerbose) {
     console.error(chalk.dim(`  ${message}`));
   }
+}
+
+export function formatError(err: unknown): string {
+  const message = err instanceof Error ? err.message : String(err);
+
+  // API key errors
+  if (
+    message.includes("API key") ||
+    message.includes("401") ||
+    message.includes("Incorrect API key")
+  ) {
+    return `${message}\n  Set OPENAI_API_KEY in .env or your environment. See: https://platform.openai.com/api-keys`;
+  }
+
+  // Rate limit
+  if (message.includes("429") || message.includes("rate limit")) {
+    return `${message}\n  You've hit the API rate limit. Wait a moment and try again.`;
+  }
+
+  // Network errors
+  if (message.includes("ENOTFOUND") || message.includes("ECONNREFUSED")) {
+    return `${message}\n  Check your internet connection and try again.`;
+  }
+
+  // ffmpeg missing
+  if (
+    message.includes("ffmpeg") &&
+    (message.includes("ENOENT") || message.includes("not found"))
+  ) {
+    return `${message}\n  Video/audio conversion requires ffmpeg. Install it: brew install ffmpeg (macOS) or apt install ffmpeg (Linux)`;
+  }
+
+  return message;
 }

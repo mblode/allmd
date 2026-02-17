@@ -4,7 +4,7 @@ import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
-import { addFrontmatter } from "../utils/frontmatter.js";
+import { applyFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
 
 function createTurndown(): TurndownService {
@@ -72,10 +72,9 @@ export async function convertWeb(
     options.verbose
   );
 
-  const withFrontmatter = addFrontmatter(markdown, {
+  const withFrontmatter = applyFrontmatter(markdown, options, {
     title: article.title,
     source: url,
-    date: new Date().toISOString(),
     type: "web",
     excerpt: article.excerpt,
     siteName: article.siteName,

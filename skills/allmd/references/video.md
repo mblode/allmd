@@ -34,18 +34,7 @@ Audio files skip the extraction step and go directly to transcription.
 
 ### Step 4: Format transcript
 
-**With AI** (`--no-ai` not set): Raw transcript text sent to AI for structured prose formatting.
-
-**Without AI** (`--no-ai`): Timestamped format using Whisper segments:
-```
-# filename.mp4
-
-[0:00] First segment text
-[0:15] Second segment text
-[1:02] Third segment text
-```
-
-If segments are unavailable, falls back to plain text.
+Raw transcript text is sent to AI for structured prose formatting with paragraph breaks and structure.
 
 ### Step 5: Add frontmatter and output
 
@@ -60,15 +49,14 @@ Temporary audio files are always deleted, even if transcription fails (uses `fin
 ```bash
 allmd video <file>
 allmd video recording.mp4 -o transcript.md
-allmd video podcast.mp3 --no-ai
-allmd video interview.wav -o raw-transcript.md
+allmd video podcast.mp3 -o podcast.md
+allmd video interview.wav -o transcript.md
 ```
 
 ## Best Practices
 
 - Audio files (mp3, wav, etc.) are fully supported — not just video
 - AI formatting works best for talks and interviews — it adds paragraph breaks and structure
-- Raw timestamped output is useful when you need to reference specific moments in the recording
 - For best transcription quality, use source files with clear audio and minimal background noise
 
 ## Edge Cases
