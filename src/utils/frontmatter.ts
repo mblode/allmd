@@ -1,9 +1,9 @@
 import matter from "gray-matter";
 
 export interface FrontmatterData {
-  title: string;
-  source: string;
   date: string;
+  source: string;
+  title: string;
   type: "youtube" | "web" | "video" | "image" | "gdoc" | "pdf";
   [key: string]: unknown;
 }

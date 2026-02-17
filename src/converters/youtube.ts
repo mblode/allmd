@@ -8,8 +8,8 @@ import { addFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
 
 interface VideoMetadata {
-  title: string;
   author: string;
+  title: string;
 }
 
 async function fetchVideoMetadata(videoId: string): Promise<VideoMetadata> {

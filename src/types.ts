@@ -1,8 +1,8 @@
 export interface ConversionResult {
-  title: string;
   markdown: string;
-  rawContent?: string;
   metadata: Record<string, unknown>;
+  rawContent?: string;
+  title: string;
 }
 
 export interface ConversionOptions {

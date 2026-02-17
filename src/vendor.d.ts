@@ -1,11 +1,11 @@
 declare module "pdf-parse" {
   interface PdfParseResult {
-    numpages: number;
-    numrender: number;
     info: Record<string, unknown>;
     metadata: unknown;
-    version: string;
+    numpages: number;
+    numrender: number;
     text: string;
+    version: string;
   }
   function pdfParse(dataBuffer: Buffer): Promise<PdfParseResult>;
   export default pdfParse;
@@ -13,9 +13,9 @@ declare module "pdf-parse" {
 
 declare module "ffmpeg-extract-audio" {
   interface ExtractAudioOptions {
+    format?: string;
     input: string;
     output: string;
-    format?: string;
   }
   function extractAudio(options: ExtractAudioOptions): Promise<void>;
   export default extractAudio;
