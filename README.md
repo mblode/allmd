@@ -4,9 +4,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/allmd"><img src="https://img.shields.io/npm/v/allmd.svg" alt="npm version"></a>
-  <a href="https://www.npmjs.com/package/allmd"><img src="https://img.shields.io/npm/dm/allmd.svg" alt="npm downloads"></a>
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
-  <a href="https://github.com/mblode/allmd"><img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg" alt="Node >= 20"></a>
 </p>
 
 
