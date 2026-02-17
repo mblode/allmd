@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { basename, extname } from "node:path";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, experimental_transcribe as transcribe } from "ai";
 import { verbose as log } from "../utils/ui.js";
@@ -222,5 +224,208 @@ export async function transcribeAudio(
       start: s.startSecond,
       text: s.text,
     })),
+  };
+}
+
+export interface DiarizedSegment {
+  end: number;
+  speaker: string;
+  start: number;
+  text: string;
+}
+
+export interface DiarizedTranscription {
+  segments: DiarizedSegment[];
+  speakers: string[];
+  text: string;
+}
+
+const AUDIO_MIME_TYPES: Record<string, string> = {
+  ".m4a": "audio/mp4",
+  ".mp3": "audio/mpeg",
+  ".mp4": "audio/mp4",
+  ".mpga": "audio/mpeg",
+  ".mpeg": "audio/mpeg",
+  ".wav": "audio/wav",
+  ".webm": "audio/webm",
+};
+
+const MAX_KNOWN_SPEAKERS = 4;
+
+function getAudioUploadMetadata(audioFilename = "audio.mp3"): {
+  filename: string;
+  mimeType: string;
+} {
+  const filename = basename(audioFilename);
+  const ext = extname(filename).toLowerCase();
+  return {
+    filename,
+    mimeType: AUDIO_MIME_TYPES[ext] ?? "application/octet-stream",
+  };
+}
+
+function normalizeSpeakerNames(speakerNames?: string[]): string[] {
+  return (speakerNames ?? []).map((name) => name.trim()).filter(Boolean);
+}
+
+async function toAudioDataUrl(reference: string): Promise<string> {
+  const normalized = reference.trim();
+  if (!normalized) {
+    throw new Error("Speaker reference cannot be empty.");
+  }
+  if (normalized.startsWith("data:")) {
+    return normalized;
+  }
+
+  const { mimeType } = getAudioUploadMetadata(normalized);
+  if (mimeType === "application/octet-stream") {
+    throw new Error(
+      `Unsupported speaker reference format: ${normalized}. Use mp3/mp4/mpeg/mpga/m4a/wav/webm files or a data URL.`
+    );
+  }
+  const bytes = await readFile(normalized);
+  return `data:${mimeType};base64,${bytes.toString("base64")}`;
+}
+
+function applySpeakerNames(
+  segments: DiarizedSegment[],
+  speakerNames: string[] | undefined,
+  isVerbose?: boolean
+): DiarizedSegment[] {
+  const normalizedNames = normalizeSpeakerNames(speakerNames);
+  if (normalizedNames.length === 0 || segments.length === 0) {
+    return segments;
+  }
+
+  const detectedSpeakers = [
+    ...new Set(segments.map((segment) => segment.speaker)),
+  ];
+  const speakerMap = new Map<string, string>();
+
+  for (const [index, speaker] of detectedSpeakers.entries()) {
+    const customName = normalizedNames[index];
+    if (customName) {
+      speakerMap.set(speaker, customName);
+    }
+  }
+
+  if (normalizedNames.length !== detectedSpeakers.length) {
+    log(
+      `Provided ${normalizedNames.length} speaker names, detected ${detectedSpeakers.length} speakers; unmatched entries keep diarized labels`,
+      isVerbose
+    );
+  }
+
+  return segments.map((segment) => ({
+    ...segment,
+    speaker: speakerMap.get(segment.speaker) ?? segment.speaker,
+  }));
+}
+
+export async function transcribeAudioDiarized(
+  audioData: Buffer,
+  speakers?: string[],
+  isVerbose?: boolean,
+  audioFilename = "audio.mp3",
+  speakerReferences?: string[]
+): Promise<DiarizedTranscription> {
+  const sizeKB = Math.round(audioData.byteLength / 1024);
+  log(
+    `Transcribing audio (${sizeKB} KB) with gpt-4o-transcribe-diarize`,
+    isVerbose
+  );
+
+  const OpenAI = (await import("openai")).default;
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  const { filename, mimeType } = getAudioUploadMetadata(audioFilename);
+  const file = new File([audioData], filename, { type: mimeType });
+  const normalizedSpeakerNames = normalizeSpeakerNames(speakers);
+  const normalizedSpeakerReferences = (speakerReferences ?? [])
+    .map((reference) => reference.trim())
+    .filter(Boolean);
+
+  const params: Record<string, unknown> = {
+    file,
+    model: "gpt-4o-transcribe-diarize",
+    response_format: "diarized_json",
+    chunking_strategy: "auto",
+  };
+
+  if (normalizedSpeakerReferences.length > 0) {
+    if (normalizedSpeakerNames.length === 0) {
+      throw new Error(
+        "Known speaker references require speaker names. Pass --speakers with matching names."
+      );
+    }
+    if (normalizedSpeakerNames.length !== normalizedSpeakerReferences.length) {
+      throw new Error(
+        `Expected the same number of speaker names and references, got ${normalizedSpeakerNames.length} names and ${normalizedSpeakerReferences.length} references.`
+      );
+    }
+    if (normalizedSpeakerNames.length > MAX_KNOWN_SPEAKERS) {
+      throw new Error(
+        `At most ${MAX_KNOWN_SPEAKERS} known speakers are supported for diarization.`
+      );
+    }
+
+    const dataUrlReferences = await Promise.all(
+      normalizedSpeakerReferences.map((reference) => toAudioDataUrl(reference))
+    );
+
+    params.extra_body = {
+      known_speaker_names: normalizedSpeakerNames,
+      known_speaker_references: dataUrlReferences,
+    };
+    log(
+      `Using ${normalizedSpeakerNames.length} known speaker references for diarization`,
+      isVerbose
+    );
+  } else if (normalizedSpeakerNames.length > 0) {
+    log(
+      "Speaker names provided without references; applying names to diarized labels after transcription",
+      isVerbose
+    );
+  }
+
+  interface DiarizedApiResponse {
+    segments: Array<{
+      end: number;
+      id: string;
+      speaker: string;
+      start: number;
+      text: string;
+    }>;
+    text: string;
+  }
+  const response = (await client.audio.transcriptions.create(
+    params as unknown as Parameters<
+      typeof client.audio.transcriptions.create
+    >[0]
+  )) as unknown as DiarizedApiResponse;
+
+  const segments: DiarizedSegment[] = (response.segments ?? []).map((s) => ({
+    start: s.start,
+    end: s.end,
+    text: s.text.trim(),
+    speaker: s.speaker ?? "Speaker",
+  }));
+
+  const labeledSegments =
+    normalizedSpeakerNames.length > 0 &&
+    normalizedSpeakerReferences.length === 0
+      ? applySpeakerNames(segments, normalizedSpeakerNames, isVerbose)
+      : segments;
+  const uniqueSpeakers = [...new Set(labeledSegments.map((s) => s.speaker))];
+
+  log(
+    `Diarized transcription complete (${segments.length} segments, ${uniqueSpeakers.length} speakers)`,
+    isVerbose
+  );
+
+  return {
+    text: response.text ?? segments.map((s) => s.text).join(" "),
+    segments: labeledSegments,
+    speakers: uniqueSpeakers,
   };
 }

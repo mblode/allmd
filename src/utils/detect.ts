@@ -24,6 +24,8 @@ export const VIDEO_EXTS = new Set([
 ]);
 export const AUDIO_EXTS = new Set([
   ".mp3",
+  ".mpga",
+  ".mpeg",
   ".wav",
   ".m4a",
   ".ogg",

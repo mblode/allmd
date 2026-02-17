@@ -6,7 +6,10 @@ export interface ConversionResult {
 }
 
 export interface ConversionOptions {
+  diarize?: boolean;
   frontmatter?: boolean;
   output?: string;
+  speakerReferences?: string[];
+  speakers?: string[];
   verbose?: boolean;
 }

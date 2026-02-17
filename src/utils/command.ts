@@ -68,6 +68,9 @@ async function handleBatchConversion(
       output: opts.output as string | undefined,
       verbose: opts.verbose as boolean | undefined,
       frontmatter: opts.frontmatter as boolean | undefined,
+      diarize: opts.diarize as boolean | undefined,
+      speakerReferences: opts.speakerReferences as string[] | undefined,
+      speakers: opts.speakers as string[] | undefined,
     },
     {
       parallel: Number.parseInt(opts.parallel as string, 10) || 3,
@@ -102,6 +105,9 @@ async function runSingleConversion(
       output: opts.output as string | undefined,
       verbose: opts.verbose as boolean | undefined,
       frontmatter: opts.frontmatter as boolean | undefined,
+      diarize: opts.diarize as boolean | undefined,
+      speakerReferences: opts.speakerReferences as string[] | undefined,
+      speakers: opts.speakers as string[] | undefined,
     });
     spinner.stop();
 

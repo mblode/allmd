@@ -76,6 +76,21 @@ program.option(
   "3"
 );
 program.option("--no-frontmatter", "Skip YAML frontmatter in output");
+program.option(
+  "--no-diarize",
+  "Disable speaker diarization (video/audio only)"
+);
+program.option(
+  "--speakers <names>",
+  "Speaker names, comma-separated. Use with --speaker-references for known-speaker matching (implies --diarize).",
+  (val: string) => val.split(",").map((s: string) => s.trim())
+);
+program.option(
+  "--speaker-references <reference>",
+  "Known speaker reference clip (file path or data URL). Repeat up to 4 times. Requires --speakers and implies --diarize.",
+  (value: string, previous: string[] = []) => [...previous, value.trim()],
+  []
+);
 
 registerWebCommand(program);
 registerYoutubeCommand(program);
@@ -185,6 +200,9 @@ async function handleAutoDetect(input: string): Promise<void> {
     output: opts.output,
     verbose: opts.verbose,
     frontmatter: opts.frontmatter,
+    diarize: opts.diarize as boolean | undefined,
+    speakerReferences: opts.speakerReferences as string[] | undefined,
+    speakers: opts.speakers as string[] | undefined,
   };
   const { type } = classifyInput(input);
 

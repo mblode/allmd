@@ -1,4 +1,6 @@
-// biome-ignore lint/performance/noBarrelFile: intentional public API entrypoint
+// biome-ignore-all lint/performance/noBarrelFile: intentional public API entrypoint
+
+export type { DiarizedSegment, DiarizedTranscription } from "./ai/client.js";
 export { convertCsv } from "./converters/csv.js";
 export { convertDocx } from "./converters/docx.js";
 export { convertEpub } from "./converters/epub.js";
