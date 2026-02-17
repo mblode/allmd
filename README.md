@@ -1,8 +1,6 @@
-<p align="center">
-  <a href="https://github.com/mblode/allmd">
-    <img alt="allmd – Convert anything to markdown" src=".github/assets/banner.svg" width="600">
-  </a>
-</p>
+<h1 align="center">allmd</h1>
+
+<p align="center">Turn the whole universe into markdown.</p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/allmd"><img src="https://img.shields.io/npm/v/allmd.svg" alt="npm version"></a>
@@ -11,7 +9,7 @@
   <a href="https://github.com/mblode/allmd"><img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg" alt="Node >= 20"></a>
 </p>
 
-<p align="center">Turn the whole universe into a skill.</p>
+
 
 - **Web pages:** fetch any URL and convert to clean markdown with Readability.
 - **YouTube videos:** extract transcripts with timestamps.
