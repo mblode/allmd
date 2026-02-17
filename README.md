@@ -1,8 +1,26 @@
-# allmd
+<p align="center">
+  <a href="https://github.com/mblode/allmd">
+    <img alt="allmd – Convert anything to markdown" src=".github/assets/banner.svg" width="600">
+  </a>
+</p>
 
-Convert web pages, YouTube videos, PDFs, Google Docs, video/audio files, and images to markdown.
+<p align="center">
+  <a href="https://www.npmjs.com/package/allmd"><img src="https://img.shields.io/npm/v/allmd.svg" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/allmd"><img src="https://img.shields.io/npm/dm/allmd.svg" alt="npm downloads"></a>
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
+  <a href="https://github.com/mblode/allmd"><img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg" alt="Node >= 20"></a>
+</p>
 
-## Install
+- **Web pages:** fetch any URL and convert to clean markdown with Readability.
+- **YouTube videos:** extract transcripts with timestamps.
+- **PDFs:** parse text content from PDF files.
+- **Google Docs:** convert published Google Docs to markdown.
+- **Video/audio:** transcribe media files using Whisper.
+- **Images:** describe images using GPT vision.
+- **AI formatting:** all output is polished with GPT for consistent, readable markdown.
+- **Interactive mode:** run `allmd` with no arguments to pick a converter.
+
+## Installation
 
 ```bash
 npm install -g allmd
@@ -16,7 +34,7 @@ export OPENAI_API_KEY=your-key
 
 Requires Node.js 20+ and `ffmpeg` for video/audio (bundled via `ffmpeg-static`).
 
-## Commands
+## Usage
 
 Run `allmd` with no arguments for interactive mode.
 

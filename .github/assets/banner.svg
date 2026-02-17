@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#bg)" rx="12"/>
+  <text x="400" y="160" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="72" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-2">allmd</text>
+  <text x="400" y="210" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="400" fill="#a1a1aa" text-anchor="middle">Convert anything to markdown</text>
+  <g transform="translate(175, 250)">
+    <rect width="90" height="32" rx="6" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+    <text x="45" y="21" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle">Web</text>
+  </g>
+  <g transform="translate(280, 250)">
+    <rect width="90" height="32" rx="6" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+    <text x="45" y="21" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle">YouTube</text>
+  </g>
+  <g transform="translate(385, 250)">
+    <rect width="90" height="32" rx="6" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+    <text x="45" y="21" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle">PDF</text>
+  </g>
+  <g transform="translate(490, 250)">
+    <rect width="90" height="32" rx="6" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+    <text x="45" y="21" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle">Image</text>
+  </g>
+  <g transform="translate(175, 296)">
+    <rect width="90" height="32" rx="6" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+    <text x="45" y="21" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle">Video</text>
+  </g>
+  <g transform="translate(280, 296)">
+    <rect width="90" height="32" rx="6" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+    <text x="45" y="21" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle">Audio</text>
+  </g>
+  <g transform="translate(385, 296)">
+    <rect width="115" height="32" rx="6" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+    <text x="57" y="21" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle">Google Docs</text>
+  </g>
+</svg>
