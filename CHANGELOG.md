@@ -1,5 +1,11 @@
 # allmd
 
+## 1.0.3
+
+### Patch Changes
+
+- 5a22b01: Add CSV, DOCX, EPUB, PPTX, RSS, and Tweet converters. Add auto-detection, clipboard support, batch processing, config file support, shell completion, update notifier, and examples command.
+
 ## 1.0.2
 
 ### Patch Changes
