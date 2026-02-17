@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { slugify } from "./slug.js";
 
+const TRAILING_HYPHEN = /-$/;
+
 describe("slugify", () => {
   it("converts text to lowercase kebab-case", () => {
     expect(slugify("Hello World")).toBe("hello-world");
@@ -25,9 +27,12 @@ describe("slugify", () => {
   });
 
   it("truncates to maxLength at word boundary", () => {
-    const result = slugify("this is a very long title that should be truncated", 20);
+    const result = slugify(
+      "this is a very long title that should be truncated",
+      20
+    );
     expect(result.length).toBeLessThanOrEqual(20);
-    expect(result).not.toMatch(/-$/);
+    expect(result).not.toMatch(TRAILING_HYPHEN);
   });
 
   it("uses default maxLength of 80", () => {
