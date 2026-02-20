@@ -1,6 +1,6 @@
 {
   "name": "allmd",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "CLI tool to convert various content types to markdown",
   "type": "module",
   "main": "./dist/index.js",

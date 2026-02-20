@@ -1,5 +1,12 @@
 # allmd
 
+## 1.0.5
+
+### Patch Changes
+
+- 9b9b7ff: Updated README documentation with simplified header design and revised tagline to "Turn the whole universe into markdown."
+- 8071264: fix audio compression
+
 ## 1.0.4
 
 ### Patch Changes
