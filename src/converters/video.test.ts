@@ -10,6 +10,17 @@ const mocks = vi.hoisted(() => ({
   transcribeAudioDiarized: vi.fn(),
 }));
 
+const audioMocks = vi.hoisted(() => ({
+  WHISPER_MAX_BYTES: 26_214_400,
+  calculateChunkBoundaries: vi.fn(),
+  calculateTargetBitrate: vi.fn().mockReturnValue(64),
+  compressAudio: vi.fn().mockResolvedValue(undefined),
+  extractAudioChunk: vi.fn(),
+  getAudioDuration: vi.fn().mockResolvedValue(300),
+  isAudioOversized: vi.fn().mockReturnValue(false),
+  needsChunking: vi.fn().mockReturnValue(false),
+}));
+
 vi.mock("../ai/client.js", () => ({
   formatAsMarkdown: mocks.formatAsMarkdown,
   transcribeAudio: mocks.transcribeAudio,
@@ -19,6 +30,8 @@ vi.mock("../ai/client.js", () => ({
 vi.mock("ffmpeg-extract-audio", () => ({
   default: mocks.extractAudio,
 }));
+
+vi.mock("../utils/audio.js", () => audioMocks);
 
 import { convertVideo } from "./video.js";
 
@@ -36,6 +49,13 @@ describe("convertVideo", () => {
       speakers: ["speaker_0"],
       text: "Hello",
     });
+
+    // Reset audio mocks to defaults
+    audioMocks.isAudioOversized.mockReturnValue(false);
+    audioMocks.needsChunking.mockReturnValue(false);
+    audioMocks.getAudioDuration.mockResolvedValue(300);
+    audioMocks.calculateTargetBitrate.mockReturnValue(64);
+    audioMocks.compressAudio.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -103,5 +123,75 @@ describe("convertVideo", () => {
       convertVideo(filePath, { speakerReferences: ["./alice.wav"] })
     ).rejects.toThrow("require --speakers");
     expect(mocks.transcribeAudioDiarized).not.toHaveBeenCalled();
+  });
+
+  it("does not compress when audio is under the size limit", async () => {
+    audioMocks.isAudioOversized.mockReturnValue(false);
+
+    const filePath = await writeTempFile(".mp3");
+    await convertVideo(filePath, { diarize: false });
+
+    expect(audioMocks.compressAudio).not.toHaveBeenCalled();
+    expect(mocks.transcribeAudio).toHaveBeenCalledTimes(1);
+  });
+
+  it("compresses audio when buffer exceeds size limit", async () => {
+    audioMocks.isAudioOversized.mockReturnValue(true);
+    audioMocks.needsChunking.mockReturnValue(false);
+    audioMocks.compressAudio.mockImplementation(
+      async (_input: string, output: string) => {
+        await writeFile(output, "compressed");
+      }
+    );
+
+    const filePath = await writeTempFile(".mp3");
+    await convertVideo(filePath, { diarize: false });
+
+    expect(audioMocks.getAudioDuration).toHaveBeenCalledTimes(1);
+    expect(audioMocks.calculateTargetBitrate).toHaveBeenCalledTimes(1);
+    expect(audioMocks.compressAudio).toHaveBeenCalledTimes(1);
+    expect(mocks.transcribeAudio).toHaveBeenCalledTimes(1);
+  });
+
+  it("splits and transcribes chunks for very long audio", async () => {
+    audioMocks.isAudioOversized.mockReturnValue(true);
+    audioMocks.needsChunking.mockReturnValue(true);
+    audioMocks.getAudioDuration.mockResolvedValue(7200);
+    audioMocks.calculateChunkBoundaries.mockReturnValue([
+      { startSeconds: 0, durationSeconds: 1500, index: 0 },
+      { startSeconds: 1485, durationSeconds: 1500, index: 1 },
+    ]);
+    audioMocks.extractAudioChunk.mockImplementation(
+      async (_input: string, output: string) => {
+        await writeFile(output, "chunk-audio");
+      }
+    );
+
+    const filePath = await writeTempFile(".mp3");
+    await convertVideo(filePath, { diarize: false });
+
+    expect(audioMocks.extractAudioChunk).toHaveBeenCalledTimes(2);
+    expect(mocks.transcribeAudio).toHaveBeenCalledTimes(2);
+  });
+
+  it("splits and transcribes diarized chunks for very long audio", async () => {
+    audioMocks.isAudioOversized.mockReturnValue(true);
+    audioMocks.needsChunking.mockReturnValue(true);
+    audioMocks.getAudioDuration.mockResolvedValue(7200);
+    audioMocks.calculateChunkBoundaries.mockReturnValue([
+      { startSeconds: 0, durationSeconds: 1500, index: 0 },
+      { startSeconds: 1485, durationSeconds: 1500, index: 1 },
+    ]);
+    audioMocks.extractAudioChunk.mockImplementation(
+      async (_input: string, output: string) => {
+        await writeFile(output, "chunk-audio");
+      }
+    );
+
+    const filePath = await writeTempFile(".mp3");
+    await convertVideo(filePath, { diarize: true });
+
+    expect(audioMocks.extractAudioChunk).toHaveBeenCalledTimes(2);
+    expect(mocks.transcribeAudioDiarized).toHaveBeenCalledTimes(2);
   });
 });

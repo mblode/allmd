@@ -13,9 +13,12 @@ declare module "pdf-parse" {
 
 declare module "ffmpeg-extract-audio" {
   interface ExtractAudioOptions {
+    channel?: number;
     format?: string;
     input: string;
+    log?: (info: { cmd: string }) => void;
     output: string;
+    transform?: (cmd: unknown) => void;
   }
   function extractAudio(options: ExtractAudioOptions): Promise<void>;
   export default extractAudio;

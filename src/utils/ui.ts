@@ -48,6 +48,14 @@ export function formatError(err: unknown): string {
     return `${message}\n  You've hit the API rate limit. Wait a moment and try again.`;
   }
 
+  // File size limit
+  if (
+    message.includes("413") ||
+    message.includes("Maximum content size limit")
+  ) {
+    return `${message}\n  Audio exceeds OpenAI's 25MB upload limit. This is unexpected — compression should have handled it. Please report this as a bug.`;
+  }
+
   // Network errors
   if (message.includes("ENOTFOUND") || message.includes("ECONNREFUSED")) {
     return `${message}\n  Check your internet connection and try again.`;
