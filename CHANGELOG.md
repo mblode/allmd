@@ -1,5 +1,17 @@
 # allmd
 
+## 1.1.0
+
+### Minor Changes
+
+- Fix web converter hanging on JS-rendered pages
+
+  - Add 30-second fetch timeout to all HTTP requests using AbortController — prevents indefinite hangs on unresponsive servers
+  - Add Firecrawl fallback for JavaScript-rendered pages (set FIRECRAWL_API_KEY in environment to enable)
+  - Add SIGINT handler so Ctrl+C exits cleanly
+  - Add step-by-step verbose logging in the web converter for better progress visibility
+  - Apply timeout fix to youtube, gdoc, and tweet converters
+
 ## 1.0.5
 
 ### Patch Changes

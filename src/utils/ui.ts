@@ -56,6 +56,11 @@ export function formatError(err: unknown): string {
     return `${message}\n  Audio exceeds OpenAI's 25MB upload limit. This is unexpected — compression should have handled it. Please report this as a bug.`;
   }
 
+  // Timeout errors
+  if (message.includes("timed out")) {
+    return `${message}\n  The page may require JavaScript rendering. Set FIRECRAWL_API_KEY in your environment for JS-heavy sites.`;
+  }
+
   // Network errors
   if (message.includes("ENOTFOUND") || message.includes("ECONNREFUSED")) {
     return `${message}\n  Check your internet connection and try again.`;

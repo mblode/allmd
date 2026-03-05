@@ -4,6 +4,7 @@ import {
 } from "youtube-transcript-scraper";
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
+import { fetchWithTimeout } from "../utils/fetch.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
 
@@ -14,7 +15,7 @@ interface VideoMetadata {
 
 async function fetchVideoMetadata(videoId: string): Promise<VideoMetadata> {
   const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch video metadata (HTTP ${response.status})`);

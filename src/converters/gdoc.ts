@@ -1,5 +1,6 @@
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
+import { fetchWithTimeout } from "../utils/fetch.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
 
@@ -35,7 +36,7 @@ export async function convertGdoc(
   const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=markdown`;
   verbose("Fetching markdown export...", options.verbose);
 
-  const response = await fetch(exportUrl);
+  const response = await fetchWithTimeout(exportUrl);
   if (!response.ok) {
     if (response.status === 404) {
       throw new Error(

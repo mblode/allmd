@@ -1,5 +1,6 @@
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
+import { fetchWithTimeout } from "../utils/fetch.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
 import { extractReadableContent, htmlToMarkdown } from "./web.js";
@@ -51,7 +52,7 @@ export async function convertTweet(
     const oembedUrl = `https://publish.twitter.com/oembed?url=${encodeURIComponent(normalizedUrl)}`;
     verbose(`Trying oEmbed API: ${oembedUrl}`, options.verbose);
 
-    const response = await fetch(oembedUrl);
+    const response = await fetchWithTimeout(oembedUrl);
     if (response.ok) {
       const data = (await response.json()) as OEmbedResponse;
       tweetText = extractTextFromOEmbed(data.html);
