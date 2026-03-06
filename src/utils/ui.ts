@@ -34,6 +34,18 @@ export function verbose(message: string, isVerbose?: boolean): void {
 export function formatError(err: unknown): string {
   const message = err instanceof Error ? err.message : String(err);
 
+  if (message.includes("OPENAI_API_KEY")) {
+    return `${message}\n  Set OPENAI_API_KEY in .env or your environment. See: https://platform.openai.com/api-keys`;
+  }
+
+  if (message.includes("FIRECRAWL_API_KEY")) {
+    return `${message}\n  Set FIRECRAWL_API_KEY in .env or your environment to enable Firecrawl-powered web extraction. See: https://docs.firecrawl.dev/`;
+  }
+
+  if (message.includes("AI formatting timed out")) {
+    return `${message}\n  The extraction finished, but the markdown formatting step took too long. Try again, save to a file with -o, or reduce the input size.`;
+  }
+
   // API key errors
   if (
     message.includes("API key") ||

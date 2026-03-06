@@ -9,7 +9,7 @@
 
 
 
-- **Web pages:** fetch any URL and convert to clean markdown with Readability.
+- **Web pages:** fetch any URL and convert to clean markdown with Firecrawl.
 - **YouTube videos:** extract transcripts with timestamps.
 - **PDFs:** parse text content from PDF files.
 - **Google Docs:** convert published Google Docs to markdown.
@@ -22,7 +22,7 @@
 - **Tweets:** capture tweets/X posts as markdown.
 - **RSS/Atom feeds:** convert feed entries to markdown.
 - **Auto-detect:** pass any URL or file — allmd figures out the type automatically.
-- **AI formatting:** all output is polished with GPT for consistent, readable markdown.
+- **AI formatting:** non-web output is polished with GPT for consistent, readable markdown.
 - **Interactive mode:** run `allmd` with no arguments to pick a converter.
 
 ## Installation
@@ -31,11 +31,14 @@
 npm install -g allmd
 ```
 
-Set your OpenAI API key:
+Set the API keys for the converters you use:
 
 ```bash
 export OPENAI_API_KEY=your-key
+export FIRECRAWL_API_KEY=your-key
 ```
+
+`OPENAI_API_KEY` is required for AI-backed converters. `FIRECRAWL_API_KEY` is required for web page conversion. Web pages use Firecrawl markdown directly and do not require `OPENAI_API_KEY`.
 
 Requires Node.js 20+ and `ffmpeg` for video/audio (bundled via `ffmpeg-static`).
 

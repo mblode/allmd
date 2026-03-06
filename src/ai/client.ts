@@ -9,6 +9,7 @@ const openai = createOpenAI({
 });
 
 const MODEL = openai("gpt-5-mini");
+const AI_FORMAT_TIMEOUT_MS = 180_000;
 
 const SYSTEM_PROMPT =
   "You are a markdown formatting assistant. Convert the provided raw text into clean, well-structured markdown. Preserve ALL content completely — do not summarize, condense, paraphrase, or omit any text. Every paragraph, sentence, list item, table, figure description, footnote, and reference must appear in the output. Use headings, lists, code blocks, and emphasis where appropriate. Do not add information not present in the source. Output only the markdown, no preamble.";
@@ -99,6 +100,20 @@ async function formatChunk(
     model: MODEL,
     system: SYSTEM_PROMPT,
     prompt: `Convert this ${context.type} content into clean markdown:\n\nTitle: ${context.title ?? "Unknown"}\nSource: ${context.source ?? "Unknown"}${chunkLabel}\n\n---\n\n${rawText}`,
+    timeout: AI_FORMAT_TIMEOUT_MS,
+  }).catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+
+    if (
+      error instanceof Error &&
+      (error.name === "AbortError" || message.toLowerCase().includes("timeout"))
+    ) {
+      throw new Error(
+        `AI formatting timed out after ${AI_FORMAT_TIMEOUT_MS / 1000}s`
+      );
+    }
+
+    throw error;
   });
 
   if (chunkInfo) {

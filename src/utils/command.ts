@@ -3,6 +3,12 @@ import type { Command } from "commander";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { expandGlob, isGlobPattern, processBatch } from "./batch.js";
 import { readClipboard } from "./clipboard.js";
+import {
+  beginInterruptibleOperation,
+  clearInterruptibleOperation,
+  isInterruptedError,
+} from "./interrupt.js";
+import { assertRequiredApiKeys } from "./keys.js";
 import { generateOutputPath, writeOutput } from "./output.js";
 import { cleanFilePath } from "./path.js";
 import { isStdinPiped, readStdin } from "./stdin.js";
@@ -20,6 +26,8 @@ interface FileCommandConfig {
   extensions: string[];
   helpText: string;
   name: string;
+  requiresFirecrawl?: boolean;
+  requiresOpenAI?: boolean;
   spinnerText?: string;
 }
 
@@ -30,6 +38,8 @@ interface UrlCommandConfig {
   description: string;
   helpText: string;
   name: string;
+  requiresFirecrawl?: boolean;
+  requiresOpenAI?: boolean;
   spinnerText?: string;
   validate?: (url: string) => string | null;
 }
@@ -59,36 +69,49 @@ async function handleBatchConversion(
 ): Promise<void> {
   info(`Found ${files.length} file(s) matching pattern`);
   const spinner = createSpinner(`Converting 0/${files.length} files...`);
+  const abortController = beginInterruptibleOperation();
   spinner.start();
 
-  const result = await processBatch(
-    files,
-    converter,
-    {
-      output: opts.output as string | undefined,
-      verbose: opts.verbose as boolean | undefined,
-      frontmatter: opts.frontmatter as boolean | undefined,
-      diarize: opts.diarize as boolean | undefined,
-      speakerReferences: opts.speakerReferences as string[] | undefined,
-      speakers: opts.speakers as string[] | undefined,
-    },
-    {
-      parallel: Number.parseInt(opts.parallel as string, 10) || 3,
-      outputDir: opts.outputDir as string | undefined,
-      copy: opts.copy as boolean | undefined,
-    },
-    (completed, total) => {
-      spinner.text = `Converting ${completed}/${total} files...`;
-    }
-  );
+  try {
+    const result = await processBatch(
+      files,
+      converter,
+      {
+        output: opts.output as string | undefined,
+        verbose: opts.verbose as boolean | undefined,
+        frontmatter: opts.frontmatter as boolean | undefined,
+        diarize: opts.diarize as boolean | undefined,
+        speakerReferences: opts.speakerReferences as string[] | undefined,
+        speakers: opts.speakers as string[] | undefined,
+        abortSignal: abortController.signal,
+      },
+      {
+        parallel: Number.parseInt(opts.parallel as string, 10) || 3,
+        outputDir: opts.outputDir as string | undefined,
+        copy: opts.copy as boolean | undefined,
+      },
+      (completed, total) => {
+        spinner.text = `Converting ${completed}/${total} files...`;
+      }
+    );
 
-  spinner.stop();
-  if (opts.copy) {
-    success("Copied to clipboard");
+    spinner.stop();
+    if (opts.copy) {
+      success("Copied to clipboard");
+    }
+    info(
+      `Converted ${result.succeeded}/${result.total} files${result.failed > 0 ? ` (${result.failed} failed)` : ""}`
+    );
+  } catch (err) {
+    spinner.stop();
+    if (isInterruptedError(err)) {
+      process.exit(130);
+    }
+    error(formatError(err));
+    process.exit(1);
+  } finally {
+    clearInterruptibleOperation(abortController);
   }
-  info(
-    `Converted ${result.succeeded}/${result.total} files${result.failed > 0 ? ` (${result.failed} failed)` : ""}`
-  );
 }
 
 async function runSingleConversion(
@@ -98,17 +121,23 @@ async function runSingleConversion(
   spinnerText: string
 ): Promise<void> {
   const spinner = createSpinner(spinnerText);
+  const abortController = beginInterruptibleOperation();
+  const conversionOpts: ConversionOptions = {
+    abortSignal: abortController.signal,
+    output: opts.output as string | undefined,
+    verbose: opts.verbose as boolean | undefined,
+    frontmatter: opts.frontmatter as boolean | undefined,
+    diarize: opts.diarize as boolean | undefined,
+    speakerReferences: opts.speakerReferences as string[] | undefined,
+    speakers: opts.speakers as string[] | undefined,
+    onProgress: (message) => {
+      spinner.text = message;
+    },
+  };
 
   try {
     spinner.start();
-    const result = await converter(input, {
-      output: opts.output as string | undefined,
-      verbose: opts.verbose as boolean | undefined,
-      frontmatter: opts.frontmatter as boolean | undefined,
-      diarize: opts.diarize as boolean | undefined,
-      speakerReferences: opts.speakerReferences as string[] | undefined,
-      speakers: opts.speakers as string[] | undefined,
-    });
+    const result = await converter(input, conversionOpts);
     spinner.stop();
 
     const outputPath = opts.stdout
@@ -127,8 +156,13 @@ async function runSingleConversion(
     }
   } catch (err) {
     spinner.stop();
+    if (isInterruptedError(err)) {
+      process.exit(130);
+    }
     error(formatError(err));
     process.exit(1);
+  } finally {
+    clearInterruptibleOperation(abortController);
   }
 }
 
@@ -159,6 +193,10 @@ export function createFileCommand(
             error(`No files matched pattern: ${input}`);
             process.exit(1);
           }
+          assertRequiredApiKeys({
+            openai: config.requiresOpenAI ?? true,
+            firecrawl: config.requiresFirecrawl,
+          });
           await handleBatchConversion(files, config.converter, opts);
           return;
         }
@@ -178,6 +216,11 @@ export function createFileCommand(
           error(`File not found: ${file}`);
           process.exit(1);
         }
+
+        assertRequiredApiKeys({
+          openai: config.requiresOpenAI ?? true,
+          firecrawl: config.requiresFirecrawl,
+        });
 
         await runSingleConversion(
           file,
@@ -221,6 +264,11 @@ export function createUrlCommand(
           process.exit(1);
         }
       }
+
+      assertRequiredApiKeys({
+        openai: config.requiresOpenAI ?? true,
+        firecrawl: config.requiresFirecrawl,
+      });
 
       await runSingleConversion(
         url,

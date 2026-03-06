@@ -6,8 +6,10 @@ export interface ConversionResult {
 }
 
 export interface ConversionOptions {
+  abortSignal?: AbortSignal;
   diarize?: boolean;
   frontmatter?: boolean;
+  onProgress?: (message: string) => void;
   output?: string;
   speakerReferences?: string[];
   speakers?: string[];
