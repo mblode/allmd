@@ -12,7 +12,7 @@ interface ConversionOptions {
 interface ConversionResult {
   title: string;
   markdown: string;       // Final markdown with YAML frontmatter
-  rawContent?: string;    // Raw content before AI formatting
+  rawContent?: string;    // Raw extracted content before post-processing
   metadata: Record<string, unknown>;
 }
 ```
@@ -55,11 +55,13 @@ type: web | youtube | video | image | gdoc | pdf | docx | epub | csv | pptx | tw
 
 ## AI Formatting
 
-AI formatting is always enabled. Raw extracted text is sent to OpenAI GPT-5-mini. The model:
+Most converters use AI formatting. Raw extracted text is sent to OpenAI GPT-5-mini. The model:
 
 - Restructures text into clean markdown with headings, lists, and code blocks
 - Preserves all factual content without adding information
 - Uses ATX-style headings, fenced code blocks, dash bullet markers
+
+Web page conversion is the exception: `allmd web` uses Firecrawl markdown directly and only applies optional frontmatter.
 
 ## Configuration
 
@@ -102,7 +104,8 @@ echo "https://example.com" | allmd web -
 
 | Variable | Required | Default |
 |----------|----------|---------|
-| `OPENAI_API_KEY` | Yes | — |
+| `OPENAI_API_KEY` | Required for non-web converters | — |
+| `FIRECRAWL_API_KEY` | Required for web page conversion | — |
 
 ## Output Handling
 

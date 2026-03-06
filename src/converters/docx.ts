@@ -3,9 +3,9 @@ import mammoth from "mammoth";
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
+import { htmlToMarkdown } from "../utils/html.js";
 import { titleFromFilename } from "../utils/slug.js";
 import { verbose } from "../utils/ui.js";
-import { htmlToMarkdown } from "./web.js";
 
 export async function convertDocx(
   filePath: string,

@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { createRequire } from "node:module";
 import { Command } from "commander";
 import updateNotifier from "update-notifier";
 import {
@@ -34,6 +35,13 @@ import { runInteractive } from "./interactive.js";
 import type { ConversionOptions, ConversionResult } from "./types.js";
 import { loadConfig, mergeWithCliOpts } from "./utils/config.js";
 import { classifyFile, classifyInput, classifyURL } from "./utils/detect.js";
+import {
+  beginInterruptibleOperation,
+  clearInterruptibleOperation,
+  handleInterruptSignal,
+  isInterruptedError,
+} from "./utils/interrupt.js";
+import { assertRequiredApiKeys } from "./utils/keys.js";
 import { generateOutputPath, writeOutput } from "./utils/output.js";
 import { cleanFilePath } from "./utils/path.js";
 import {
@@ -44,8 +52,14 @@ import {
   success,
 } from "./utils/ui.js";
 
+const require = createRequire(import.meta.url);
+const packageJson = require("../package.json") as {
+  name: string;
+  version: string;
+};
+
 const notifier = updateNotifier({
-  pkg: { name: "allmd", version: "1.0.1" },
+  pkg: packageJson,
   updateCheckInterval: 1000 * 60 * 60 * 24, // 1 day
 });
 notifier.notify({ defer: true });
@@ -55,10 +69,10 @@ const program = new Command();
 program
   .name("allmd")
   .description("Convert various content types to markdown")
-  .version("1.0.1")
+  .version(packageJson.version)
   .addHelpText(
     "after",
-    "\nQuick start:\n  $ allmd <url-or-file>              Auto-detect and convert\n  $ allmd web https://example.com    Convert a specific type\n  $ allmd examples                   Show more usage examples\n\nRequires OPENAI_API_KEY in .env or environment for AI formatting."
+    "\nQuick start:\n  $ allmd <url-or-file>              Auto-detect and convert\n  $ allmd web https://example.com    Convert a specific type\n  $ allmd examples                   Show more usage examples\n\nRequires OPENAI_API_KEY in .env or environment for AI-backed conversions. Web page conversion uses Firecrawl markdown and requires FIRECRAWL_API_KEY."
   );
 
 program.option("-o, --output <file>", "Write output to a specific file");
@@ -169,9 +183,18 @@ async function executeConversion(
   opts: Record<string, unknown>
 ): Promise<void> {
   const spinner = createSpinner("Converting...");
+  const abortController = beginInterruptibleOperation();
+
   try {
     spinner.start();
-    const result = await converter(input, conversionOpts);
+    const result = await converter(input, {
+      ...conversionOpts,
+      abortSignal: abortController.signal,
+      onProgress: (message) => {
+        spinner.text = message;
+        conversionOpts.onProgress?.(message);
+      },
+    });
     spinner.stop();
     const outputPath = opts.stdout
       ? undefined
@@ -189,8 +212,13 @@ async function executeConversion(
     }
   } catch (err) {
     spinner.stop();
+    if (isInterruptedError(err)) {
+      process.exit(130);
+    }
     error(formatError(err));
     process.exit(1);
+  } finally {
+    clearInterruptibleOperation(abortController);
   }
 }
 
@@ -214,6 +242,10 @@ async function handleAutoDetect(input: string): Promise<void> {
       return;
     }
 
+    assertRequiredApiKeys({
+      openai: urlType !== "web",
+      firecrawl: urlType === "web",
+    });
     info(`Detected: ${DETECTION_LABELS[urlType]}. Converting...`);
     await executeConversion(converter, input, conversionOpts, opts);
     return;
@@ -228,6 +260,7 @@ async function handleAutoDetect(input: string): Promise<void> {
       return;
     }
 
+    assertRequiredApiKeys({ openai: true });
     info(`Detected: ${DETECTION_LABELS[fileType]}. Converting...`);
     await executeConversion(
       converter,
@@ -251,10 +284,7 @@ program
     }
   });
 
-process.on("SIGINT", () => {
-  process.stderr.write("\nInterrupted\n");
-  process.exit(130);
-});
+process.on("SIGINT", handleInterruptSignal);
 
 if (handleTabCompletion()) {
   process.exit(0);

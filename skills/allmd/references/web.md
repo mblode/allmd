@@ -1,46 +1,35 @@
 # Convert Web Page to Markdown
 
-Fetches a URL, extracts the main article content using Mozilla Readability, and converts it to markdown via Turndown with GitHub Flavored Markdown support.
+Fetches a URL, renders and extracts the main page content with Firecrawl, then uses Firecrawl's markdown directly as the final allmd output with optional frontmatter.
 
 ## Conversion Workflow
 
 ```text
 - [ ] Step 1: Validate URL
-- [ ] Step 2: Extract readable content
-- [ ] Step 3: Convert HTML to markdown
-- [ ] Step 4: Apply AI formatting (optional)
-- [ ] Step 5: Add frontmatter and output
+- [ ] Step 2: Extract markdown with Firecrawl
+- [ ] Step 3: Use Firecrawl markdown directly
+- [ ] Step 4: Add frontmatter and output
 ```
 
 ### Step 1: Validate URL
 
 - Must be a valid HTTP or HTTPS URL
 - The page must be publicly accessible (no authentication)
-- Uses `fetch()` directly — does NOT execute JavaScript, so JS-rendered content will be missing
+- Uses Firecrawl, which can render JavaScript before extracting content
 
 ### Step 2: Extract readable content
 
-- Parses HTML with linkedom (lightweight DOM parser)
-- Runs Mozilla Readability to identify the main article body
-- Strips navigation, sidebars, ads, footers
-- Extracts: `title`, `content` (HTML), `excerpt`, `siteName`
-- If Readability returns null, the conversion fails
+- Requires `FIRECRAWL_API_KEY`
+- Uses Firecrawl's markdown extraction with `onlyMainContent: true`
+- Supports JavaScript-rendered pages and harder sites better than a local HTML parser
+- Extracts: `title`, `content` (markdown), `excerpt`, `siteName`
+- Uses an explicit timeout for the Firecrawl scrape request
 
 ### Step 3: Convert HTML to markdown
 
-Turndown configuration:
-- ATX headings (`# heading` style)
-- Fenced code blocks (triple backtick)
-- Dash bullet list markers (`-`)
-- GFM plugin enabled (tables, strikethrough, task lists)
+Firecrawl returns markdown directly, so the web converter no longer runs a separate HTML-to-markdown pass.
 
-### Step 4: Apply AI formatting
-
-- AI receives raw markdown plus context (title, source URL, type="web article")
-- Restructures into clean, well-organized markdown
-- Preserves all factual content; adds nothing
-
-### Step 5: Add frontmatter and output
+### Step 4: Add frontmatter and output
 
 Frontmatter fields: `title`, `source`, `date`, `type` ("web"), `excerpt`, `siteName`
 
@@ -54,23 +43,21 @@ allmd web <url> --no-frontmatter
 
 ## Best Practices
 
-- Headings hierarchy preserved (h1–h6 mapping)
-- Code blocks retain language annotation where possible
-- Tables converted to GFM pipe tables
-- Images preserved as markdown image links
-- Links preserved with original hrefs
-- Lists maintain nesting structure
+- Set `FIRECRAWL_API_KEY` before using `allmd web`
+- Use `-v` when debugging extraction latency or page-specific failures
+- Use `-o article.md` when converting long pages so output is saved to disk instead of dumped to stdout
+- Use `Ctrl+C` to interrupt a slow Firecrawl run
 
 ## Edge Cases
 
-- **Paywalled content**: Readability extracts only the visible portion; conversion may be partial
-- **Single-page applications**: `fetch()` gets the initial HTML only; React/Vue-rendered content will be blank
-- **Non-article pages**: Readability works best on article-style content; landing pages or dashboards may fail
-- **Large pages**: Very long articles may exceed the 8192 max output tokens for AI formatting
-- **Relative URLs**: Links in the output may be broken if the source uses relative hrefs
+- **Paywalled content**: Firecrawl can only extract what the service can access; paywalled output may still be partial
+- **Very dynamic pages**: Some sites may still require longer render time or site-specific handling
+- **Large pages**: Output can still be large even without an AI post-processing pass
+- **Hosted dependency**: Web conversion now depends on Firecrawl availability and your API quota
 
 ## Troubleshooting
 
-- **"Could not extract readable content"** — the page has no recognizable article body; try a different URL
-- **"Failed to fetch ... 403"** — the server blocks automated requests; some sites require specific User-Agent headers
-- **Empty or very short output** — the page may be JS-rendered; check view-source to confirm content is in the initial HTML
+- **"Web conversion requires FIRECRAWL_API_KEY"** — set `FIRECRAWL_API_KEY` in your environment or `.env`
+- **"Firecrawl timed out"** — the page may need more render time or Firecrawl may be under load
+- **Need to stop a long-running conversion** — press `Ctrl+C` to cancel the active Firecrawl request
+- **Empty or very short output** — inspect the raw page in Firecrawl directly and retry with `-v`

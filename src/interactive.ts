@@ -23,6 +23,12 @@ import { convertVideo } from "./converters/video.js";
 import { convertWeb } from "./converters/web.js";
 import { convertYoutube } from "./converters/youtube.js";
 import type { ConversionOptions, ConversionResult } from "./types.js";
+import {
+  beginInterruptibleOperation,
+  clearInterruptibleOperation,
+  isInterruptedError,
+} from "./utils/interrupt.js";
+import { assertRequiredApiKeys } from "./utils/keys.js";
 import { generateOutputPath, writeOutput } from "./utils/output.js";
 import { cleanFilePath } from "./utils/path.js";
 import { formatError } from "./utils/ui.js";
@@ -95,9 +101,19 @@ export async function runInteractive(): Promise<void> {
     cancelled();
   }
 
-  const options: ConversionOptions = {};
-
   const s = spinner();
+  const abortController = beginInterruptibleOperation();
+  const options: ConversionOptions = {
+    abortSignal: abortController.signal,
+    onProgress: (message) => {
+      s.message(message);
+    },
+  };
+  assertRequiredApiKeys({
+    openai: type !== "web",
+    firecrawl: type === "web",
+  });
+
   s.start("Converting...");
 
   try {
@@ -111,8 +127,13 @@ export async function runInteractive(): Promise<void> {
     note(`Saved to ${outputPath}`, "Output");
   } catch (err) {
     s.stop("Conversion failed.");
+    if (isInterruptedError(err)) {
+      process.exit(130);
+    }
     log.error(formatError(err));
     process.exit(1);
+  } finally {
+    clearInterruptibleOperation(abortController);
   }
 
   outro(chalk.green("Done!"));

@@ -11,11 +11,7 @@ export { convertPptx } from "./converters/pptx.js";
 export { convertRss } from "./converters/rss.js";
 export { convertTweet } from "./converters/tweet.js";
 export { convertVideo } from "./converters/video.js";
-export {
-  convertWeb,
-  extractReadableContent,
-  htmlToMarkdown,
-} from "./converters/web.js";
+export { convertWeb } from "./converters/web.js";
 export { convertYoutube, extractVideoId } from "./converters/youtube.js";
 export type { ConversionOptions, ConversionResult } from "./types.js";
 export type { FileType, InputType, URLType } from "./utils/detect.js";

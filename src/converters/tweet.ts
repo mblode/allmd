@@ -1,9 +1,9 @@
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { fetchWithTimeout } from "../utils/fetch.js";
+import { scrapeMarkdownWithFirecrawl } from "../utils/firecrawl.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { verbose } from "../utils/ui.js";
-import { extractReadableContent, htmlToMarkdown } from "./web.js";
 
 interface OEmbedResponse {
   author_name: string;
@@ -70,16 +70,17 @@ export async function convertTweet(
       `oEmbed failed: ${err instanceof Error ? err.message : String(err)}`,
       options.verbose
     );
-    verbose("Falling back to web extraction...", options.verbose);
+    verbose("Falling back to Firecrawl extraction...", options.verbose);
 
-    // Fallback: try web converter
     try {
-      const article = await extractReadableContent(url);
-      tweetText = htmlToMarkdown(article.content);
-      author = article.siteName || "";
-    } catch {
+      const article = await scrapeMarkdownWithFirecrawl(url, {
+        abortSignal: options.abortSignal,
+        verbose: options.verbose,
+      });
+      tweetText = article.content;
+    } catch (fallbackErr) {
       throw new Error(
-        `Could not extract tweet content from ${url}. The tweet may be private or deleted.`
+        `Could not extract tweet content from ${url}. ${fallbackErr instanceof Error ? fallbackErr.message : "The tweet may be private or deleted."}`
       );
     }
   }

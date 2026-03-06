@@ -5,7 +5,7 @@ description: Converts content to clean markdown. Supports web pages, Google Docs
 
 # Convert Anything to Markdown
 
-A CLI tool that converts web pages, Google Docs, PDFs, images, video/audio files, YouTube videos, Word docs, EPUBs, CSVs, PowerPoints, tweets, and RSS feeds into clean markdown with AI formatting.
+A CLI tool that converts web pages, Google Docs, PDFs, images, video/audio files, YouTube videos, Word docs, EPUBs, CSVs, PowerPoints, tweets, and RSS feeds into clean markdown. Most converters use AI formatting; web pages use Firecrawl markdown directly.
 
 ## Reference Files
 
@@ -46,13 +46,15 @@ A CLI tool that converts web pages, Google Docs, PDFs, images, video/audio files
 
 ## Shared Workflow
 
-All converters follow this pattern:
+Most converters follow this pattern:
 
 1. **Validate** input (URL format or file existence/extension)
 2. **Extract** content (fetch HTML, parse PDF, read image, transcribe audio, fetch captions)
 3. **AI format** — restructures into clean markdown via OpenAI GPT-5-mini
 4. **Add frontmatter** — YAML header with title, source, date, type, and type-specific fields
 5. **Output** — write to file (`-o`), directory (`-d`), clipboard (`--copy`), or stdout
+
+Web page conversion differs at step 3: `allmd web` uses Firecrawl markdown directly and only applies optional frontmatter.
 
 ## CLI Quick Reference
 

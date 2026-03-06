@@ -2,9 +2,9 @@ import EPub from "epub2";
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
+import { htmlToMarkdown } from "../utils/html.js";
 import { titleFromFilename } from "../utils/slug.js";
 import { verbose } from "../utils/ui.js";
-import { htmlToMarkdown } from "./web.js";
 
 // epub2 default export is the namespace in ESM; the class is on .EPub
 const mod = EPub as unknown as Record<string, typeof EPub>;
