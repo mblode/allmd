@@ -11,6 +11,8 @@ const mocks = vi.hoisted(() => ({
 }));
 
 const audioMocks = vi.hoisted(() => ({
+  DIARIZE_CHUNK_SECONDS: 1200,
+  DIARIZE_MAX_SECONDS: 1400,
   WHISPER_MAX_BYTES: 26_214_400,
   calculateChunkBoundaries: vi.fn(),
   calculateTargetBitrate: vi.fn().mockReturnValue(64),
@@ -193,5 +195,41 @@ describe("convertVideo", () => {
 
     expect(audioMocks.extractAudioChunk).toHaveBeenCalledTimes(2);
     expect(mocks.transcribeAudioDiarized).toHaveBeenCalledTimes(2);
+  });
+
+  it("chunks diarized audio over 1400s even when file size is under limit", async () => {
+    audioMocks.isAudioOversized.mockReturnValue(false);
+    audioMocks.getAudioDuration.mockResolvedValue(3600);
+    audioMocks.needsChunking.mockReturnValue(true);
+    audioMocks.calculateChunkBoundaries.mockReturnValue([
+      { startSeconds: 0, durationSeconds: 1200, index: 0 },
+      { startSeconds: 1185, durationSeconds: 1200, index: 1 },
+      { startSeconds: 2370, durationSeconds: 1200, index: 2 },
+    ]);
+    audioMocks.extractAudioChunk.mockImplementation(
+      async (_input: string, output: string) => {
+        await writeFile(output, "chunk-audio");
+      }
+    );
+
+    const filePath = await writeTempFile(".mp3");
+    await convertVideo(filePath, { diarize: true });
+
+    expect(audioMocks.needsChunking).toHaveBeenCalledWith(3600, true);
+    expect(audioMocks.extractAudioChunk).toHaveBeenCalledTimes(3);
+    expect(mocks.transcribeAudioDiarized).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not chunk short diarized audio under 1400s", async () => {
+    audioMocks.isAudioOversized.mockReturnValue(false);
+    audioMocks.getAudioDuration.mockResolvedValue(600);
+    audioMocks.needsChunking.mockReturnValue(false);
+
+    const filePath = await writeTempFile(".mp3");
+    await convertVideo(filePath, { diarize: true });
+
+    expect(audioMocks.needsChunking).toHaveBeenCalledWith(600, true);
+    expect(audioMocks.extractAudioChunk).not.toHaveBeenCalled();
+    expect(mocks.transcribeAudioDiarized).toHaveBeenCalledTimes(1);
   });
 });

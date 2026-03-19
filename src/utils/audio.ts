@@ -23,11 +23,17 @@ const SPEECH_SAMPLE_RATE = 16_000;
  */
 const MAX_SINGLE_CHUNK_SECONDS = 6000;
 
-/** Duration of each chunk when splitting long audio */
+/** Duration of each chunk when splitting long audio (whisper-1) */
 const CHUNK_DURATION_SECONDS = 1500; // 25 min
 
 /** Overlap between chunks to avoid losing words at boundaries */
 const CHUNK_OVERLAP_SECONDS = 15;
+
+/** gpt-4o-transcribe-diarize hard duration limit */
+export const DIARIZE_MAX_SECONDS = 1400;
+
+/** Safe chunk size for diarization (20 min, well under 1400s limit) */
+export const DIARIZE_CHUNK_SECONDS = 1200;
 
 const DURATION_REGEX = /Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/;
 
@@ -71,7 +77,13 @@ export function calculateTargetBitrate(
   return Math.max(targetKbps, MIN_BITRATE_KBPS);
 }
 
-export function needsChunking(durationSeconds: number): boolean {
+export function needsChunking(
+  durationSeconds: number,
+  diarize?: boolean
+): boolean {
+  if (diarize) {
+    return durationSeconds > DIARIZE_MAX_SECONDS;
+  }
   return durationSeconds > MAX_SINGLE_CHUNK_SECONDS;
 }
 
@@ -82,7 +94,8 @@ export interface ChunkBoundary {
 }
 
 export function calculateChunkBoundaries(
-  totalDurationSeconds: number
+  totalDurationSeconds: number,
+  chunkDurationSeconds: number = CHUNK_DURATION_SECONDS
 ): ChunkBoundary[] {
   const chunks: ChunkBoundary[] = [];
   let start = 0;
@@ -90,9 +103,9 @@ export function calculateChunkBoundaries(
 
   while (start < totalDurationSeconds) {
     const remaining = totalDurationSeconds - start;
-    const duration = Math.min(CHUNK_DURATION_SECONDS, remaining);
+    const duration = Math.min(chunkDurationSeconds, remaining);
     chunks.push({ startSeconds: start, durationSeconds: duration, index });
-    start += CHUNK_DURATION_SECONDS - CHUNK_OVERLAP_SECONDS;
+    start += chunkDurationSeconds - CHUNK_OVERLAP_SECONDS;
     index++;
   }
 
