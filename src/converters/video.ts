@@ -301,24 +301,28 @@ async function transcribeChunkedDiarized(
   }
 
   // Transcribe chunks in parallel
+  let completed = 0;
+  const total = chunks.length;
+  options.onProgress?.("Transcribing audio... 0%");
+
   const limit = pLimit(PARALLEL_TRANSCRIPTIONS);
   const results = await Promise.all(
     chunks.map((chunk, i) =>
       limit(async () => {
         verbose(
-          `Transcribing chunk ${chunk.index + 1}/${chunks.length}`,
+          `Transcribing chunk ${chunk.index + 1}/${total}`,
           options.verbose
         );
         const chunkBuffer = await readFile(chunkPaths[i]);
-        const transcription = await trackProgress(
-          options.onProgress,
-          `Transcribing chunk ${chunk.index + 1}/${chunks.length}...`,
-          transcribeAudioDiarized(
-            chunkBuffer,
-            options,
-            `chunk-${chunk.index}.mp3`,
-            options.speakerReferences
-          )
+        const transcription = await transcribeAudioDiarized(
+          chunkBuffer,
+          options,
+          `chunk-${chunk.index}.mp3`,
+          options.speakerReferences
+        );
+        completed++;
+        options.onProgress?.(
+          `Transcribing audio... ${Math.round((completed / total) * 100)}%`
         );
 
         // Offset timestamps by chunk start
@@ -379,20 +383,25 @@ async function transcribeChunkedPlain(
   }
 
   // Transcribe chunks in parallel
+  let completed = 0;
+  const total = chunks.length;
+  options.onProgress?.("Transcribing audio... 0%");
+
   const limit = pLimit(PARALLEL_TRANSCRIPTIONS);
   const results = await Promise.all(
     chunks.map((chunk, i) =>
       limit(async () => {
         verbose(
-          `Transcribing chunk ${chunk.index + 1}/${chunks.length}`,
+          `Transcribing chunk ${chunk.index + 1}/${total}`,
           options.verbose
         );
         const chunkBuffer = await readFile(chunkPaths[i]);
-        return await trackProgress(
-          options.onProgress,
-          `Transcribing chunk ${chunk.index + 1}/${chunks.length}...`,
-          transcribeAudio(chunkBuffer, options).then((t) => t.text)
+        const transcription = await transcribeAudio(chunkBuffer, options);
+        completed++;
+        options.onProgress?.(
+          `Transcribing audio... ${Math.round((completed / total) * 100)}%`
         );
+        return transcription.text;
       })
     )
   );
@@ -545,19 +554,14 @@ export async function convertVideo(
       options.verbose
     );
 
-    // Always get duration when diarize is on (API has 1400s limit) or file is oversized
+    // Always get duration for chunking decisions and progress display
     options.onProgress?.("Detecting duration...");
-    const duration =
-      diarize || oversized
-        ? await getAudioDuration(audioPath, options.abortSignal)
-        : undefined;
+    const duration = await getAudioDuration(audioPath, options.abortSignal);
 
-    if (duration) {
-      verbose(`Audio duration: ${Math.round(duration)}s`, options.verbose);
-    }
+    verbose(`Audio duration: ${Math.round(duration)}s`, options.verbose);
 
-    // Check if chunking is needed (diarize limit: 1400s, whisper size limit: 6000s)
-    if (duration && needsChunking(duration, diarize)) {
+    // Check if chunking is needed (>5 min for progress, or API limits)
+    if (needsChunking(duration, diarize)) {
       if (!tempDir) {
         tempDir = await mkdtemp(join(tmpdir(), "md-video-"));
       }
@@ -573,7 +577,7 @@ export async function convertVideo(
     }
 
     // Oversized but doesn't need chunking — compress to fit Whisper limit
-    if (oversized && duration) {
+    if (oversized) {
       if (!tempDir) {
         tempDir = await mkdtemp(join(tmpdir(), "md-video-"));
       }

@@ -35,6 +35,9 @@ export const DIARIZE_MAX_SECONDS = 1400;
 /** Safe chunk size for diarization (20 min, well under 1400s limit) */
 export const DIARIZE_CHUNK_SECONDS = 1200;
 
+/** Minimum duration to trigger chunking for progress + parallelism */
+const PROGRESS_CHUNK_SECONDS = 300;
+
 const DURATION_REGEX = /Duration:\s*(\d+):(\d+):(\d+)\.(\d+)/;
 
 export function isAudioOversized(audioBuffer: Buffer): boolean {
@@ -85,6 +88,10 @@ export function needsChunking(
   durationSeconds: number,
   diarize?: boolean
 ): boolean {
+  // Always chunk audio over 5 min for progress feedback + parallel speedup
+  if (durationSeconds > PROGRESS_CHUNK_SECONDS) {
+    return true;
+  }
   if (diarize) {
     return durationSeconds > DIARIZE_MAX_SECONDS;
   }

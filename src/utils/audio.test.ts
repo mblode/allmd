@@ -41,12 +41,14 @@ describe("calculateTargetBitrate", () => {
 });
 
 describe("needsChunking", () => {
-  it("returns false for short audio", () => {
-    expect(needsChunking(3600)).toBe(false); // 1 hour
+  it("returns false for short audio under 5 min", () => {
+    expect(needsChunking(299)).toBe(false);
   });
 
-  it("returns false at the boundary", () => {
-    expect(needsChunking(6000)).toBe(false);
+  it("returns true for audio over 5 min (progress chunking)", () => {
+    expect(needsChunking(301)).toBe(true);
+    expect(needsChunking(3600)).toBe(true);
+    expect(needsChunking(6000)).toBe(true);
   });
 
   it("returns true for very long audio", () => {
