@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { basename, extname } from "node:path";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, experimental_transcribe as transcribe } from "ai";
+import type { ConversionOptions } from "../types.js";
 import { verbose as log } from "../utils/ui.js";
 
 const openai = createOpenAI({
@@ -10,6 +11,7 @@ const openai = createOpenAI({
 
 const MODEL = openai("gpt-5-mini");
 const AI_FORMAT_TIMEOUT_MS = 180_000;
+const TRANSCRIPTION_TIMEOUT_MS = 300_000;
 
 const SYSTEM_PROMPT =
   "You are a markdown formatting assistant. Convert the provided raw text into clean, well-structured markdown. Preserve ALL content completely — do not summarize, condense, paraphrase, or omit any text. Every paragraph, sentence, list item, table, figure description, footnote, and reference must appear in the output. Use headings, lists, code blocks, and emphasis where appropriate. Do not add information not present in the source. Output only the markdown, no preamble.";
@@ -82,8 +84,8 @@ function splitIntoChunks(text: string, maxChars: number): string[] {
 async function formatChunk(
   rawText: string,
   context: { title?: string; source?: string; type: string },
-  chunkInfo?: { index: number; total: number },
-  isVerbose?: boolean
+  options: ConversionOptions,
+  chunkInfo?: { index: number; total: number }
 ): Promise<string> {
   const chunkLabel = chunkInfo
     ? `\n\n(Part ${chunkInfo.index + 1} of ${chunkInfo.total})`
@@ -92,7 +94,7 @@ async function formatChunk(
   if (chunkInfo) {
     log(
       `Formatting chunk ${chunkInfo.index + 1}/${chunkInfo.total} (${rawText.length.toLocaleString()} chars)`,
-      isVerbose
+      options.verbose
     );
   }
 
@@ -101,6 +103,7 @@ async function formatChunk(
     system: SYSTEM_PROMPT,
     prompt: `Convert this ${context.type} content into clean markdown:\n\nTitle: ${context.title ?? "Unknown"}\nSource: ${context.source ?? "Unknown"}${chunkLabel}\n\n---\n\n${rawText}`,
     timeout: AI_FORMAT_TIMEOUT_MS,
+    abortSignal: options.abortSignal,
   }).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
 
@@ -119,7 +122,7 @@ async function formatChunk(
   if (chunkInfo) {
     log(
       `Chunk ${chunkInfo.index + 1} done (${text.length.toLocaleString()} chars output)`,
-      isVerbose
+      options.verbose
     );
   }
 
@@ -129,38 +132,38 @@ async function formatChunk(
 export async function formatAsMarkdown(
   rawText: string,
   context: { title?: string; source?: string; type: string },
-  isVerbose?: boolean
+  options: ConversionOptions
 ): Promise<string> {
   log(
     `AI formatting ${rawText.length.toLocaleString()} chars of ${context.type} content`,
-    isVerbose
+    options.verbose
   );
 
   const chunks = splitIntoChunks(rawText, MAX_INPUT_CHARS);
 
   if (chunks.length > 1) {
-    log(`Split into ${chunks.length} chunks`, isVerbose);
+    log(`Split into ${chunks.length} chunks`, options.verbose);
   }
 
   if (chunks.length === 1) {
-    const result = await formatChunk(rawText, context, undefined, isVerbose);
+    const result = await formatChunk(rawText, context, options);
     log(
       `AI formatting complete (${result.length.toLocaleString()} chars output)`,
-      isVerbose
+      options.verbose
     );
     return result;
   }
 
   const results = await Promise.all(
     chunks.map((chunk, index) =>
-      formatChunk(chunk, context, { index, total: chunks.length }, isVerbose)
+      formatChunk(chunk, context, options, { index, total: chunks.length })
     )
   );
 
   const combined = results.join("\n\n");
   log(
     `AI formatting complete (${combined.length.toLocaleString()} chars output)`,
-    isVerbose
+    options.verbose
   );
   return combined;
 }
@@ -179,8 +182,8 @@ Rules:
 
 export async function describeImage(
   imageData: string | Buffer,
-  prompt = "Extract all text from this image as clean markdown. Use a markdown table for any structured or columnar data.",
-  isVerbose?: boolean
+  options: ConversionOptions,
+  prompt = "Extract all text from this image as clean markdown. Use a markdown table for any structured or columnar data."
 ): Promise<string> {
   const image =
     typeof imageData === "string" ? imageData : imageData.toString("base64");
@@ -190,7 +193,7 @@ export async function describeImage(
       ? imageData.length * 0.75
       : imageData.byteLength) / 1024
   );
-  log(`Analyzing image (${sizeKB} KB) with vision model`, isVerbose);
+  log(`Analyzing image (${sizeKB} KB) with vision model`, options.verbose);
 
   const { text } = await generateText({
     model: MODEL,
@@ -204,33 +207,35 @@ export async function describeImage(
         ],
       },
     ],
+    abortSignal: options.abortSignal,
   });
 
   log(
     `Image analysis complete (${text.length.toLocaleString()} chars output)`,
-    isVerbose
+    options.verbose
   );
   return text;
 }
 
 export async function transcribeAudio(
   audioData: Buffer,
-  isVerbose?: boolean
+  options: ConversionOptions
 ): Promise<{
   text: string;
   segments?: Array<{ start: number; text: string }>;
 }> {
   const sizeKB = Math.round(audioData.byteLength / 1024);
-  log(`Transcribing audio (${sizeKB} KB) with Whisper`, isVerbose);
+  log(`Transcribing audio (${sizeKB} KB) with Whisper`, options.verbose);
 
   const result = await transcribe({
     model: openai.transcription("whisper-1"),
     audio: audioData,
+    abortSignal: options.abortSignal,
   });
 
   log(
     `Transcription complete (${result.text.length.toLocaleString()} chars, ${result.segments?.length ?? 0} segments)`,
-    isVerbose
+    options.verbose
   );
 
   return {
@@ -339,15 +344,14 @@ function applySpeakerNames(
 
 export async function transcribeAudioDiarized(
   audioData: Buffer,
-  speakers?: string[],
-  isVerbose?: boolean,
+  options: ConversionOptions,
   audioFilename = "audio.mp3",
   speakerReferences?: string[]
 ): Promise<DiarizedTranscription> {
   const sizeKB = Math.round(audioData.byteLength / 1024);
   log(
     `Transcribing audio (${sizeKB} KB) with gpt-4o-transcribe-diarize`,
-    isVerbose
+    options.verbose
   );
 
   const OpenAI = (await import("openai")).default;
@@ -355,7 +359,7 @@ export async function transcribeAudioDiarized(
 
   const { filename, mimeType } = getAudioUploadMetadata(audioFilename);
   const file = new File([audioData], filename, { type: mimeType });
-  const normalizedSpeakerNames = normalizeSpeakerNames(speakers);
+  const normalizedSpeakerNames = normalizeSpeakerNames(options.speakers);
   const normalizedSpeakerReferences = (speakerReferences ?? [])
     .map((reference) => reference.trim())
     .filter(Boolean);
@@ -394,12 +398,12 @@ export async function transcribeAudioDiarized(
     };
     log(
       `Using ${normalizedSpeakerNames.length} known speaker references for diarization`,
-      isVerbose
+      options.verbose
     );
   } else if (normalizedSpeakerNames.length > 0) {
     log(
       "Speaker names provided without references; applying names to diarized labels after transcription",
-      isVerbose
+      options.verbose
     );
   }
 
@@ -413,10 +417,17 @@ export async function transcribeAudioDiarized(
     }>;
     text: string;
   }
+
+  const timeoutSignal = AbortSignal.timeout(TRANSCRIPTION_TIMEOUT_MS);
+  const combinedSignal = options.abortSignal
+    ? AbortSignal.any([options.abortSignal, timeoutSignal])
+    : timeoutSignal;
+
   const response = (await client.audio.transcriptions.create(
     params as unknown as Parameters<
       typeof client.audio.transcriptions.create
-    >[0]
+    >[0],
+    { signal: combinedSignal }
   )) as unknown as DiarizedApiResponse;
 
   const segments: DiarizedSegment[] = (response.segments ?? []).map((s) => ({
@@ -429,13 +440,13 @@ export async function transcribeAudioDiarized(
   const labeledSegments =
     normalizedSpeakerNames.length > 0 &&
     normalizedSpeakerReferences.length === 0
-      ? applySpeakerNames(segments, normalizedSpeakerNames, isVerbose)
+      ? applySpeakerNames(segments, normalizedSpeakerNames, options.verbose)
       : segments;
   const uniqueSpeakers = [...new Set(labeledSegments.map((s) => s.speaker))];
 
   log(
     `Diarized transcription complete (${segments.length} segments, ${uniqueSpeakers.length} speakers)`,
-    isVerbose
+    options.verbose
   );
 
   return {

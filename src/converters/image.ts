@@ -41,7 +41,8 @@ export async function convertImage(
     options.verbose
   );
 
-  const markdown = await describeImage(imageBuffer, undefined, options.verbose);
+  options.onProgress?.("Analyzing image...");
+  const markdown = await describeImage(imageBuffer, options);
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title: filename,

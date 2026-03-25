@@ -34,12 +34,7 @@ describe("transcribeAudioDiarized", () => {
       text: "transcript",
     });
 
-    await transcribeAudioDiarized(
-      Buffer.from("audio"),
-      undefined,
-      false,
-      "recording.wav"
-    );
+    await transcribeAudioDiarized(Buffer.from("audio"), {}, "recording.wav");
 
     const request = createTranscription.mock.calls[0]?.[0] as { file: File };
     expect(request.file.name).toBe("recording.wav");
@@ -69,8 +64,7 @@ describe("transcribeAudioDiarized", () => {
 
     const result = await transcribeAudioDiarized(
       Buffer.from("audio"),
-      ["Alice", "Bob"],
-      false,
+      { speakers: ["Alice", "Bob"] },
       "recording.mp3"
     );
 
@@ -95,8 +89,7 @@ describe("transcribeAudioDiarized", () => {
 
     await transcribeAudioDiarized(
       Buffer.from("audio"),
-      ["Alice"],
-      false,
+      { speakers: ["Alice"] },
       "recording.mp3",
       ["data:audio/wav;base64,QUJD"]
     );
@@ -114,8 +107,7 @@ describe("transcribeAudioDiarized", () => {
     await expect(
       transcribeAudioDiarized(
         Buffer.from("audio"),
-        ["Alice", "Bob"],
-        false,
+        { speakers: ["Alice", "Bob"] },
         "recording.mp3",
         ["data:audio/wav;base64,QUJD"]
       )

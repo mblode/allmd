@@ -11,6 +11,7 @@ export async function convertPdf(
   options: ConversionOptions
 ): Promise<ConversionResult> {
   verbose(`Reading PDF: ${filePath}`, options.verbose);
+  options.onProgress?.("Parsing PDF...");
   const buffer = await readFile(filePath);
   const filename = titleFromFilename(filePath);
   verbose(
@@ -30,6 +31,7 @@ export async function convertPdf(
   let title = filename;
 
   if (hasText) {
+    options.onProgress?.("Formatting with AI...");
     markdown = await formatAsMarkdown(
       parsed.text,
       {
@@ -37,7 +39,7 @@ export async function convertPdf(
         source: filePath,
         type: "PDF document",
       },
-      options.verbose
+      options
     );
   } else {
     verbose(

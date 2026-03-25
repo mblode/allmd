@@ -101,17 +101,15 @@ async function transcribeDiarized(
   audioBuffer: Buffer,
   filePath: string,
   audioFilename: string,
-  speakerNames: string[],
-  speakerReferences: string[],
   options: ConversionOptions
 ): Promise<ConversionResult> {
   const filename = basename(filePath);
+  options.onProgress?.("Transcribing audio...");
   const transcription = await transcribeAudioDiarized(
     audioBuffer,
-    speakerNames,
-    options.verbose,
+    options,
     audioFilename,
-    speakerReferences
+    options.speakerReferences
   );
 
   const rawText = formatDiarizedSegments(transcription.segments);
@@ -120,6 +118,7 @@ async function transcribeDiarized(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawText,
     {
@@ -127,7 +126,7 @@ async function transcribeDiarized(
       source: filePath,
       type: "video/audio transcription (diarized)",
     },
-    options.verbose
+    options
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
@@ -161,17 +160,19 @@ async function transcribePlain(
   options: ConversionOptions
 ): Promise<ConversionResult> {
   const filename = basename(filePath);
-  const transcription = await transcribeAudio(audioBuffer, options.verbose);
+  options.onProgress?.("Transcribing audio...");
+  const transcription = await transcribeAudio(audioBuffer, options);
   const rawText = transcription.text;
   verbose(
     `Transcription: ${rawText.length.toLocaleString()} chars`,
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawText,
     { title: filename, source: filePath, type: "video/audio transcription" },
-    options.verbose
+    options
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
@@ -205,6 +206,7 @@ async function formatChunkedDiarizedResult(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawText,
     {
@@ -212,7 +214,7 @@ async function formatChunkedDiarizedResult(
       source: filePath,
       type: "video/audio transcription (diarized)",
     },
-    options.verbose
+    options
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
@@ -251,10 +253,11 @@ async function formatChunkedPlainResult(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawText,
     { title: filename, source: filePath, type: "video/audio transcription" },
-    options.verbose
+    options
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
@@ -280,16 +283,14 @@ async function transcribeChunkedDiarized(
   duration: number,
   tempDir: string,
   filesToCleanup: string[],
-  speakerNames: string[],
-  speakerReferences: string[],
-  isVerbose?: boolean
+  options: ConversionOptions
 ): Promise<{ segments: DiarizedSegment[]; speakers: string[] }> {
   const chunks = calculateChunkBoundaries(duration, DIARIZE_CHUNK_SECONDS);
   const bitratePerChunk = calculateTargetBitrate(chunks[0].durationSeconds);
 
   verbose(
     `Splitting into ${chunks.length} chunks of ~${Math.round(chunks[0].durationSeconds / 60)} min`,
-    isVerbose
+    options.verbose
   );
 
   // Extract all chunks first (fast ffmpeg operations)
@@ -299,9 +300,12 @@ async function transcribeChunkedDiarized(
     filesToCleanup.push(chunkPath);
     chunkPaths.push(chunkPath);
 
+    options.onProgress?.(
+      `Extracting chunk ${chunk.index + 1}/${chunks.length}...`
+    );
     verbose(
       `Extracting chunk ${chunk.index + 1}/${chunks.length} (${formatTimestamp(chunk.startSeconds)} – ${formatTimestamp(chunk.startSeconds + chunk.durationSeconds)})`,
-      isVerbose
+      options.verbose
     );
 
     await extractAudioChunk(
@@ -309,7 +313,8 @@ async function transcribeChunkedDiarized(
       chunkPath,
       chunk.startSeconds,
       chunk.durationSeconds,
-      bitratePerChunk
+      bitratePerChunk,
+      options.abortSignal
     );
   }
 
@@ -318,17 +323,19 @@ async function transcribeChunkedDiarized(
   const results = await Promise.all(
     chunks.map((chunk, i) =>
       limit(async () => {
+        options.onProgress?.(
+          `Transcribing chunk ${chunk.index + 1}/${chunks.length}...`
+        );
         verbose(
           `Transcribing chunk ${chunk.index + 1}/${chunks.length}`,
-          isVerbose
+          options.verbose
         );
         const chunkBuffer = await readFile(chunkPaths[i]);
         const transcription = await transcribeAudioDiarized(
           chunkBuffer,
-          speakerNames,
-          isVerbose,
+          options,
           `chunk-${chunk.index}.mp3`,
-          speakerReferences
+          options.speakerReferences
         );
 
         // Offset timestamps by chunk start
@@ -353,14 +360,14 @@ async function transcribeChunkedPlain(
   duration: number,
   tempDir: string,
   filesToCleanup: string[],
-  isVerbose?: boolean
+  options: ConversionOptions
 ): Promise<string> {
   const chunks = calculateChunkBoundaries(duration);
   const bitratePerChunk = calculateTargetBitrate(chunks[0].durationSeconds);
 
   verbose(
     `Splitting into ${chunks.length} chunks of ~${Math.round(chunks[0].durationSeconds / 60)} min`,
-    isVerbose
+    options.verbose
   );
 
   // Extract all chunks first (fast ffmpeg operations)
@@ -370,9 +377,12 @@ async function transcribeChunkedPlain(
     filesToCleanup.push(chunkPath);
     chunkPaths.push(chunkPath);
 
+    options.onProgress?.(
+      `Extracting chunk ${chunk.index + 1}/${chunks.length}...`
+    );
     verbose(
       `Extracting chunk ${chunk.index + 1}/${chunks.length} (${formatTimestamp(chunk.startSeconds)} – ${formatTimestamp(chunk.startSeconds + chunk.durationSeconds)})`,
-      isVerbose
+      options.verbose
     );
 
     await extractAudioChunk(
@@ -380,7 +390,8 @@ async function transcribeChunkedPlain(
       chunkPath,
       chunk.startSeconds,
       chunk.durationSeconds,
-      bitratePerChunk
+      bitratePerChunk,
+      options.abortSignal
     );
   }
 
@@ -389,12 +400,15 @@ async function transcribeChunkedPlain(
   const results = await Promise.all(
     chunks.map((chunk, i) =>
       limit(async () => {
+        options.onProgress?.(
+          `Transcribing chunk ${chunk.index + 1}/${chunks.length}...`
+        );
         verbose(
           `Transcribing chunk ${chunk.index + 1}/${chunks.length}`,
-          isVerbose
+          options.verbose
         );
         const chunkBuffer = await readFile(chunkPaths[i]);
-        const transcription = await transcribeAudio(chunkBuffer, isVerbose);
+        const transcription = await transcribeAudio(chunkBuffer, options);
         return transcription.text;
       })
     )
@@ -471,8 +485,6 @@ async function compressAndTranscribe(
   filesToCleanup: string[],
   duration: number,
   diarize: boolean,
-  speakerNames: string[],
-  speakerReferences: string[],
   options: ConversionOptions
 ): Promise<ConversionResult> {
   verbose(
@@ -483,9 +495,15 @@ async function compressAndTranscribe(
   const targetBitrate = calculateTargetBitrate(duration);
   verbose(`Compressing to ${targetBitrate}kbps mono 16kHz`, options.verbose);
 
+  options.onProgress?.("Compressing audio...");
   const compressedPath = join(tempDir, "compressed.mp3");
   filesToCleanup.push(compressedPath);
-  await compressAudio(audioPath, compressedPath, targetBitrate);
+  await compressAudio(
+    audioPath,
+    compressedPath,
+    targetBitrate,
+    options.abortSignal
+  );
 
   const compressedBuffer = await readFile(compressedPath);
   verbose(
@@ -504,8 +522,6 @@ async function compressAndTranscribe(
       compressedBuffer,
       filePath,
       "compressed.mp3",
-      speakerNames,
-      speakerReferences,
       options
     );
   }
@@ -516,8 +532,7 @@ export async function convertVideo(
   filePath: string,
   options: ConversionOptions
 ): Promise<ConversionResult> {
-  const { isAudio, isVideo, speakerNames, speakerReferences, diarize } =
-    parseVideoOptions(filePath, options);
+  const { isAudio, isVideo, diarize } = parseVideoOptions(filePath, options);
 
   const ext = extname(filePath).toLowerCase();
   let audioPath: string;
@@ -527,6 +542,7 @@ export async function convertVideo(
     diarize && isAudio && !DIARIZE_ACCEPTED_AUDIO_EXTS.has(ext);
 
   if (isVideo || shouldTranscodeForDiarization) {
+    options.onProgress?.("Extracting audio...");
     verbose("Extracting audio track with ffmpeg...", options.verbose);
     tempDir = await mkdtemp(join(tmpdir(), "md-video-"));
     audioPath = join(tempDir, "audio.mp3");
@@ -546,8 +562,11 @@ export async function convertVideo(
     );
 
     // Always get duration when diarize is on (API has 1400s limit) or file is oversized
+    options.onProgress?.("Detecting duration...");
     const duration =
-      diarize || oversized ? await getAudioDuration(audioPath) : undefined;
+      diarize || oversized
+        ? await getAudioDuration(audioPath, options.abortSignal)
+        : undefined;
 
     if (duration) {
       verbose(`Audio duration: ${Math.round(duration)}s`, options.verbose);
@@ -565,8 +584,6 @@ export async function convertVideo(
         tempDir,
         filesToCleanup,
         diarize,
-        speakerNames,
-        speakerReferences,
         options
       );
     }
@@ -584,8 +601,6 @@ export async function convertVideo(
         filesToCleanup,
         duration,
         diarize,
-        speakerNames,
-        speakerReferences,
         options
       );
     }
@@ -596,8 +611,6 @@ export async function convertVideo(
         audioBuffer,
         filePath,
         basename(audioPath),
-        speakerNames,
-        speakerReferences,
         options
       );
     }
@@ -618,8 +631,6 @@ async function handleChunkedTranscription(
   tempDir: string,
   filesToCleanup: string[],
   diarize: boolean,
-  speakerNames: string[],
-  speakerReferences: string[],
   options: ConversionOptions
 ): Promise<ConversionResult> {
   if (diarize) {
@@ -628,9 +639,7 @@ async function handleChunkedTranscription(
       duration,
       tempDir,
       filesToCleanup,
-      speakerNames,
-      speakerReferences,
-      options.verbose
+      options
     );
     return await formatChunkedDiarizedResult(
       segments,
@@ -645,7 +654,7 @@ async function handleChunkedTranscription(
     duration,
     tempDir,
     filesToCleanup,
-    options.verbose
+    options
   );
   return await formatChunkedPlainResult(rawText, filePath, options);
 }

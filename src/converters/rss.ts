@@ -66,6 +66,7 @@ export async function convertRss(
   url: string,
   options: ConversionOptions
 ): Promise<ConversionResult> {
+  options.onProgress?.("Fetching RSS feed...");
   verbose(`Fetching RSS feed: ${url}`, options.verbose);
 
   const parser = new RssParser();
@@ -92,6 +93,7 @@ export async function convertRss(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -99,7 +101,7 @@ export async function convertRss(
       source: url,
       type: "RSS feed",
     },
-    options.verbose
+    options
   );
 
   const title = feed.title ?? "RSS Feed";

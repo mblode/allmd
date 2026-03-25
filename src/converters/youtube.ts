@@ -61,6 +61,7 @@ export async function convertYoutube(
   const videoId = extractVideoId(url);
   verbose(`Video ID: ${videoId}`, options.verbose);
 
+  options.onProgress?.("Fetching transcript...");
   verbose("Fetching metadata and transcript...", options.verbose);
   const [metadata, segments] = await Promise.all([
     fetchVideoMetadata(videoId).catch(
@@ -89,6 +90,7 @@ export async function convertYoutube(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawTranscript,
     {
@@ -96,7 +98,7 @@ export async function convertYoutube(
       source: url,
       type: "YouTube video transcript",
     },
-    options.verbose
+    options
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {

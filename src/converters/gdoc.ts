@@ -34,6 +34,7 @@ export async function convertGdoc(
   verbose(`Document ID: ${docId}`, options.verbose);
 
   const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=markdown`;
+  options.onProgress?.("Fetching Google Doc...");
   verbose("Fetching markdown export...", options.verbose);
 
   const response = await fetchWithTimeout(exportUrl);
@@ -55,6 +56,7 @@ export async function convertGdoc(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -62,7 +64,7 @@ export async function convertGdoc(
       source: url,
       type: "Google Docs document",
     },
-    options.verbose
+    options
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {

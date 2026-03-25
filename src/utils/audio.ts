@@ -41,7 +41,10 @@ export function isAudioOversized(audioBuffer: Buffer): boolean {
   return audioBuffer.byteLength > SAFE_MAX_BYTES;
 }
 
-export async function getAudioDuration(filePath: string): Promise<number> {
+export async function getAudioDuration(
+  filePath: string,
+  abortSignal?: AbortSignal
+): Promise<number> {
   if (!ffmpegPath) {
     throw new Error(
       "ffmpeg binary not found. Install ffmpeg or ffmpeg-static."
@@ -51,6 +54,7 @@ export async function getAudioDuration(filePath: string): Promise<number> {
   try {
     await execFile(ffmpegPath, ["-hide_banner", "-i", filePath], {
       timeout: 30_000,
+      signal: abortSignal,
     });
   } catch (err: unknown) {
     // ffmpeg exits with code 1 when no output is specified, but still
@@ -115,7 +119,8 @@ export function calculateChunkBoundaries(
 export async function compressAudio(
   inputPath: string,
   outputPath: string,
-  bitrateKbps: number
+  bitrateKbps: number,
+  abortSignal?: AbortSignal
 ): Promise<void> {
   if (!ffmpegPath) {
     throw new Error("ffmpeg binary not found.");
@@ -137,7 +142,7 @@ export async function compressAudio(
       "mp3",
       outputPath,
     ],
-    { timeout: 300_000 }
+    { timeout: 300_000, signal: abortSignal }
   );
 }
 
@@ -146,7 +151,8 @@ export async function extractAudioChunk(
   outputPath: string,
   startSeconds: number,
   durationSeconds: number,
-  bitrateKbps: number
+  bitrateKbps: number,
+  abortSignal?: AbortSignal
 ): Promise<void> {
   if (!ffmpegPath) {
     throw new Error("ffmpeg binary not found.");
@@ -172,6 +178,6 @@ export async function extractAudioChunk(
       "mp3",
       outputPath,
     ],
-    { timeout: 300_000 }
+    { timeout: 300_000, signal: abortSignal }
   );
 }

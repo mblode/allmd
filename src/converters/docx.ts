@@ -12,6 +12,7 @@ export async function convertDocx(
   options: ConversionOptions
 ): Promise<ConversionResult> {
   verbose(`Reading DOCX: ${filePath}`, options.verbose);
+  options.onProgress?.("Extracting text...");
   const buffer = await readFile(filePath);
   verbose(
     `DOCX size: ${Math.round(buffer.byteLength / 1024)} KB`,
@@ -36,6 +37,7 @@ export async function convertDocx(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -43,7 +45,7 @@ export async function convertDocx(
       source: filePath,
       type: "Word document",
     },
-    options.verbose
+    options
   );
 
   const title = titleFromFilename(filePath);

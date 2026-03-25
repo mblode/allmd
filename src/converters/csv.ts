@@ -79,6 +79,7 @@ export async function convertCsv(
   options: ConversionOptions
 ): Promise<ConversionResult> {
   verbose(`Reading CSV/TSV: ${filePath}`, options.verbose);
+  options.onProgress?.("Parsing spreadsheet...");
   const content = await readFile(filePath, "utf-8");
   const ext = extname(filePath).toLowerCase();
   const isTsv = ext === ".tsv";
@@ -103,6 +104,7 @@ export async function convertCsv(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     markdownTable,
     {
@@ -110,7 +112,7 @@ export async function convertCsv(
       source: filePath,
       type: isTsv ? "TSV spreadsheet" : "CSV spreadsheet",
     },
-    options.verbose
+    options
   );
 
   const title = titleFromFilename(filePath);

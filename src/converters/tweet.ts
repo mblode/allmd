@@ -50,6 +50,7 @@ export async function convertTweet(
   // Try Twitter oEmbed API first
   try {
     const oembedUrl = `https://publish.twitter.com/oembed?url=${encodeURIComponent(normalizedUrl)}`;
+    options.onProgress?.("Fetching tweet...");
     verbose(`Trying oEmbed API: ${oembedUrl}`, options.verbose);
 
     const response = await fetchWithTimeout(oembedUrl);
@@ -70,6 +71,7 @@ export async function convertTweet(
       `oEmbed failed: ${err instanceof Error ? err.message : String(err)}`,
       options.verbose
     );
+    options.onProgress?.("Fetching with Firecrawl...");
     verbose("Falling back to Firecrawl extraction...", options.verbose);
 
     try {
@@ -95,6 +97,7 @@ export async function convertTweet(
     ? `**${author}** (${authorUrl || url}):\n\n${tweetText}`
     : tweetText;
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -102,7 +105,7 @@ export async function convertTweet(
       source: url,
       type: "tweet",
     },
-    options.verbose
+    options
   );
 
   const title = author ? `Tweet by ${author}` : "Tweet";

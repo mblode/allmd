@@ -58,6 +58,7 @@ export async function convertPptx(
   options: ConversionOptions
 ): Promise<ConversionResult> {
   verbose(`Reading PPTX: ${filePath}`, options.verbose);
+  options.onProgress?.("Extracting slides...");
   const buffer = await readFile(filePath);
   verbose(
     `PPTX size: ${Math.round(buffer.byteLength / 1024)} KB`,
@@ -126,6 +127,7 @@ export async function convertPptx(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -133,7 +135,7 @@ export async function convertPptx(
       source: filePath,
       type: "PowerPoint presentation",
     },
-    options.verbose
+    options
   );
 
   const title = titleFromFilename(filePath);

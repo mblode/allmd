@@ -40,6 +40,7 @@ export async function convertEpub(
       continue;
     }
     try {
+      options.onProgress?.(`Extracting chapter ${chapterTexts.length + 1}...`);
       const html = await epub.getChapterAsync(chapter.id);
       const md = htmlToMarkdown(html);
       if (md.trim()) {
@@ -60,6 +61,7 @@ export async function convertEpub(
     options.verbose
   );
 
+  options.onProgress?.("Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -67,7 +69,7 @@ export async function convertEpub(
       source: filePath,
       type: "EPUB ebook",
     },
-    options.verbose
+    options
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {

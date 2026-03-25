@@ -95,10 +95,9 @@ describe("convertVideo", () => {
     );
     expect(mocks.transcribeAudioDiarized).toHaveBeenCalledWith(
       expect.any(Buffer),
-      [],
-      undefined,
+      expect.objectContaining({ diarize: true }),
       "audio.mp3",
-      []
+      undefined
     );
   });
 
@@ -111,8 +110,10 @@ describe("convertVideo", () => {
 
     expect(mocks.transcribeAudioDiarized).toHaveBeenCalledWith(
       expect.any(Buffer),
-      ["Alice"],
-      undefined,
+      expect.objectContaining({
+        speakers: ["Alice"],
+        speakerReferences: ["./alice.wav"],
+      }),
       "input.mp3",
       ["./alice.wav"]
     );
