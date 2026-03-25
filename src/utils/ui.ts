@@ -31,6 +31,28 @@ export function verbose(message: string, isVerbose?: boolean): void {
   }
 }
 
+/**
+ * Start a ticking progress indicator that shows elapsed time.
+ * Updates `onProgress` every second: "Transcribing audio... 12s"
+ * Returns a stop function to clear the timer.
+ */
+export function startProgress(
+  onProgress: ((message: string) => void) | undefined,
+  message: string
+): () => void {
+  if (!onProgress) {
+    // biome-ignore lint/suspicious/noEmptyBlockStatements: intentional no-op
+    return () => {};
+  }
+  const start = Date.now();
+  onProgress(message);
+  const timer = setInterval(() => {
+    const elapsed = Math.round((Date.now() - start) / 1000);
+    onProgress(`${message} ${elapsed}s`);
+  }, 1000);
+  return () => clearInterval(timer);
+}
+
 export function formatError(err: unknown): string {
   const message = err instanceof Error ? err.message : String(err);
 

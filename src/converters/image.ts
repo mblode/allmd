@@ -3,7 +3,7 @@ import { basename, extname } from "node:path";
 import { describeImage } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
-import { verbose } from "../utils/ui.js";
+import { startProgress, verbose } from "../utils/ui.js";
 
 const SUPPORTED = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
 
@@ -41,8 +41,9 @@ export async function convertImage(
     options.verbose
   );
 
-  options.onProgress?.("Analyzing image...");
+  const stop = startProgress(options.onProgress, "Analyzing image...");
   const markdown = await describeImage(imageBuffer, options);
+  stop();
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title: filename,

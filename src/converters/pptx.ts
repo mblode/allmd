@@ -4,7 +4,7 @@ import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { titleFromFilename } from "../utils/slug.js";
-import { verbose } from "../utils/ui.js";
+import { startProgress, verbose } from "../utils/ui.js";
 
 const SLIDE_NUMBER_SUFFIX_RE = /\b\d+\b\s*$/;
 const SLIDE_ENTRY_RE = /^ppt\/slides\/slide\d+\.xml$/;
@@ -127,7 +127,7 @@ export async function convertPptx(
     options.verbose
   );
 
-  options.onProgress?.("Formatting with AI...");
+  const stop = startProgress(options.onProgress, "Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -137,6 +137,7 @@ export async function convertPptx(
     },
     options
   );
+  stop();
 
   const title = titleFromFilename(filePath);
 

@@ -23,9 +23,20 @@ import {
 } from "../utils/audio.js";
 import { AUDIO_EXTS, VIDEO_EXTS } from "../utils/detect.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
-import { verbose } from "../utils/ui.js";
+import { startProgress, verbose } from "../utils/ui.js";
 
 const PARALLEL_TRANSCRIPTIONS = 3;
+
+function formatDurationLabel(seconds?: number): string {
+  if (!seconds) {
+    return "";
+  }
+  const mins = Math.round(seconds / 60);
+  if (mins < 1) {
+    return ` (${Math.round(seconds)}s)`;
+  }
+  return ` (${mins} min)`;
+}
 
 const DIARIZE_ACCEPTED_AUDIO_EXTS = new Set([
   ".m4a",
@@ -101,16 +112,21 @@ async function transcribeDiarized(
   audioBuffer: Buffer,
   filePath: string,
   audioFilename: string,
-  options: ConversionOptions
+  options: ConversionOptions,
+  duration?: number
 ): Promise<ConversionResult> {
   const filename = basename(filePath);
-  options.onProgress?.("Transcribing audio...");
+  const stop = startProgress(
+    options.onProgress,
+    `Transcribing audio${formatDurationLabel(duration)}...`
+  );
   const transcription = await transcribeAudioDiarized(
     audioBuffer,
     options,
     audioFilename,
     options.speakerReferences
   );
+  stop();
 
   const rawText = formatDiarizedSegments(transcription.segments);
   verbose(
@@ -118,7 +134,7 @@ async function transcribeDiarized(
     options.verbose
   );
 
-  options.onProgress?.("Formatting with AI...");
+  const stopFormat = startProgress(options.onProgress, "Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawText,
     {
@@ -128,6 +144,7 @@ async function transcribeDiarized(
     },
     options
   );
+  stopFormat();
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title: filename,
@@ -157,23 +174,29 @@ async function transcribeDiarized(
 async function transcribePlain(
   audioBuffer: Buffer,
   filePath: string,
-  options: ConversionOptions
+  options: ConversionOptions,
+  duration?: number
 ): Promise<ConversionResult> {
   const filename = basename(filePath);
-  options.onProgress?.("Transcribing audio...");
+  const stop = startProgress(
+    options.onProgress,
+    `Transcribing audio${formatDurationLabel(duration)}...`
+  );
   const transcription = await transcribeAudio(audioBuffer, options);
+  stop();
   const rawText = transcription.text;
   verbose(
     `Transcription: ${rawText.length.toLocaleString()} chars`,
     options.verbose
   );
 
-  options.onProgress?.("Formatting with AI...");
+  const stopFormat = startProgress(options.onProgress, "Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawText,
     { title: filename, source: filePath, type: "video/audio transcription" },
     options
   );
+  stopFormat();
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title: filename,
@@ -206,7 +229,7 @@ async function formatChunkedDiarizedResult(
     options.verbose
   );
 
-  options.onProgress?.("Formatting with AI...");
+  const stop = startProgress(options.onProgress, "Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawText,
     {
@@ -216,6 +239,7 @@ async function formatChunkedDiarizedResult(
     },
     options
   );
+  stop();
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title: filename,
@@ -253,12 +277,13 @@ async function formatChunkedPlainResult(
     options.verbose
   );
 
-  options.onProgress?.("Formatting with AI...");
+  const stop = startProgress(options.onProgress, "Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawText,
     { title: filename, source: filePath, type: "video/audio transcription" },
     options
   );
+  stop();
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title: filename,
@@ -323,7 +348,8 @@ async function transcribeChunkedDiarized(
   const results = await Promise.all(
     chunks.map((chunk, i) =>
       limit(async () => {
-        options.onProgress?.(
+        const stop = startProgress(
+          options.onProgress,
           `Transcribing chunk ${chunk.index + 1}/${chunks.length}...`
         );
         verbose(
@@ -337,6 +363,7 @@ async function transcribeChunkedDiarized(
           `chunk-${chunk.index}.mp3`,
           options.speakerReferences
         );
+        stop();
 
         // Offset timestamps by chunk start
         return transcription.segments.map((seg) => ({
@@ -400,7 +427,8 @@ async function transcribeChunkedPlain(
   const results = await Promise.all(
     chunks.map((chunk, i) =>
       limit(async () => {
-        options.onProgress?.(
+        const stop = startProgress(
+          options.onProgress,
           `Transcribing chunk ${chunk.index + 1}/${chunks.length}...`
         );
         verbose(
@@ -409,6 +437,7 @@ async function transcribeChunkedPlain(
         );
         const chunkBuffer = await readFile(chunkPaths[i]);
         const transcription = await transcribeAudio(chunkBuffer, options);
+        stop();
         return transcription.text;
       })
     )
@@ -522,10 +551,11 @@ async function compressAndTranscribe(
       compressedBuffer,
       filePath,
       "compressed.mp3",
-      options
+      options,
+      duration
     );
   }
-  return await transcribePlain(compressedBuffer, filePath, options);
+  return await transcribePlain(compressedBuffer, filePath, options, duration);
 }
 
 export async function convertVideo(
@@ -611,10 +641,11 @@ export async function convertVideo(
         audioBuffer,
         filePath,
         basename(audioPath),
-        options
+        options,
+        duration
       );
     }
-    return await transcribePlain(audioBuffer, filePath, options);
+    return await transcribePlain(audioBuffer, filePath, options, duration);
   } finally {
     for (const f of filesToCleanup) {
       await unlink(f).catch(() => {

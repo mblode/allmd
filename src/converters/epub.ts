@@ -4,7 +4,7 @@ import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { htmlToMarkdown } from "../utils/html.js";
 import { titleFromFilename } from "../utils/slug.js";
-import { verbose } from "../utils/ui.js";
+import { startProgress, verbose } from "../utils/ui.js";
 
 // epub2 default export is the namespace in ESM; the class is on .EPub
 const mod = EPub as unknown as Record<string, typeof EPub>;
@@ -61,7 +61,7 @@ export async function convertEpub(
     options.verbose
   );
 
-  options.onProgress?.("Formatting with AI...");
+  const stop = startProgress(options.onProgress, "Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -71,6 +71,7 @@ export async function convertEpub(
     },
     options
   );
+  stop();
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title,

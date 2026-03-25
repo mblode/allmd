@@ -5,7 +5,7 @@ import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { htmlToMarkdown } from "../utils/html.js";
 import { titleFromFilename } from "../utils/slug.js";
-import { verbose } from "../utils/ui.js";
+import { startProgress, verbose } from "../utils/ui.js";
 
 export async function convertDocx(
   filePath: string,
@@ -37,7 +37,7 @@ export async function convertDocx(
     options.verbose
   );
 
-  options.onProgress?.("Formatting with AI...");
+  const stop = startProgress(options.onProgress, "Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -47,6 +47,7 @@ export async function convertDocx(
     },
     options
   );
+  stop();
 
   const title = titleFromFilename(filePath);
 

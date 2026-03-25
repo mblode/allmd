@@ -3,7 +3,7 @@ import type { ConversionOptions, ConversionResult } from "../types.js";
 import { fetchWithTimeout } from "../utils/fetch.js";
 import { scrapeMarkdownWithFirecrawl } from "../utils/firecrawl.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
-import { verbose } from "../utils/ui.js";
+import { startProgress, verbose } from "../utils/ui.js";
 
 interface OEmbedResponse {
   author_name: string;
@@ -97,7 +97,7 @@ export async function convertTweet(
     ? `**${author}** (${authorUrl || url}):\n\n${tweetText}`
     : tweetText;
 
-  options.onProgress?.("Formatting with AI...");
+  const stop = startProgress(options.onProgress, "Formatting with AI...");
   const markdown = await formatAsMarkdown(
     rawMarkdown,
     {
@@ -107,6 +107,7 @@ export async function convertTweet(
     },
     options
   );
+  stop();
 
   const title = author ? `Tweet by ${author}` : "Tweet";
 
