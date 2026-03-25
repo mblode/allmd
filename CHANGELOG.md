@@ -1,5 +1,11 @@
 # allmd
 
+## 1.1.3
+
+### Patch Changes
+
+- 6e24e63: Fix audio conversion hang, add abort signal support across all converters, and show progress stage in spinner
+
 ## 1.1.2
 
 ### Patch Changes
