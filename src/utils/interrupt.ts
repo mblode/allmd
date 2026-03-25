@@ -21,7 +21,6 @@ export function handleInterruptSignal(): void {
 
   if (activeAbortController && !activeAbortController.signal.aborted) {
     activeAbortController.abort(interruptedError());
-    return;
   }
 
   process.exit(130);
