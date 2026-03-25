@@ -225,10 +225,13 @@ export async function transcribeAudio(
   segments?: Array<{ start: number; text: string }>;
 }> {
   const sizeKB = Math.round(audioData.byteLength / 1024);
-  log(`Transcribing audio (${sizeKB} KB) with Whisper`, options.verbose);
+  log(
+    `Transcribing audio (${sizeKB} KB) with gpt-4o-mini-transcribe`,
+    options.verbose
+  );
 
   const result = await transcribe({
-    model: openai.transcription("whisper-1"),
+    model: openai.transcription("gpt-4o-mini-transcribe"),
     audio: audioData,
     abortSignal: options.abortSignal,
   });

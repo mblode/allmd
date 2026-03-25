@@ -5,7 +5,6 @@ import extractAudio from "ffmpeg-extract-audio";
 import pLimit from "p-limit";
 import {
   type DiarizedSegment,
-  formatAsMarkdown,
   transcribeAudio,
   transcribeAudioDiarized,
 } from "../ai/client.js";
@@ -127,24 +126,10 @@ async function transcribeDiarized(
     )
   );
 
-  const rawText = formatDiarizedSegments(transcription.segments);
+  const markdown = formatDiarizedSegments(transcription.segments);
   verbose(
-    `Transcription: ${rawText.length.toLocaleString()} chars, ${transcription.speakers.length} speakers`,
+    `Transcription: ${markdown.length.toLocaleString()} chars, ${transcription.speakers.length} speakers`,
     options.verbose
-  );
-
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawText,
-      {
-        title: filename,
-        source: filePath,
-        type: "video/audio transcription (diarized)",
-      },
-      options
-    )
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
@@ -163,7 +148,7 @@ async function transcribeDiarized(
   return {
     title: filename,
     markdown: withFrontmatter,
-    rawContent: rawText,
+    rawContent: markdown,
     metadata: {
       diarized: true,
       speakers: transcription.speakers,
@@ -184,20 +169,10 @@ async function transcribePlain(
     transcribeLabel(duration),
     transcribeAudio(audioBuffer, options)
   );
-  const rawText = transcription.text;
+  const markdown = transcription.text;
   verbose(
-    `Transcription: ${rawText.length.toLocaleString()} chars`,
+    `Transcription: ${markdown.length.toLocaleString()} chars`,
     options.verbose
-  );
-
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawText,
-      { title: filename, source: filePath, type: "video/audio transcription" },
-      options
-    )
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
@@ -213,36 +188,22 @@ async function transcribePlain(
   return {
     title: filename,
     markdown: withFrontmatter,
-    rawContent: rawText,
+    rawContent: markdown,
     metadata: {},
   };
 }
 
-async function formatChunkedDiarizedResult(
+function formatChunkedDiarizedResult(
   segments: DiarizedSegment[],
   speakers: string[],
   filePath: string,
   options: ConversionOptions
-): Promise<ConversionResult> {
+): ConversionResult {
   const filename = basename(filePath);
-  const rawText = formatDiarizedSegments(segments);
+  const markdown = formatDiarizedSegments(segments);
   verbose(
-    `Transcription: ${rawText.length.toLocaleString()} chars, ${speakers.length} speakers`,
+    `Transcription: ${markdown.length.toLocaleString()} chars, ${speakers.length} speakers`,
     options.verbose
-  );
-
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawText,
-      {
-        title: filename,
-        source: filePath,
-        type: "video/audio transcription (diarized)",
-      },
-      options
-    )
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
@@ -261,7 +222,7 @@ async function formatChunkedDiarizedResult(
   return {
     title: filename,
     markdown: withFrontmatter,
-    rawContent: rawText,
+    rawContent: markdown,
     metadata: {
       diarized: true,
       speakers,
@@ -270,25 +231,15 @@ async function formatChunkedDiarizedResult(
   };
 }
 
-async function formatChunkedPlainResult(
-  rawText: string,
+function formatChunkedPlainResult(
+  markdown: string,
   filePath: string,
   options: ConversionOptions
-): Promise<ConversionResult> {
+): ConversionResult {
   const filename = basename(filePath);
   verbose(
-    `Transcription: ${rawText.length.toLocaleString()} chars`,
+    `Transcription: ${markdown.length.toLocaleString()} chars`,
     options.verbose
-  );
-
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawText,
-      { title: filename, source: filePath, type: "video/audio transcription" },
-      options
-    )
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
@@ -304,7 +255,7 @@ async function formatChunkedPlainResult(
   return {
     title: filename,
     markdown: withFrontmatter,
-    rawContent: rawText,
+    rawContent: markdown,
     metadata: {},
   };
 }
@@ -675,12 +626,7 @@ async function handleChunkedTranscription(
       filesToCleanup,
       options
     );
-    return await formatChunkedDiarizedResult(
-      segments,
-      speakers,
-      filePath,
-      options
-    );
+    return formatChunkedDiarizedResult(segments, speakers, filePath, options);
   }
 
   const rawText = await transcribeChunkedPlain(
@@ -690,5 +636,5 @@ async function handleChunkedTranscription(
     filesToCleanup,
     options
   );
-  return await formatChunkedPlainResult(rawText, filePath, options);
+  return formatChunkedPlainResult(rawText, filePath, options);
 }
