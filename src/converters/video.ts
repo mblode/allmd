@@ -269,77 +269,76 @@ async function transcribeChunkedDiarized(
 ): Promise<{ segments: DiarizedSegment[]; speakers: string[] }> {
   const chunks = calculateChunkBoundaries(duration, DIARIZE_CHUNK_SECONDS);
   const bitratePerChunk = calculateTargetBitrate(chunks[0].durationSeconds);
+  const total = chunks.length;
 
   verbose(
-    `Splitting into ${chunks.length} chunks of ~${Math.round(chunks[0].durationSeconds / 60)} min`,
+    `Splitting into ${total} chunks of ~${Math.round(chunks[0].durationSeconds / 60)} min`,
     options.verbose
   );
 
-  // Extract all chunks first (fast ffmpeg operations)
-  const chunkPaths: string[] = [];
-  for (const chunk of chunks) {
-    const chunkPath = join(tempDir, `chunk-${chunk.index}.mp3`);
-    filesToCleanup.push(chunkPath);
-    chunkPaths.push(chunkPath);
-
-    options.onProgress?.(
-      `Extracting chunk ${chunk.index + 1}/${chunks.length}...`
-    );
-    verbose(
-      `Extracting chunk ${chunk.index + 1}/${chunks.length} (${formatTimestamp(chunk.startSeconds)} – ${formatTimestamp(chunk.startSeconds + chunk.durationSeconds)})`,
-      options.verbose
-    );
-
-    await extractAudioChunk(
-      audioPath,
-      chunkPath,
-      chunk.startSeconds,
-      chunk.durationSeconds,
-      bitratePerChunk,
-      options.abortSignal
-    );
-  }
-
-  // Transcribe chunks in parallel
+  // Pipeline: extract + transcribe each chunk, run up to 3 in parallel
   let completed = 0;
-  const total = chunks.length;
-  options.onProgress?.("Transcribing audio... 0%");
+  const start = Date.now();
+  const tick = () => {
+    const pct = Math.round((completed / total) * 100);
+    const elapsed = Math.round((Date.now() - start) / 1000);
+    options.onProgress?.(`Transcribing audio... ${pct}% · ${elapsed}s elapsed`);
+  };
+  tick();
+  const timer = setInterval(tick, 1000);
 
-  const limit = pLimit(PARALLEL_TRANSCRIPTIONS);
-  const results = await Promise.all(
-    chunks.map((chunk, i) =>
-      limit(async () => {
-        verbose(
-          `Transcribing chunk ${chunk.index + 1}/${total}`,
-          options.verbose
-        );
-        const chunkBuffer = await readFile(chunkPaths[i]);
-        const transcription = await transcribeAudioDiarized(
-          chunkBuffer,
-          options,
-          `chunk-${chunk.index}.mp3`,
-          options.speakerReferences
-        );
-        completed++;
-        options.onProgress?.(
-          `Transcribing audio... ${Math.round((completed / total) * 100)}%`
-        );
+  try {
+    const limit = pLimit(PARALLEL_TRANSCRIPTIONS);
+    const results = await Promise.all(
+      chunks.map((chunk) =>
+        limit(async () => {
+          const chunkPath = join(tempDir, `chunk-${chunk.index}.mp3`);
+          filesToCleanup.push(chunkPath);
 
-        // Offset timestamps by chunk start
-        return transcription.segments.map((seg) => ({
-          ...seg,
-          start: seg.start + chunk.startSeconds,
-          end: seg.end + chunk.startSeconds,
-        }));
-      })
-    )
-  );
+          verbose(
+            `Extracting chunk ${chunk.index + 1}/${total} (${formatTimestamp(chunk.startSeconds)} – ${formatTimestamp(chunk.startSeconds + chunk.durationSeconds)})`,
+            options.verbose
+          );
+          await extractAudioChunk(
+            audioPath,
+            chunkPath,
+            chunk.startSeconds,
+            chunk.durationSeconds,
+            bitratePerChunk,
+            options.abortSignal
+          );
 
-  const allSegments = results.flat();
-  const dedupedSegments = deduplicateOverlappingSegments(allSegments);
-  const uniqueSpeakers = [...new Set(dedupedSegments.map((s) => s.speaker))];
+          verbose(
+            `Transcribing chunk ${chunk.index + 1}/${total}`,
+            options.verbose
+          );
+          const chunkBuffer = await readFile(chunkPath);
+          const transcription = await transcribeAudioDiarized(
+            chunkBuffer,
+            options,
+            `chunk-${chunk.index}.mp3`,
+            options.speakerReferences
+          );
+          completed++;
+          tick();
 
-  return { segments: dedupedSegments, speakers: uniqueSpeakers };
+          return transcription.segments.map((seg) => ({
+            ...seg,
+            start: seg.start + chunk.startSeconds,
+            end: seg.end + chunk.startSeconds,
+          }));
+        })
+      )
+    );
+
+    const allSegments = results.flat();
+    const dedupedSegments = deduplicateOverlappingSegments(allSegments);
+    const uniqueSpeakers = [...new Set(dedupedSegments.map((s) => s.speaker))];
+
+    return { segments: dedupedSegments, speakers: uniqueSpeakers };
+  } finally {
+    clearInterval(timer);
+  }
 }
 
 async function transcribeChunkedPlain(
@@ -351,62 +350,63 @@ async function transcribeChunkedPlain(
 ): Promise<string> {
   const chunks = calculateChunkBoundaries(duration);
   const bitratePerChunk = calculateTargetBitrate(chunks[0].durationSeconds);
+  const total = chunks.length;
 
   verbose(
-    `Splitting into ${chunks.length} chunks of ~${Math.round(chunks[0].durationSeconds / 60)} min`,
+    `Splitting into ${total} chunks of ~${Math.round(chunks[0].durationSeconds / 60)} min`,
     options.verbose
   );
 
-  // Extract all chunks first (fast ffmpeg operations)
-  const chunkPaths: string[] = [];
-  for (const chunk of chunks) {
-    const chunkPath = join(tempDir, `chunk-${chunk.index}.mp3`);
-    filesToCleanup.push(chunkPath);
-    chunkPaths.push(chunkPath);
-
-    options.onProgress?.(
-      `Extracting chunk ${chunk.index + 1}/${chunks.length}...`
-    );
-    verbose(
-      `Extracting chunk ${chunk.index + 1}/${chunks.length} (${formatTimestamp(chunk.startSeconds)} – ${formatTimestamp(chunk.startSeconds + chunk.durationSeconds)})`,
-      options.verbose
-    );
-
-    await extractAudioChunk(
-      audioPath,
-      chunkPath,
-      chunk.startSeconds,
-      chunk.durationSeconds,
-      bitratePerChunk,
-      options.abortSignal
-    );
-  }
-
-  // Transcribe chunks in parallel
+  // Pipeline: extract + transcribe each chunk, run up to 3 in parallel
   let completed = 0;
-  const total = chunks.length;
-  options.onProgress?.("Transcribing audio... 0%");
+  const start = Date.now();
+  const tick = () => {
+    const pct = Math.round((completed / total) * 100);
+    const elapsed = Math.round((Date.now() - start) / 1000);
+    options.onProgress?.(`Transcribing audio... ${pct}% · ${elapsed}s elapsed`);
+  };
+  tick();
+  const timer = setInterval(tick, 1000);
 
-  const limit = pLimit(PARALLEL_TRANSCRIPTIONS);
-  const results = await Promise.all(
-    chunks.map((chunk, i) =>
-      limit(async () => {
-        verbose(
-          `Transcribing chunk ${chunk.index + 1}/${total}`,
-          options.verbose
-        );
-        const chunkBuffer = await readFile(chunkPaths[i]);
-        const transcription = await transcribeAudio(chunkBuffer, options);
-        completed++;
-        options.onProgress?.(
-          `Transcribing audio... ${Math.round((completed / total) * 100)}%`
-        );
-        return transcription.text;
-      })
-    )
-  );
+  try {
+    const limit = pLimit(PARALLEL_TRANSCRIPTIONS);
+    const results = await Promise.all(
+      chunks.map((chunk) =>
+        limit(async () => {
+          const chunkPath = join(tempDir, `chunk-${chunk.index}.mp3`);
+          filesToCleanup.push(chunkPath);
 
-  return results.join(" ");
+          verbose(
+            `Extracting chunk ${chunk.index + 1}/${total} (${formatTimestamp(chunk.startSeconds)} – ${formatTimestamp(chunk.startSeconds + chunk.durationSeconds)})`,
+            options.verbose
+          );
+          await extractAudioChunk(
+            audioPath,
+            chunkPath,
+            chunk.startSeconds,
+            chunk.durationSeconds,
+            bitratePerChunk,
+            options.abortSignal
+          );
+
+          verbose(
+            `Transcribing chunk ${chunk.index + 1}/${total}`,
+            options.verbose
+          );
+          const chunkBuffer = await readFile(chunkPath);
+          const transcription = await transcribeAudio(chunkBuffer, options);
+          completed++;
+          tick();
+
+          return transcription.text;
+        })
+      )
+    );
+
+    return results.join(" ");
+  } finally {
+    clearInterval(timer);
+  }
 }
 
 interface ParsedVideoOptions {

@@ -23,8 +23,8 @@ const SPEECH_SAMPLE_RATE = 16_000;
  */
 const MAX_SINGLE_CHUNK_SECONDS = 6000;
 
-/** Duration of each chunk when splitting long audio (whisper-1) */
-const CHUNK_DURATION_SECONDS = 1500; // 25 min
+/** Duration of each chunk when splitting long audio */
+const CHUNK_DURATION_SECONDS = 600; // 10 min — smaller for better parallelism
 
 /** Overlap between chunks to avoid losing words at boundaries */
 const CHUNK_OVERLAP_SECONDS = 15;
@@ -32,8 +32,8 @@ const CHUNK_OVERLAP_SECONDS = 15;
 /** gpt-4o-transcribe-diarize hard duration limit */
 export const DIARIZE_MAX_SECONDS = 1400;
 
-/** Safe chunk size for diarization (20 min, well under 1400s limit) */
-export const DIARIZE_CHUNK_SECONDS = 1200;
+/** Chunk size for diarization (10 min, well under 1400s limit) */
+export const DIARIZE_CHUNK_SECONDS = 600;
 
 /** Minimum duration to trigger chunking for progress + parallelism */
 const PROGRESS_CHUNK_SECONDS = 300;

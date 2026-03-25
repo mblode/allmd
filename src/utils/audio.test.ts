@@ -58,10 +58,10 @@ describe("needsChunking", () => {
 
 describe("calculateChunkBoundaries", () => {
   it("returns a single chunk for short audio", () => {
-    const chunks = calculateChunkBoundaries(600);
+    const chunks = calculateChunkBoundaries(500);
     expect(chunks).toHaveLength(1);
     expect(chunks[0].startSeconds).toBe(0);
-    expect(chunks[0].durationSeconds).toBe(600);
+    expect(chunks[0].durationSeconds).toBe(500);
     expect(chunks[0].index).toBe(0);
   });
 
