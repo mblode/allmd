@@ -4,7 +4,7 @@ import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { titleFromFilename } from "../utils/slug.js";
-import { startProgress, verbose } from "../utils/ui.js";
+import { trackProgress, verbose } from "../utils/ui.js";
 
 function detectDelimiter(text: string): string {
   const firstLine = text.split("\n")[0] ?? "";
@@ -104,17 +104,19 @@ export async function convertCsv(
     options.verbose
   );
 
-  const stop = startProgress(options.onProgress, "Formatting with AI...");
-  const markdown = await formatAsMarkdown(
-    markdownTable,
-    {
-      title: titleFromFilename(filePath),
-      source: filePath,
-      type: isTsv ? "TSV spreadsheet" : "CSV spreadsheet",
-    },
-    options
+  const markdown = await trackProgress(
+    options.onProgress,
+    "Formatting with AI...",
+    formatAsMarkdown(
+      markdownTable,
+      {
+        title: titleFromFilename(filePath),
+        source: filePath,
+        type: isTsv ? "TSV spreadsheet" : "CSV spreadsheet",
+      },
+      options
+    )
   );
-  stop();
 
   const title = titleFromFilename(filePath);
 

@@ -6,7 +6,7 @@ import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { fetchWithTimeout } from "../utils/fetch.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
-import { startProgress, verbose } from "../utils/ui.js";
+import { trackProgress, verbose } from "../utils/ui.js";
 
 interface VideoMetadata {
   author: string;
@@ -90,17 +90,19 @@ export async function convertYoutube(
     options.verbose
   );
 
-  const stop = startProgress(options.onProgress, "Formatting with AI...");
-  const markdown = await formatAsMarkdown(
-    rawTranscript,
-    {
-      title: metadata.title,
-      source: url,
-      type: "YouTube video transcript",
-    },
-    options
+  const markdown = await trackProgress(
+    options.onProgress,
+    "Formatting with AI...",
+    formatAsMarkdown(
+      rawTranscript,
+      {
+        title: metadata.title,
+        source: url,
+        type: "YouTube video transcript",
+      },
+      options
+    )
   );
-  stop();
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title: metadata.title,

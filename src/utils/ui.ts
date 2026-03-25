@@ -32,25 +32,29 @@ export function verbose(message: string, isVerbose?: boolean): void {
 }
 
 /**
- * Start a ticking progress indicator that shows elapsed time.
+ * Run an async operation with a ticking elapsed-time indicator.
  * Updates `onProgress` every second: "Transcribing audio... 12s"
- * Returns a stop function to clear the timer.
+ * Timer is always cleared, even on error.
  */
-export function startProgress(
+export async function trackProgress<T>(
   onProgress: ((message: string) => void) | undefined,
-  message: string
-): () => void {
+  message: string,
+  operation: Promise<T>
+): Promise<T> {
   if (!onProgress) {
-    // biome-ignore lint/suspicious/noEmptyBlockStatements: intentional no-op
-    return () => {};
+    return operation;
   }
   const start = Date.now();
   onProgress(message);
   const timer = setInterval(() => {
     const elapsed = Math.round((Date.now() - start) / 1000);
-    onProgress(`${message} ${elapsed}s`);
+    onProgress(`${message} ${elapsed}s elapsed`);
   }, 1000);
-  return () => clearInterval(timer);
+  try {
+    return await operation;
+  } finally {
+    clearInterval(timer);
+  }
 }
 
 export function formatError(err: unknown): string {

@@ -4,7 +4,7 @@ import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { titleFromFilename } from "../utils/slug.js";
-import { startProgress, verbose } from "../utils/ui.js";
+import { trackProgress, verbose } from "../utils/ui.js";
 
 export async function convertPdf(
   filePath: string,
@@ -31,17 +31,19 @@ export async function convertPdf(
   let title = filename;
 
   if (hasText) {
-    const stop = startProgress(options.onProgress, "Formatting with AI...");
-    markdown = await formatAsMarkdown(
-      parsed.text,
-      {
-        title: filename,
-        source: filePath,
-        type: "PDF document",
-      },
-      options
+    markdown = await trackProgress(
+      options.onProgress,
+      "Formatting with AI...",
+      formatAsMarkdown(
+        parsed.text,
+        {
+          title: filename,
+          source: filePath,
+          type: "PDF document",
+        },
+        options
+      )
     );
-    stop();
   } else {
     verbose(
       "PDF appears to be scanned/image-based, skipping AI formatting",

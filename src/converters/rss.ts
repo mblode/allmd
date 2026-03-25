@@ -3,7 +3,7 @@ import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
 import { htmlToMarkdown } from "../utils/html.js";
-import { startProgress, verbose } from "../utils/ui.js";
+import { trackProgress, verbose } from "../utils/ui.js";
 
 interface RssItem {
   categories?: string[];
@@ -93,17 +93,19 @@ export async function convertRss(
     options.verbose
   );
 
-  const stop = startProgress(options.onProgress, "Formatting with AI...");
-  const markdown = await formatAsMarkdown(
-    rawMarkdown,
-    {
-      title: feed.title ?? "RSS Feed",
-      source: url,
-      type: "RSS feed",
-    },
-    options
+  const markdown = await trackProgress(
+    options.onProgress,
+    "Formatting with AI...",
+    formatAsMarkdown(
+      rawMarkdown,
+      {
+        title: feed.title ?? "RSS Feed",
+        source: url,
+        type: "RSS feed",
+      },
+      options
+    )
   );
-  stop();
 
   const title = feed.title ?? "RSS Feed";
 

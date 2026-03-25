@@ -2,7 +2,7 @@ import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { fetchWithTimeout } from "../utils/fetch.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
-import { startProgress, verbose } from "../utils/ui.js";
+import { trackProgress, verbose } from "../utils/ui.js";
 
 const GDOC_ID_RE = /docs\.google\.com\/document\/d\/([a-zA-Z0-9_-]+)/;
 const FIRST_HEADING_RE = /^#\s+(.+)$/m;
@@ -56,17 +56,19 @@ export async function convertGdoc(
     options.verbose
   );
 
-  const stop = startProgress(options.onProgress, "Formatting with AI...");
-  const markdown = await formatAsMarkdown(
-    rawMarkdown,
-    {
-      title,
-      source: url,
-      type: "Google Docs document",
-    },
-    options
+  const markdown = await trackProgress(
+    options.onProgress,
+    "Formatting with AI...",
+    formatAsMarkdown(
+      rawMarkdown,
+      {
+        title,
+        source: url,
+        type: "Google Docs document",
+      },
+      options
+    )
   );
-  stop();
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title,
