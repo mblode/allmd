@@ -8,6 +8,9 @@ import "./global.css";
 export const metadata: Metadata = {
   description:
     "Documentation for allmd — a CLI tool that converts web pages, YouTube videos, PDFs, audio, images, and more into markdown.",
+  other: {
+    "apple-mobile-web-app-title": "AllMD",
+  },
   title: {
     default: "allmd docs",
     template: "%s | allmd docs",
