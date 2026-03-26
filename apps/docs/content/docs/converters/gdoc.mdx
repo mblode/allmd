@@ -1,0 +1,26 @@
+---
+title: Google Docs
+description: Convert published Google Docs to markdown.
+---
+
+## Usage
+
+```bash
+allmd gdoc <url> -o output.md
+```
+
+## Supported Formats
+
+- `docs.google.com` URLs
+
+The document must be published to the web or shared with link access.
+
+## Example
+
+```bash
+# Convert a Google Doc to markdown
+allmd gdoc https://docs.google.com/document/d/1a2b3c/edit -o doc.md
+
+# Output to stdout
+allmd gdoc https://docs.google.com/document/d/1a2b3c/edit
+```

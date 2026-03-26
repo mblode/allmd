@@ -1,0 +1,13 @@
+{
+  "title": "Documentation",
+  "pages": [
+    "---Getting Started---",
+    "index",
+    "installation",
+    "usage",
+    "---Reference---",
+    "api",
+    "---Converters---",
+    "...converters"
+  ]
+}

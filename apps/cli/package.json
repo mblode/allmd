@@ -1,0 +1,96 @@
+{
+  "name": "allmd",
+  "version": "1.1.2",
+  "description": "CLI tool to convert various content types to markdown",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "allmd": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/cli.js",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
+  },
+  "keywords": [
+    "markdown",
+    "cli",
+    "converter",
+    "youtube",
+    "pdf",
+    "web"
+  ],
+  "author": "Matthew Blode",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mblode/allmd.git",
+    "directory": "apps/cli"
+  },
+  "homepage": "https://github.com/mblode/allmd#readme",
+  "bugs": {
+    "url": "https://github.com/mblode/allmd/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^3.0.29",
+    "@clack/prompts": "^0.11.0",
+    "@mendable/firecrawl-js": "^4.15.2",
+    "@mozilla/readability": "^0.6.0",
+    "adm-zip": "^0.5.16",
+    "ai": "^6.0.86",
+    "chalk": "^5.6.2",
+    "clipboardy": "^5.3.0",
+    "commander": "^14.0.3",
+    "cosmiconfig": "^9.0.0",
+    "dotenv": "^17.3.1",
+    "epub2": "^3.0.2",
+    "fast-glob": "^3.3.3",
+    "ffmpeg-extract-audio": "^1.0.2",
+    "ffmpeg-static": "^5.0.0",
+    "gray-matter": "^4.0.3",
+    "linkedom": "^0.18.0",
+    "listr2": "^10.1.0",
+    "mammoth": "^1.11.0",
+    "openai": "^6.22.0",
+    "ora": "^9.3.0",
+    "p-limit": "^7.3.0",
+    "pdf-parse": "^1.1.1",
+    "rss-parser": "^3.13.0",
+    "tabtab": "^3.0.2",
+    "tsx": "^4.21.0",
+    "turndown": "^7.0.0",
+    "turndown-plugin-gfm": "^1.0.2",
+    "update-notifier": "^7.3.1",
+    "youtube-transcript-scraper": "^1.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.0",
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^22.19.11",
+    "@types/turndown": "^5.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^3.0.0"
+  }
+}

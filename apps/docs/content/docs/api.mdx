@@ -1,0 +1,55 @@
+---
+title: API
+description: Programmatic API for Node.js with full TypeScript support.
+---
+
+## Basic Usage
+
+```typescript
+import { convertWeb, convertPdf, convertYoutube } from "allmd";
+
+const result = await convertWeb("https://example.com");
+console.log(result.markdown);
+```
+
+## Available Converters
+
+| Function | Input |
+|----------|-------|
+| `convertWeb` | URL |
+| `convertYoutube` | YouTube URL |
+| `convertPdf` | PDF file path |
+| `convertGdoc` | Google Docs URL |
+| `convertVideo` | Video/audio file path |
+| `convertImage` | Image file path |
+| `convertDocx` | Word document path |
+| `convertEpub` | EPUB file path |
+| `convertCsv` | CSV/TSV file path |
+| `convertPptx` | PowerPoint file path |
+| `convertTweet` | Tweet URL |
+| `convertRss` | RSS/Atom feed URL |
+
+## ConversionResult
+
+Every converter returns a `ConversionResult`:
+
+```typescript
+interface ConversionResult {
+  markdown: string;
+  title?: string;
+  metadata?: Record<string, unknown>;
+}
+```
+
+## Options
+
+Pass options as the second argument:
+
+```typescript
+const result = await convertVideo("meeting.mp4", {
+  frontmatter: true,
+  verbose: false,
+  diarize: true,
+  speakers: ["Alice", "Bob"],
+});
+```

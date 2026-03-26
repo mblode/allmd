@@ -37,7 +37,7 @@ export function mergeWithCliOpts(
     verbose: cliOpts.verbose ?? config.verbose,
     parallel:
       cliOpts.parallel ??
-      (config.parallel != null ? String(config.parallel) : undefined),
+      (config.parallel == null ? undefined : String(config.parallel)),
     openai: config.openai,
     output: cliOpts.output,
     clipboard: cliOpts.clipboard,

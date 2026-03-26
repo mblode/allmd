@@ -1,0 +1,68 @@
+---
+title: Usage
+description: CLI commands, options, and examples.
+---
+
+## Auto-detection
+
+Pass any URL or file. allmd figures out the type automatically:
+
+```bash
+allmd https://example.com
+allmd document.pdf
+allmd recording.mp4
+```
+
+## Explicit Commands
+
+Specify the converter directly:
+
+```bash
+allmd web https://example.com -o article.md
+allmd youtube https://youtu.be/dQw4w9WgXcQ -o transcript.md
+allmd pdf document.pdf -o document.md
+allmd gdoc https://docs.google.com/document/d/... -o doc.md
+allmd video recording.mp4 -o transcript.md
+allmd image screenshot.png -o description.md
+allmd docx report.docx -o report.md
+allmd epub book.epub -o book.md
+allmd csv data.csv -o data.md
+allmd pptx slides.pptx -o slides.md
+allmd tweet https://x.com/user/status/123 -o tweet.md
+allmd rss https://blog.example.com/feed -o feed.md
+```
+
+## Interactive Mode
+
+Run `allmd` with no arguments to pick a converter interactively.
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `-o, --output <file>` | Write output to a specific file |
+| `-d, --output-dir <dir>` | Output directory for converted files |
+| `-v, --verbose` | Enable verbose output |
+| `-c, --clipboard` | Read input from clipboard |
+| `--copy` | Copy output to clipboard |
+| `--stdout` | Print output to stdout instead of writing a file |
+| `--parallel <n>` | Number of parallel conversions (default: 3) |
+| `--no-frontmatter` | Skip YAML frontmatter in output |
+| `--no-diarize` | Disable speaker diarization (video/audio) |
+| `--speakers <names>` | Speaker names, comma-separated |
+| `-V, --version` | Show version |
+| `-h, --help` | Show help |
+
+## Batch Conversion
+
+Convert multiple files at once:
+
+```bash
+allmd pdf '*.pdf' -d output/
+```
+
+## Pipe to Other Tools
+
+```bash
+allmd pdf report.pdf --stdout | pbcopy
+```

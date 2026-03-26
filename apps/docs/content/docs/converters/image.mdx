@@ -1,0 +1,31 @@
+---
+title: Image
+description: Generate markdown descriptions of images using GPT vision.
+---
+
+## Usage
+
+```bash
+allmd image <file> -o output.md
+```
+
+## Supported Formats
+
+- `.jpg`, `.jpeg`
+- `.png`
+- `.gif`
+- `.webp`
+
+## Requirements
+
+Requires `OPENAI_API_KEY` for GPT vision image description.
+
+## Example
+
+```bash
+# Describe an image as markdown
+allmd image photo.jpg -o description.md
+
+# Output to stdout
+allmd image diagram.png
+```

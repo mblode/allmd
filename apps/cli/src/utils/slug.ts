@@ -12,10 +12,10 @@ export function slugify(text: string, maxLength = 80): string {
     .replace(/^-|-$/g, "");
 
   if (slug.length > maxLength) {
-    slug = slug.substring(0, maxLength);
+    slug = slug.slice(0, maxLength);
     const lastHyphen = slug.lastIndexOf("-");
     if (lastHyphen > 0) {
-      slug = slug.substring(0, lastHyphen);
+      slug = slug.slice(0, lastHyphen);
     }
   }
 

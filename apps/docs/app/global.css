@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+@theme inline {
+  --color-fd-background: var(--fd-background);
+  --color-fd-foreground: var(--fd-foreground);
+  --color-fd-card: var(--fd-card);
+  --color-fd-card-foreground: var(--fd-card-foreground);
+  --color-fd-popover: var(--fd-popover);
+  --color-fd-popover-foreground: var(--fd-popover-foreground);
+  --color-fd-primary: var(--fd-primary);
+  --color-fd-primary-foreground: var(--fd-primary-foreground);
+  --color-fd-secondary: var(--fd-secondary);
+  --color-fd-secondary-foreground: var(--fd-secondary-foreground);
+  --color-fd-muted: var(--fd-muted);
+  --color-fd-muted-foreground: var(--fd-muted-foreground);
+  --color-fd-accent: var(--fd-accent);
+  --color-fd-accent-foreground: var(--fd-accent-foreground);
+  --color-fd-border: var(--fd-border);
+  --color-fd-ring: var(--fd-ring);
+}

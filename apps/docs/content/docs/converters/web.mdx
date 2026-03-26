@@ -1,0 +1,28 @@
+---
+title: Web
+description: Convert any web page to markdown using Firecrawl.
+---
+
+## Usage
+
+```bash
+allmd web <url> -o output.md
+```
+
+## Supported Formats
+
+- Any public web page URL
+
+## Requirements
+
+Requires `FIRECRAWL_API_KEY` in your environment or `.env` file. No OpenAI key needed -- Firecrawl handles the markdown extraction directly.
+
+## Example
+
+```bash
+# Convert a blog post to markdown
+allmd web https://example.com/blog/post -o post.md
+
+# Output to stdout
+allmd web https://example.com/about
+```

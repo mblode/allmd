@@ -1,0 +1,25 @@
+---
+title: YouTube
+description: Extract transcripts from YouTube videos with timestamps.
+---
+
+## Usage
+
+```bash
+allmd youtube <url> -o output.md
+```
+
+## Supported Formats
+
+- `youtube.com` URLs (e.g. `https://www.youtube.com/watch?v=...`)
+- `youtu.be` short URLs (e.g. `https://youtu.be/...`)
+
+## Example
+
+```bash
+# Extract a transcript with timestamps
+allmd youtube https://www.youtube.com/watch?v=dQw4w9WgXcQ -o transcript.md
+
+# Output to stdout
+allmd youtube https://youtu.be/dQw4w9WgXcQ
+```

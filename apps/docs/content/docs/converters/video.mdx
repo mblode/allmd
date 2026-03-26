@@ -1,0 +1,41 @@
+---
+title: Video & Audio
+description: Transcribe video and audio files using Whisper with optional speaker diarization.
+---
+
+## Usage
+
+```bash
+allmd video <file> -o output.md
+```
+
+## Supported Formats
+
+**Video:** `.mp4`, `.mkv`, `.avi`, `.mov`, `.webm`, `.flv`, `.wmv`, `.m4v`
+
+**Audio:** `.mp3`, `.wav`, `.m4a`, `.ogg`, `.flac`, `.aac`, `.wma`
+
+## Requirements
+
+Requires `ffmpeg` on PATH and `OPENAI_API_KEY` for Whisper transcription.
+
+## Options
+
+| Flag | Description |
+| --- | --- |
+| `--no-diarize` | Disable speaker diarization |
+| `--speakers "Alice,Bob"` | Name the speakers in order |
+| `--speaker-references ref.wav` | Provide reference audio for speaker identification |
+
+## Example
+
+```bash
+# Transcribe a video with speaker labels
+allmd video interview.mp4 -o interview.md
+
+# Transcribe audio without diarization
+allmd video podcast.mp3 --no-diarize -o podcast.md
+
+# Transcribe with named speakers
+allmd video meeting.mp4 --speakers "Alice,Bob,Charlie" -o meeting.md
+```
