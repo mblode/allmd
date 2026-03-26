@@ -1,8 +1,13 @@
 import { readFileSync } from "node:fs";
 
-const { version } = JSON.parse(
-  readFileSync(new URL("../cli/package.json", import.meta.url), "utf8")
-);
+let version = "0.0.0";
+try {
+  ({ version } = JSON.parse(
+    readFileSync(new URL("../cli/package.json", import.meta.url), "utf8")
+  ));
+} catch {
+  // CLI package unavailable in standalone Vercel deployments
+}
 
 const contentSecurityPolicy = [
   "default-src 'self'",
