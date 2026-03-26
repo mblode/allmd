@@ -101,7 +101,7 @@ export default function HomePage(): React.JSX.Element {
             <Button
               render={
                 <a
-                  href={siteConfig.links.docs}
+                  href={`${siteConfig.links.docs}`}
                   rel="noopener noreferrer"
                   target="_blank"
                 />
@@ -179,7 +179,7 @@ export default function HomePage(): React.JSX.Element {
             <Button
               render={
                 <a
-                  href={siteConfig.links.docs}
+                  href={`${siteConfig.links.docs}/installation`}
                   rel="noopener noreferrer"
                   target="_blank"
                 />
@@ -225,7 +225,7 @@ export default function HomePage(): React.JSX.Element {
             <Button
               render={
                 <a
-                  href={siteConfig.links.docs}
+                  href={`${siteConfig.links.docs}/api`}
                   rel="noopener noreferrer"
                   target="_blank"
                 />
@@ -272,7 +272,7 @@ export default function HomePage(): React.JSX.Element {
             <Button
               render={
                 <a
-                  href={siteConfig.links.docs}
+                  href={`${siteConfig.links.docs}/usage`}
                   rel="noopener noreferrer"
                   target="_blank"
                 />

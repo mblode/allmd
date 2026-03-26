@@ -4,6 +4,7 @@ const withMDX = createMDX();
 
 /** @type {import('next').NextConfig} */
 const config = {
+  allowedDevOrigins: ["docs.allmd.localhost"],
   basePath: "/docs",
   reactStrictMode: true,
   rewrites() {

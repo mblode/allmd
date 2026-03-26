@@ -9,13 +9,7 @@ import { MorphIcon } from "@/components/ui/morph-icon";
 import { siteConfig } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
-const navLinks = [
-  {
-    external: true,
-    href: siteConfig.links.docs,
-    label: "Docs",
-  },
-];
+const navLinks: { external?: boolean; href: string; label: string }[] = [];
 
 const linkClassName =
   "text-muted-foreground transition-colors hover:text-foreground";
