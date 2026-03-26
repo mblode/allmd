@@ -1,0 +1,64 @@
+---
+title: AI Agent Skill
+description: Give your AI coding agent the ability to convert anything to markdown.
+---
+
+## What are skills?
+
+Skills are reusable capabilities for AI agents. They provide procedural knowledge that helps agents accomplish specific tasks more effectively. Think of them as plugins or extensions that enhance what your AI agent can do.
+
+The allmd skill gives your agent the ability to convert web pages, YouTube videos, PDFs, images, and 9 more formats into clean markdown — without you having to remember the right command.
+
+## Install
+
+To add allmd as a skill for Claude Code, Cursor, or other AI coding assistants:
+
+```bash
+npx skills add mblode/allmd
+```
+
+This installs the skill definition so your agent knows how to use allmd automatically.
+
+## How the skill works
+
+When your agent receives a conversion request, the skill dispatches to the appropriate converter based on the input type:
+
+| Input | Command | Description |
+|-------|---------|-------------|
+| Any URL or file | `allmd <input>` | Auto-detects the format |
+| Web URL | `allmd web <url>` | Converts a web page |
+| Google Docs URL | `allmd gdoc <url>` | Converts a Google Doc |
+| YouTube URL | `allmd youtube <url>` | Extracts transcript and metadata |
+| Twitter/X URL | `allmd tweet <url>` | Converts a tweet |
+| RSS/Atom feed | `allmd rss <url>` | Converts a feed |
+| PDF file | `allmd pdf <file>` | Extracts text from a PDF |
+| Image file | `allmd image <file>` | Describes an image |
+| Video/audio file | `allmd video <file>` | Transcribes media |
+| Word document | `allmd docx <file>` | Converts a .docx file |
+| EPUB ebook | `allmd epub <file>` | Converts an ebook |
+| CSV/TSV file | `allmd csv <file>` | Converts tabular data |
+| PowerPoint | `allmd pptx <file>` | Converts a presentation |
+
+## Conversion workflow
+
+Most converters follow this pattern:
+
+1. **Validate** input (URL format or file existence)
+2. **Extract** content (fetch HTML, parse PDF, transcribe audio, etc.)
+3. **AI format** — restructures into clean markdown via OpenAI
+4. **Add frontmatter** — YAML header with title, source, date, and type-specific fields
+5. **Output** — write to file, directory, clipboard, or stdout
+
+Web page conversion differs: `allmd web` uses Firecrawl markdown directly and skips the AI formatting step.
+
+## Examples
+
+Ask your agent things like:
+
+- "Convert this PDF to markdown" (with a file path)
+- "Get the transcript from this YouTube video"
+- "Save this web article as markdown"
+- "Extract the text from this image"
+- "Convert this Google Doc to markdown"
+
+The agent will use allmd to handle the conversion automatically.

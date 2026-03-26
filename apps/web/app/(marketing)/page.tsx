@@ -272,7 +272,7 @@ export default function HomePage(): React.JSX.Element {
             <Button
               render={
                 <a
-                  href={`${siteConfig.links.docs}/usage`}
+                  href={`${siteConfig.links.docs}/skills`}
                   rel="noopener noreferrer"
                   target="_blank"
                 />

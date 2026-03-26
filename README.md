@@ -97,6 +97,10 @@ Add allmd as a skill for Claude Code, Cursor, Codex, and other AI coding assista
 npx skills add mblode/allmd
 ```
 
+### Documentation
+
+Full documentation at [allmd.blode.co/docs](https://allmd.blode.co/docs).
+
 ## License
 
 [MIT](LICENSE.md)
