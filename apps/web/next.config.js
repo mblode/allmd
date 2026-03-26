@@ -51,11 +51,11 @@ const nextConfig = {
     return [
       {
         source: "/docs",
-        destination: "https://docs-allmd.blode.co/docs",
+        destination: "https://allmd-docs.blode.co/docs",
       },
       {
         source: "/docs/:path*",
-        destination: "https://docs-allmd.blode.co/docs/:path*",
+        destination: "https://allmd-docs.blode.co/docs/:path*",
       },
     ];
   },
