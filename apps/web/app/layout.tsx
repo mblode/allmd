@@ -14,7 +14,7 @@ const glide = localFont({
   weight: "400 900",
 });
 
-const siteTitle = `${siteConfig.name} \u2014 Turn the whole universe into markdown`;
+const siteTitle = `${siteConfig.name} | Turn the whole universe into markdown`;
 
 export const viewport: Viewport = {
   maximumScale: 1,

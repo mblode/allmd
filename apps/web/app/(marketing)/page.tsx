@@ -15,6 +15,7 @@ import { stagger } from "motion";
 import { motion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/ui/copy-button";
 import { siteConfig } from "@/lib/config";
 
 const features = [
@@ -108,7 +109,6 @@ export default function HomePage(): React.JSX.Element {
               size="lg"
             >
               Get started
-              <ArrowRightIcon data-icon="inline-end" />
             </Button>
             <Button
               render={
@@ -127,20 +127,16 @@ export default function HomePage(): React.JSX.Element {
           </motion.div>
           <motion.code
             animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
-            className="relative mt-8 inline-flex cursor-pointer items-center gap-2 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="relative mt-8 inline-flex items-center gap-2 font-mono text-sm text-muted-foreground"
             initial={{ filter: "blur(8px)", opacity: 0, y: 4 }}
-            onClick={() => {
-              void navigator.clipboard.writeText(
-                "npx skills add mblode/allmd"
-              );
-            }}
             transition={{
               delay: 0.65,
               duration: 0.65,
               ease: [0.25, 1, 0.5, 1],
             }}
           >
-            npx skills add mblode/allmd
+            <span>npx skills add mblode/allmd</span>
+            <CopyButton content="npx skills add mblode/allmd" />
           </motion.code>
         </div>
       </section>
