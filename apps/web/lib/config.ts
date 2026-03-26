@@ -1,6 +1,6 @@
 export const siteConfig = {
   description:
-    "Convert web pages, YouTube videos, PDFs, audio, images, and 7 more formats into clean, AI-formatted markdown.",
+    "Convert anything to markdown. Web pages, YouTube, PDFs, images, audio, and more.",
   links: {
     author: "https://matthewblode.com",
     docs: "https://allmd.blode.co/docs",

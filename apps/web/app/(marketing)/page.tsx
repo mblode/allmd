@@ -19,38 +19,36 @@ import { siteConfig } from "@/lib/config";
 
 const features = [
   {
-    description:
-      "Pass any URL or file. allmd identifies the content type and routes to the right converter automatically.",
+    description: "Pass any URL or file path. allmd figures out the type.",
     icon: SparkleIcon,
     title: "Auto-detect",
   },
   {
     description:
-      "Raw content is restructured by AI into clean, well-organized markdown. Every word preserved, nothing summarized.",
+      "AI cleans up the output into consistent, readable markdown.",
     icon: MagicWandIcon,
     title: "AI formatting",
   },
   {
     description:
-      "Web, YouTube, PDF, Google Docs, video, audio, images, Word, EPUB, CSV, PowerPoint, tweets, and RSS.",
+      "Web, YouTube, PDF, Google Docs, video, audio, images, Word, EPUB, CSV, PowerPoint, tweets, RSS.",
     icon: LayoutGrid1Icon,
-    title: "12 converters",
+    title: "12 formats",
   },
   {
-    description:
-      "Write to a file, a directory, stdout, or your clipboard. Batch convert with glob patterns.",
+    description: "Write to file, directory, clipboard, or stdout.",
     icon: ArrowRightIcon,
-    title: "Output anywhere",
+    title: "Flexible output",
   },
   {
     description:
-      "Every conversion includes YAML frontmatter with title, source, date, and format-specific fields.",
+      "Every file gets a YAML header with title, source, date, and more.",
     icon: FileTextIcon,
-    title: "Rich frontmatter",
+    title: "Frontmatter",
   },
   {
     description:
-      "Install as a skill for Claude Code, Cursor, or any AI coding assistant.",
+      "Works with Claude Code, Cursor, and other AI coding agents.",
     icon: ConsoleIcon,
     title: "Agent skill",
   },
@@ -86,8 +84,8 @@ export default function HomePage(): React.JSX.Element {
               ease: [0.25, 1, 0.5, 1],
             }}
           >
-            Web pages, YouTube videos, PDFs, audio, images, and 7 more formats.
-            One command, clean markdown out.
+            Convert anything to markdown. Web pages, YouTube, PDFs, images,
+            audio, and more.
           </motion.p>
           <motion.div
             animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
@@ -102,15 +100,15 @@ export default function HomePage(): React.JSX.Element {
             <Button
               render={
                 <a
-                  href={siteConfig.links.npm}
+                  href={siteConfig.links.docs}
                   rel="noopener noreferrer"
                   target="_blank"
                 />
               }
               size="lg"
             >
-              <FileDownloadIcon data-icon="inline-start" />
-              npm install -g allmd
+              Get started
+              <ArrowRightIcon data-icon="inline-end" />
             </Button>
             <Button
               render={
@@ -124,7 +122,7 @@ export default function HomePage(): React.JSX.Element {
               variant="secondary"
             >
               <GlobusIcon data-icon="inline-start" />
-              View on GitHub
+              GitHub
             </Button>
           </motion.div>
           <motion.code
@@ -133,7 +131,7 @@ export default function HomePage(): React.JSX.Element {
             initial={{ filter: "blur(8px)", opacity: 0, y: 4 }}
             onClick={() => {
               void navigator.clipboard.writeText(
-                "allmd https://example.com -o article.md"
+                "npx skills add mblode/allmd"
               );
             }}
             transition={{
@@ -142,7 +140,7 @@ export default function HomePage(): React.JSX.Element {
               ease: [0.25, 1, 0.5, 1],
             }}
           >
-            $ allmd https://example.com -o article.md
+            npx skills add mblode/allmd
           </motion.code>
         </div>
       </section>
@@ -151,7 +149,7 @@ export default function HomePage(): React.JSX.Element {
       <section className="@container pt-8 pb-16 sm:pt-16 sm:pb-24">
         <div className="mx-auto max-w-3xl px-6">
           <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
-            Why allmd
+            Features
           </h2>
           <div className="mt-12 grid grid-cols-1 gap-6 text-sm @sm:grid-cols-2 @xl:grid-cols-3">
             {features.map((feature) => (
@@ -172,116 +170,15 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
 
-      {/* CLI */}
-      <section className="@container py-16 sm:py-24" id="cli">
+      {/* Install */}
+      <section className="@container py-16 sm:py-24" id="install">
         <div className="mx-auto grid max-w-3xl gap-6 px-6 @2xl:grid-cols-2 @2xl:gap-12">
           <div className="space-y-4">
             <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
-              One command
+              Install
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              Pass any URL or file. allmd auto-detects the type and converts it
-              to clean, structured markdown.
-            </p>
-            <Button
-              render={
-                <a
-                  href={siteConfig.links.npm}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
-            >
-              View on npm
-              <ArrowRightIcon data-icon="inline-end" />
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 gap-6 text-sm @sm:grid-cols-2 @2xl:grid-cols-1">
-            <div className="feature-card space-y-3 border-t pt-6">
-              <SparkleIcon className="size-4 text-muted-foreground" />
-              <p className="text-muted-foreground leading-5">
-                <span className="font-medium text-foreground">Auto-detect</span>
-              </p>
-              <code className="block font-mono text-xs text-muted-foreground">
-                allmd https://example.com
-              </code>
-            </div>
-            <div className="feature-card space-y-3 border-t pt-6">
-              <ConsoleIcon className="size-4 text-muted-foreground" />
-              <p className="text-muted-foreground leading-5">
-                <span className="font-medium text-foreground">
-                  Or be explicit
-                </span>
-              </p>
-              <code className="block font-mono text-xs text-muted-foreground">
-                allmd youtube https://youtu.be/dQw4w9WgXcQ -o transcript.md
-              </code>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* API */}
-      <section className="@container py-16 sm:py-24" id="api">
-        <div className="mx-auto grid max-w-3xl gap-6 px-6 @2xl:grid-cols-2 @2xl:gap-12">
-          <div className="space-y-4">
-            <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
-              Programmatic API
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Import any converter directly. Use allmd as a library in your
-              Node.js projects with full TypeScript support.
-            </p>
-            <Button
-              render={
-                <a
-                  href={`${siteConfig.links.github}#api-usage`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
-            >
-              View docs
-              <ArrowRightIcon data-icon="inline-end" />
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 gap-6 text-sm @sm:grid-cols-2 @2xl:grid-cols-1">
-            <div className="feature-card space-y-3 border-t pt-6">
-              <MagicWandIcon className="size-4 text-muted-foreground" />
-              <p className="text-muted-foreground leading-5">
-                <span className="font-medium text-foreground">
-                  Import and convert
-                </span>
-              </p>
-              <code className="block font-mono text-xs text-muted-foreground">
-                {`import { convertWeb } from "allmd";`}
-              </code>
-            </div>
-            <div className="feature-card space-y-3 border-t pt-6">
-              <FileTextIcon className="size-4 text-muted-foreground" />
-              <p className="text-muted-foreground leading-5">
-                <span className="font-medium text-foreground">
-                  Get structured results
-                </span>
-              </p>
-              <code className="block font-mono text-xs text-muted-foreground">
-                {`const result = await convertPdf("report.pdf");`}
-              </code>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Agent skill */}
-      <section className="@container py-16 sm:py-24" id="skills">
-        <div className="mx-auto grid max-w-3xl gap-6 px-6 @2xl:grid-cols-2 @2xl:gap-12">
-          <div className="space-y-4">
-            <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
-              Agent skill
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              One command to give your AI coding agent the ability to convert
-              anything to markdown.
+              One command to set up, one command to convert.
             </p>
             <Button
               render={
@@ -292,7 +189,7 @@ export default function HomePage(): React.JSX.Element {
                 />
               }
             >
-              View docs
+              Read the docs
               <ArrowRightIcon data-icon="inline-end" />
             </Button>
           </div>
@@ -300,9 +197,100 @@ export default function HomePage(): React.JSX.Element {
             <div className="feature-card space-y-3 border-t pt-6">
               <FileDownloadIcon className="size-4 text-muted-foreground" />
               <p className="text-muted-foreground leading-5">
-                <span className="font-medium text-foreground">
-                  Install the skill
-                </span>
+                <span className="font-medium text-foreground">Install</span>
+              </p>
+              <code className="block font-mono text-xs text-muted-foreground">
+                npm install -g allmd
+              </code>
+            </div>
+            <div className="feature-card space-y-3 border-t pt-6">
+              <ConsoleIcon className="size-4 text-muted-foreground" />
+              <p className="text-muted-foreground leading-5">
+                <span className="font-medium text-foreground">Convert</span>
+              </p>
+              <code className="block font-mono text-xs text-muted-foreground">
+                allmd https://example.com -o article.md
+              </code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Node.js API */}
+      <section className="@container py-16 sm:py-24" id="api">
+        <div className="mx-auto grid max-w-3xl gap-6 px-6 @2xl:grid-cols-2 @2xl:gap-12">
+          <div className="space-y-4">
+            <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
+              Node.js API
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Import converters directly in your TypeScript projects.
+            </p>
+            <Button
+              render={
+                <a
+                  href={siteConfig.links.docs}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                />
+              }
+            >
+              API reference
+              <ArrowRightIcon data-icon="inline-end" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 gap-6 text-sm @sm:grid-cols-2 @2xl:grid-cols-1">
+            <div className="feature-card space-y-3 border-t pt-6">
+              <MagicWandIcon className="size-4 text-muted-foreground" />
+              <p className="text-muted-foreground leading-5">
+                <span className="font-medium text-foreground">Import</span>
+              </p>
+              <code className="block font-mono text-xs text-muted-foreground">
+                {`import { convertWeb } from "allmd";`}
+              </code>
+            </div>
+            <div className="feature-card space-y-3 border-t pt-6">
+              <FileTextIcon className="size-4 text-muted-foreground" />
+              <p className="text-muted-foreground leading-5">
+                <span className="font-medium text-foreground">Convert</span>
+              </p>
+              <code className="block font-mono text-xs text-muted-foreground">
+                {`const { markdown } = await convertWeb("https://example.com");`}
+              </code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI agent skill */}
+      <section className="@container py-16 sm:py-24" id="skill">
+        <div className="mx-auto grid max-w-3xl gap-6 px-6 @2xl:grid-cols-2 @2xl:gap-12">
+          <div className="space-y-4">
+            <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
+              AI agent skill
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Give your AI coding agent the ability to convert anything to
+              markdown.
+            </p>
+            <Button
+              render={
+                <a
+                  href={siteConfig.links.docs}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                />
+              }
+            >
+              Add the skill
+              <ArrowRightIcon data-icon="inline-end" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 gap-6 text-sm @sm:grid-cols-2 @2xl:grid-cols-1">
+            <div className="feature-card space-y-3 border-t pt-6">
+              <FileDownloadIcon className="size-4 text-muted-foreground" />
+              <p className="text-muted-foreground leading-5">
+                <span className="font-medium text-foreground">Install</span>
               </p>
               <code className="block font-mono text-xs text-muted-foreground">
                 npx skills add mblode/allmd
@@ -311,12 +299,10 @@ export default function HomePage(): React.JSX.Element {
             <div className="feature-card space-y-3 border-t pt-6">
               <SparkleIcon className="size-4 text-muted-foreground" />
               <p className="text-muted-foreground leading-5">
-                <span className="font-medium text-foreground">
-                  Convert anything
-                </span>
+                <span className="font-medium text-foreground">Use</span>
               </p>
               <code className="block font-mono text-xs text-muted-foreground">
-                allmd https://docs.google.com/document/d/...
+                allmd youtube https://youtu.be/dQw4w9WgXcQ
               </code>
             </div>
           </div>
