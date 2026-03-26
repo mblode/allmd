@@ -1,14 +1,4 @@
 {
   "title": "Documentation",
-  "pages": [
-    "---Getting Started---",
-    "index",
-    "installation",
-    "usage",
-    "skills",
-    "---Reference---",
-    "api",
-    "---Converters---",
-    "...converters"
-  ]
+  "pages": ["cli", "skills", "api"]
 }

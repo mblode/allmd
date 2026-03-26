@@ -101,7 +101,7 @@ export default function HomePage(): React.JSX.Element {
             <Button
               render={
                 <a
-                  href={`${siteConfig.links.docs}`}
+                  href={`${siteConfig.links.docs}/cli`}
                   rel="noopener noreferrer"
                   target="_blank"
                 />
@@ -142,7 +142,7 @@ export default function HomePage(): React.JSX.Element {
       </section>
 
       {/* Features */}
-      <section className="@container pt-8 pb-16 sm:pt-16 sm:pb-24">
+      <section className="@container pt-8 pb-16 sm:pt-16 sm:pb-24" id="features">
         <div className="mx-auto max-w-3xl px-6">
           <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
             Features
@@ -179,7 +179,7 @@ export default function HomePage(): React.JSX.Element {
             <Button
               render={
                 <a
-                  href={`${siteConfig.links.docs}/installation`}
+                  href={`${siteConfig.links.docs}/cli/installation`}
                   rel="noopener noreferrer"
                   target="_blank"
                 />

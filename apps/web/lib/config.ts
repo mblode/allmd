@@ -1,6 +1,6 @@
 export const siteConfig = {
   description:
-    "Convert anything to markdown. Web pages, YouTube, PDFs, images, audio, and more.",
+    "Convert anything to markdown with one CLI command. Web pages, YouTube videos, PDFs, Google Docs, images, audio, Word docs, EPUB, CSV, PowerPoint, tweets, and RSS feeds.",
   links: {
     author: "https://matthewblode.com",
     docs: "https://allmd.blode.co/docs",

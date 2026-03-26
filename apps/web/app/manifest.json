@@ -1,6 +1,9 @@
 {
-  "name": "AllMD",
-  "short_name": "AllMD",
+  "name": "allmd",
+  "short_name": "allmd",
+  "description": "Convert anything to markdown with one CLI command.",
+  "start_url": "/",
+  "categories": ["developer tools", "productivity"],
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

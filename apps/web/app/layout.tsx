@@ -3,6 +3,7 @@ import { GeistMono } from "geist/font/mono";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 
+import { JsonLd } from "@/components/shared/json-ld";
 import { siteConfig } from "@/lib/config";
 
 import "./globals.css";
@@ -26,6 +27,15 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   description: siteConfig.description,
+  keywords: [
+    "markdown converter",
+    "convert to markdown",
+    "web to markdown",
+    "pdf to markdown",
+    "youtube to markdown",
+    "cli tool",
+    "allmd",
+  ],
   metadataBase: new URL(siteConfig.url),
   openGraph: {
     description: siteConfig.description,
@@ -37,12 +47,14 @@ export const metadata: Metadata = {
         width: 1200,
       },
     ],
+    siteName: siteConfig.name,
     title: siteTitle,
     type: "website",
     url: siteConfig.url,
   },
   other: {
     "apple-mobile-web-app-title": siteConfig.name,
+    "google-site-verification": "mFwyBIbXTaKK4uF_NA0MzVWFyY40hPgBjFObg3rje04",
   },
   title: siteTitle,
   twitter: {
@@ -73,7 +85,14 @@ const softwareJsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   applicationCategory: "DeveloperApplication",
+  author: {
+    "@type": "Person",
+    name: "Matthew Blode",
+    url: siteConfig.links.author,
+  },
   description: siteConfig.description,
+  downloadUrl: siteConfig.links.npm,
+  license: "https://opensource.org/licenses/MIT",
   name: siteConfig.name,
   offers: {
     "@type": "Offer",
@@ -81,6 +100,7 @@ const softwareJsonLd = {
     priceCurrency: "USD",
   },
   operatingSystem: "macOS, Windows, Linux",
+  softwareVersion: process.env.ALLMD_VERSION,
   url: siteConfig.links.npm,
 };
 
@@ -95,24 +115,11 @@ export default function RootLayout({
       lang="en"
     >
       <body className="flex min-h-screen flex-col">
-        {/* oxlint-disable react/no-danger -- JSON-LD structured data requires dangerouslySetInnerHTML */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationJsonLd),
-          }}
-          type="application/ld+json"
-        />
-        <script
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
-          type="application/ld+json"
-        />
-        <script
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }}
-          type="application/ld+json"
-        />
-        {/* oxlint-enable react/no-danger */}
+        <JsonLd data={organizationJsonLd} />
+        <JsonLd data={webSiteJsonLd} />
+        <JsonLd data={softwareJsonLd} />
         {children}
-        <GoogleAnalytics gaId="G-7XGBDRVZQR" />
+        <GoogleAnalytics gaId="G-SSFCC1ZF38" />
       </body>
     </html>
   );

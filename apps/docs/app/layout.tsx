@@ -6,7 +6,7 @@ import "./global.css";
 
 export const metadata: Metadata = {
   appleWebApp: {
-    title: "AllMD",
+    title: "allmd",
   },
   description:
     "Documentation for allmd — a CLI tool that converts web pages, YouTube videos, PDFs, audio, images, and more into markdown.",
@@ -22,7 +22,7 @@ export default function Layout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-screen flex-col">
         <RootProvider>{children}</RootProvider>
       </body>
-      <GoogleAnalytics gaId="G-7XGBDRVZQR" />
+      <GoogleAnalytics gaId="G-SSFCC1ZF38" />
     </html>
   );
 }
