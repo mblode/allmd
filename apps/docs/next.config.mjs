@@ -7,15 +7,6 @@ const config = {
   allowedDevOrigins: ["docs.allmd.localhost"],
   basePath: "/docs",
   reactStrictMode: true,
-  redirects() {
-    return [
-      {
-        destination: "/cli",
-        permanent: false,
-        source: "/",
-      },
-    ];
-  },
   rewrites() {
     return [
       {

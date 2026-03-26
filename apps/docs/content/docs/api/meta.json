@@ -1,6 +1,0 @@
-{
-  "title": "Node Package",
-  "root": true,
-  "icon": "Package",
-  "pages": ["index"]
-}

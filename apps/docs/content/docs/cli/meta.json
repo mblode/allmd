@@ -1,13 +1,4 @@
 {
   "title": "CLI",
-  "root": true,
-  "icon": "Terminal",
-  "pages": [
-    "---Getting Started---",
-    "index",
-    "installation",
-    "usage",
-    "---Converters---",
-    "...converters"
-  ]
+  "pages": ["installation", "usage", "...converters"]
 }
