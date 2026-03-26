@@ -5,7 +5,6 @@ import {
   ConsoleIcon,
   FileDownloadIcon,
   FileTextIcon,
-  GlobusIcon,
   LayoutGrid1Icon,
   MagicWandIcon,
   SparkleIcon,
@@ -110,20 +109,6 @@ export default function HomePage(): React.JSX.Element {
             >
               Get started
             </Button>
-            <Button
-              render={
-                <a
-                  href={siteConfig.links.github}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
-              size="lg"
-              variant="secondary"
-            >
-              <GlobusIcon data-icon="inline-start" />
-              GitHub
-            </Button>
           </motion.div>
           <motion.code
             animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
@@ -205,7 +190,7 @@ export default function HomePage(): React.JSX.Element {
                 <span className="font-medium text-foreground">Convert</span>
               </p>
               <code className="block font-mono text-xs text-muted-foreground">
-                allmd https://example.com -o article.md
+                allmd https://example.com
               </code>
             </div>
           </div>
@@ -298,7 +283,7 @@ export default function HomePage(): React.JSX.Element {
                 <span className="font-medium text-foreground">Use</span>
               </p>
               <code className="block font-mono text-xs text-muted-foreground">
-                allmd youtube https://youtu.be/dQw4w9WgXcQ
+                /allmd https://youtu.be/dQw4w9WgXcQ
               </code>
             </div>
           </div>
