@@ -7,7 +7,8 @@
     "dev": "portless docs.allmd next dev",
     "start": "next start",
     "check-types": "fumadocs-mdx && next typegen && tsc --noEmit",
-    "postinstall": "fumadocs-mdx"
+    "postinstall": "fumadocs-mdx",
+    "push": "blode-docs push content/docs --project allmd --api-url https://api.blode.md"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.1",

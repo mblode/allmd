@@ -1,0 +1,43 @@
+{
+  "name": "allmd",
+  "description": "Universal content-to-markdown converter",
+  "collections": [
+    {
+      "id": "docs",
+      "type": "docs",
+      "navigation": {
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["index"]
+          },
+          {
+            "group": "CLI",
+            "pages": ["cli/installation", "cli/usage"]
+          },
+          {
+            "group": "Converters",
+            "pages": [
+              "cli/converters/web",
+              "cli/converters/youtube",
+              "cli/converters/pdf",
+              "cli/converters/gdoc",
+              "cli/converters/video",
+              "cli/converters/image",
+              "cli/converters/docx",
+              "cli/converters/epub",
+              "cli/converters/csv",
+              "cli/converters/pptx",
+              "cli/converters/tweet",
+              "cli/converters/rss"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": ["api", "skills"]
+          }
+        ]
+      }
+    }
+  ]
+}
