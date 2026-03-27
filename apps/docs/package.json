@@ -6,7 +6,7 @@
     "build": "next build",
     "dev": "portless docs.allmd next dev",
     "start": "next start",
-    "check-types": "fumadocs-mdx && tsc --noEmit",
+    "check-types": "fumadocs-mdx && next typegen && tsc --noEmit",
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
