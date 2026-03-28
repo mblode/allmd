@@ -59,12 +59,6 @@ const nextConfig = {
           destination: "https://allmd.blode.md/docs/:path*",
         },
       ],
-      fallback: [
-        {
-          source: "/_next/:path*",
-          destination: "https://allmd.blode.md/_next/:path*",
-        },
-      ],
     };
   },
   headers() {
