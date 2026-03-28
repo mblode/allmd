@@ -48,16 +48,24 @@ const nextConfig = {
   },
   reactCompiler: true,
   rewrites() {
-    return [
-      {
-        source: "/docs",
-        destination: "https://allmd-docs.blode.co/docs",
-      },
-      {
-        source: "/docs/:path*",
-        destination: "https://allmd-docs.blode.co/docs/:path*",
-      },
-    ];
+    return {
+      beforeFiles: [
+        {
+          source: "/docs",
+          destination: "https://allmd.blode.md/docs",
+        },
+        {
+          source: "/docs/:path*",
+          destination: "https://allmd.blode.md/docs/:path*",
+        },
+      ],
+      fallback: [
+        {
+          source: "/_next/:path*",
+          destination: "https://allmd.blode.md/_next/:path*",
+        },
+      ],
+    };
   },
   headers() {
     return [
