@@ -1,0 +1,56 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "allmd",
+  "description": "Universal content-to-markdown converter",
+  "colors": {
+    "primary": "#0a0a0a",
+    "light": "#fafafa",
+    "dark": "#0a0a0a"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Website",
+        "href": "https://allmd.blode.co"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/mblode/allmd"
+      }
+    ]
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": ["index"]
+      },
+      {
+        "group": "CLI",
+        "pages": ["cli", "cli/installation", "cli/usage"]
+      },
+      {
+        "group": "Converters",
+        "pages": [
+          "cli/converters/web",
+          "cli/converters/youtube",
+          "cli/converters/pdf",
+          "cli/converters/gdoc",
+          "cli/converters/video",
+          "cli/converters/image",
+          "cli/converters/docx",
+          "cli/converters/epub",
+          "cli/converters/csv",
+          "cli/converters/pptx",
+          "cli/converters/tweet",
+          "cli/converters/rss"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": ["api", "skills"]
+      }
+    ]
+  }
+}
