@@ -52,11 +52,11 @@ const nextConfig = {
       beforeFiles: [
         {
           source: "/docs",
-          destination: "https://allmd.blode.md",
+          destination: "https://allmd.blode.md/docs",
         },
         {
           source: "/docs/:path*",
-          destination: "https://allmd.blode.md/:path*",
+          destination: "https://allmd.blode.md/docs/:path*",
         },
       ],
     };
