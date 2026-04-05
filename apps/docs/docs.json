@@ -1,13 +1,7 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "$schema": "https://blode.md/docs.json",
   "name": "allmd",
   "description": "Universal content-to-markdown converter",
-  "colors": {
-    "primary": "#0a0a0a",
-    "light": "#fafafa",
-    "dark": "#0a0a0a"
-  },
   "navbar": {
     "links": [
       {
