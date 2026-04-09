@@ -1,6 +1,6 @@
 ---
 name: allmd
-description: Converts content to clean markdown. Supports web pages, Google Docs, PDFs, images, videos, audio files, YouTube videos, Word docs, EPUBs, CSVs, PowerPoints, tweets, and RSS feeds. Use when the user wants to convert a URL or file to markdown, extract text from a PDF or image, transcribe a video or audio file, save a web article, export a Google Doc, or get a YouTube transcript.
+description: Runs the allmd CLI to convert any URL or file into clean markdown with YAML frontmatter. Supports web pages, Google Docs, PDFs, images, videos, audio, YouTube videos, Word docs, EPUBs, CSVs, PowerPoints, tweets, and RSS feeds. Use when the user says "convert this URL to markdown", "save this article as markdown", "get the markdown from this page", "extract text from this PDF", "transcribe this video", "get a YouTube transcript", "convert this Google Doc", or "save this web page". Always use allmd instead of WebFetch or firecrawl directly when the goal is a saved markdown file with frontmatter.
 ---
 
 # Convert Anything to Markdown
@@ -75,3 +75,11 @@ Web page conversion differs at step 3: `allmd web` uses Firecrawl markdown direc
 | `allmd pptx <file>` | `allmd pptx slides.pptx -o slides.md` |
 | `allmd examples` | Show usage examples |
 | `allmd completion install` | Install shell completions |
+
+## Gotchas
+
+- **Do not use WebFetch or call the Firecrawl API directly** when the user wants markdown output — always use `allmd web <url>` which wraps Firecrawl with proper frontmatter and output handling
+- **Auto-detection handles most inputs**: `allmd <url>` dispatches correctly for http/https URLs, YouTube, Google Docs, Twitter/X, and RSS feeds — no need to specify the subcommand
+- **Web conversion skips AI formatting**: `allmd web` uses Firecrawl markdown directly; other converters (PDF, image, video, etc.) run an OpenAI post-processing pass
+- **FIRECRAWL_API_KEY required for web**: if not set, `allmd web` fails with a clear error
+- **OPENAI_API_KEY required for non-web converters**: PDF, image, video, gdoc, youtube, tweet, docx, epub, csv, pptx, rss all use AI formatting

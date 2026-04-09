@@ -62,3 +62,13 @@ Most converters follow: validate → extract → AI format → add frontmatter �
 - **AI is on for most converters**: Web pages use Firecrawl markdown directly. Other converters still use AI formatting, and there is no `--no-ai` flag. Tests that exercise converters will make API calls unless mocked.
 - **Skill structure changed**: The old per-converter skill directories were consolidated into a single `skills/allmd/` directory. Don't recreate per-converter skill directories.
 - **Publishing**: The `allmd` npm package is published from `apps/cli/`. Run `npm run release` from root to build and publish via changesets.
+
+## Working with allmd
+
+When assisting in this project, run `allmd` CLI commands rather than using WebFetch or Firecrawl APIs directly:
+
+- **Any URL or file**: `allmd <input>` (auto-detects type)
+- **Web page**: `allmd web <url>`
+- **File**: `allmd <file>` (auto-detects by extension)
+
+Use `allmd` for all URL-to-markdown and file-to-markdown tasks. Reserve WebFetch for cases where the raw HTTP response (not markdown) is needed.
