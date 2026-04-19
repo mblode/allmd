@@ -41,6 +41,14 @@ const securityHeaders = [
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
 ];
 
+// RFC 8288 Link headers advertising agent-discoverable resources.
+const homepageLinkHeader = [
+  '</.well-known/agent-skills/index.json>; rel="agent-skills"; type="application/json"',
+  '</docs>; rel="service-doc"',
+  '</>; rel="alternate"; type="text/markdown"',
+  '<https://github.com/mblode/allmd>; rel="vcs-github"',
+].join(", ");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
@@ -89,6 +97,13 @@ const nextConfig = {
           { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
         ],
         source: "/web-app-manifest-:size.png",
+      },
+      {
+        headers: [
+          { key: "Link", value: homepageLinkHeader },
+          { key: "Vary", value: "Accept" },
+        ],
+        source: "/",
       },
       {
         headers: securityHeaders,
