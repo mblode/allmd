@@ -1,6 +1,6 @@
 ---
 title: Video & Audio
-description: Transcribe video and audio files using Whisper with optional speaker diarization.
+description: Transcribe video and audio files with OpenAI transcription models and optional speaker diarization.
 ---
 
 ## Usage
@@ -17,7 +17,7 @@ allmd video <file> -o output.md
 
 ## Requirements
 
-Requires `ffmpeg` on PATH and `OPENAI_API_KEY` for Whisper transcription.
+Requires `OPENAI_API_KEY`. allmd uses the bundled `ffmpeg-static` binary for extraction and transcoding.
 
 ## Options
 

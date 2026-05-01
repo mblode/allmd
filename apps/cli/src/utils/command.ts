@@ -49,6 +49,9 @@ function resolveInput(
   clipboard: boolean,
   errorMsg: string
 ): Promise<string> | never {
+  if (rawInput === "-") {
+    return readStdin();
+  }
   if (rawInput) {
     return Promise.resolve(rawInput);
   }
@@ -59,6 +62,14 @@ function resolveInput(
     return readStdin();
   }
   error(errorMsg);
+  process.exit(1);
+}
+
+function exitWithFormattedError(err: unknown): never {
+  if (isInterruptedError(err)) {
+    process.exit(130);
+  }
+  error(formatError(err));
   process.exit(1);
 }
 
@@ -73,6 +84,10 @@ async function handleBatchConversion(
   spinner.start();
 
   try {
+    const parsedParallel = Number.parseInt(opts.parallel as string, 10);
+    const parallel = Number.isFinite(parsedParallel)
+      ? Math.max(1, parsedParallel)
+      : 3;
     const result = await processBatch(
       files,
       converter,
@@ -86,7 +101,7 @@ async function handleBatchConversion(
         abortSignal: abortController.signal,
       },
       {
-        parallel: Number.parseInt(opts.parallel as string, 10) || 3,
+        parallel,
         outputDir: opts.outputDir as string | undefined,
         copy: opts.copy as boolean | undefined,
       },
@@ -102,13 +117,12 @@ async function handleBatchConversion(
     info(
       `Converted ${result.succeeded}/${result.total} files${result.failed > 0 ? ` (${result.failed} failed)` : ""}`
     );
+    if (result.failed > 0) {
+      process.exitCode = 1;
+    }
   } catch (err) {
     spinner.stop();
-    if (isInterruptedError(err)) {
-      process.exit(130);
-    }
-    error(formatError(err));
-    process.exit(1);
+    exitWithFormattedError(err);
   } finally {
     clearInterruptibleOperation(abortController);
   }
@@ -166,6 +180,63 @@ async function runSingleConversion(
   }
 }
 
+async function handleGlobInput(
+  input: string,
+  opts: Record<string, unknown>,
+  config: FileCommandConfig
+): Promise<boolean> {
+  if (!isGlobPattern(input)) {
+    return false;
+  }
+  if (opts.output) {
+    throw new Error(
+      "--output cannot be used with multiple files. Use --output-dir instead."
+    );
+  }
+  const files = await expandGlob(input);
+  if (files.length === 0) {
+    throw new Error(`No files matched pattern: ${input}`);
+  }
+  assertRequiredApiKeys({
+    openai: config.requiresOpenAI ?? true,
+    firecrawl: config.requiresFirecrawl,
+  });
+  await handleBatchConversion(files, config.converter, opts);
+  return true;
+}
+
+async function handleSingleFileInput(
+  input: string,
+  opts: Record<string, unknown>,
+  config: FileCommandConfig
+): Promise<void> {
+  const file = cleanFilePath(input);
+
+  if (!file) {
+    throw new Error(
+      "No file provided. Pass a file path as an argument, use --clipboard, or pipe one via stdin."
+    );
+  }
+
+  try {
+    await access(file);
+  } catch {
+    throw new Error(`File not found: ${file}`);
+  }
+
+  assertRequiredApiKeys({
+    openai: config.requiresOpenAI ?? true,
+    firecrawl: config.requiresFirecrawl,
+  });
+
+  await runSingleConversion(
+    file,
+    config.converter,
+    opts,
+    config.spinnerText ?? "Converting..."
+  );
+}
+
 export function createFileCommand(
   config: FileCommandConfig
 ): (program: Command) => void {
@@ -179,55 +250,23 @@ export function createFileCommand(
       )
       .addHelpText("after", `\n${config.helpText}`)
       .action(async (rawArg?: string) => {
-        const opts = program.opts();
+        try {
+          const opts = program.opts();
 
-        const input = await resolveInput(
-          rawArg,
-          opts.clipboard,
-          "No file provided. Pass a file path as an argument, use --clipboard, or pipe one via stdin."
-        );
-
-        if (isGlobPattern(input)) {
-          const files = await expandGlob(input);
-          if (files.length === 0) {
-            error(`No files matched pattern: ${input}`);
-            process.exit(1);
-          }
-          assertRequiredApiKeys({
-            openai: config.requiresOpenAI ?? true,
-            firecrawl: config.requiresFirecrawl,
-          });
-          await handleBatchConversion(files, config.converter, opts);
-          return;
-        }
-
-        const file = cleanFilePath(input);
-
-        if (!file) {
-          error(
+          const input = await resolveInput(
+            rawArg,
+            opts.clipboard,
             "No file provided. Pass a file path as an argument, use --clipboard, or pipe one via stdin."
           );
-          process.exit(1);
+
+          if (await handleGlobInput(input, opts, config)) {
+            return;
+          }
+
+          await handleSingleFileInput(input, opts, config);
+        } catch (err) {
+          exitWithFormattedError(err);
         }
-
-        try {
-          await access(file);
-        } catch {
-          error(`File not found: ${file}`);
-          process.exit(1);
-        }
-
-        assertRequiredApiKeys({
-          openai: config.requiresOpenAI ?? true,
-          firecrawl: config.requiresFirecrawl,
-        });
-
-        await runSingleConversion(
-          file,
-          config.converter,
-          opts,
-          config.spinnerText ?? "Converting..."
-        );
       });
   };
 }
@@ -249,33 +288,36 @@ export function createUrlCommand(
     }
 
     cmd.action(async (rawUrl?: string) => {
-      const opts = program.opts();
+      try {
+        const opts = program.opts();
 
-      const url = await resolveInput(
-        rawUrl,
-        opts.clipboard,
-        "No URL provided. Pass a URL as an argument, use --clipboard, or pipe one via stdin."
-      );
+        const url = await resolveInput(
+          rawUrl,
+          opts.clipboard,
+          "No URL provided. Pass a URL as an argument, use --clipboard, or pipe one via stdin."
+        );
 
-      if (config.validate) {
-        const validationError = config.validate(url);
-        if (validationError) {
-          error(validationError);
-          process.exit(1);
+        if (config.validate) {
+          const validationError = config.validate(url);
+          if (validationError) {
+            throw new Error(validationError);
+          }
         }
+
+        assertRequiredApiKeys({
+          openai: config.requiresOpenAI ?? true,
+          firecrawl: config.requiresFirecrawl,
+        });
+
+        await runSingleConversion(
+          url,
+          config.converter,
+          opts,
+          config.spinnerText ?? "Converting..."
+        );
+      } catch (err) {
+        exitWithFormattedError(err);
       }
-
-      assertRequiredApiKeys({
-        openai: config.requiresOpenAI ?? true,
-        firecrawl: config.requiresFirecrawl,
-      });
-
-      await runSingleConversion(
-        url,
-        config.converter,
-        opts,
-        config.spinnerText ?? "Converting..."
-      );
     });
   };
 }

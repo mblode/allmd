@@ -4,7 +4,6 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  extractAudio: vi.fn(),
   formatAsMarkdown: vi.fn(),
   transcribeAudio: vi.fn(),
   transcribeAudioDiarized: vi.fn(),
@@ -18,6 +17,7 @@ const audioMocks = vi.hoisted(() => ({
   calculateTargetBitrate: vi.fn().mockReturnValue(64),
   compressAudio: vi.fn().mockResolvedValue(undefined),
   extractAudioChunk: vi.fn(),
+  extractAudioToMp3: vi.fn(),
   getAudioDuration: vi.fn().mockResolvedValue(300),
   isAudioOversized: vi.fn().mockReturnValue(false),
   needsChunking: vi.fn().mockReturnValue(false),
@@ -29,10 +29,6 @@ vi.mock("../ai/client.js", () => ({
   transcribeAudioDiarized: mocks.transcribeAudioDiarized,
 }));
 
-vi.mock("ffmpeg-extract-audio", () => ({
-  default: mocks.extractAudio,
-}));
-
 vi.mock("../utils/audio.js", () => audioMocks);
 
 import { convertVideo } from "./video.js";
@@ -42,7 +38,7 @@ describe("convertVideo", () => {
     mocks.formatAsMarkdown.mockImplementation((text: string) =>
       Promise.resolve(text)
     );
-    mocks.extractAudio.mockImplementation(async ({ output }) => {
+    audioMocks.extractAudioToMp3.mockImplementation(async (_input, output) => {
       await writeFile(output as string, "transcoded-audio");
     });
     mocks.transcribeAudio.mockResolvedValue({ text: "plain transcript" });
@@ -86,12 +82,11 @@ describe("convertVideo", () => {
     const filePath = await writeTempFile(".ogg");
     await convertVideo(filePath, { diarize: true });
 
-    expect(mocks.extractAudio).toHaveBeenCalledTimes(1);
-    expect(mocks.extractAudio).toHaveBeenCalledWith(
-      expect.objectContaining({
-        format: "mp3",
-        input: filePath,
-      })
+    expect(audioMocks.extractAudioToMp3).toHaveBeenCalledTimes(1);
+    expect(audioMocks.extractAudioToMp3).toHaveBeenCalledWith(
+      filePath,
+      expect.stringContaining("audio.mp3"),
+      undefined
     );
     expect(mocks.transcribeAudioDiarized).toHaveBeenCalledWith(
       expect.any(Buffer),

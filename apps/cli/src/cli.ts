@@ -33,6 +33,7 @@ import { convertWeb } from "./converters/web.js";
 import { convertYoutube } from "./converters/youtube.js";
 import { runInteractive } from "./interactive.js";
 import type { ConversionOptions, ConversionResult } from "./types.js";
+import { readClipboard } from "./utils/clipboard.js";
 import { loadConfig, mergeWithCliOpts } from "./utils/config.js";
 import { classifyFile, classifyInput, classifyURL } from "./utils/detect.js";
 import {
@@ -44,6 +45,7 @@ import {
 import { assertRequiredApiKeys } from "./utils/keys.js";
 import { generateOutputPath, writeOutput } from "./utils/output.js";
 import { cleanFilePath } from "./utils/path.js";
+import { isStdinPiped, readStdin } from "./utils/stdin.js";
 import {
   createSpinner,
   error,
@@ -84,11 +86,7 @@ program.option(
   "Output directory for converted files"
 );
 program.option("--stdout", "Print output to stdout instead of writing a file");
-program.option(
-  "--parallel <n>",
-  "Number of parallel conversions (default: 3)",
-  "3"
-);
+program.option("--parallel <n>", "Number of parallel conversions (default: 3)");
 program.option("--no-frontmatter", "Skip YAML frontmatter in output");
 program.option(
   "--no-diarize",
@@ -124,6 +122,17 @@ registerExamplesCommand(program);
 program.hook("preAction", async () => {
   const config = await loadConfig();
   const cliOpts = program.opts();
+  for (const key of [
+    "frontmatter",
+    "output",
+    "outputDir",
+    "parallel",
+    "verbose",
+  ]) {
+    if (program.getOptionValueSource(key) === "default") {
+      cliOpts[key] = undefined;
+    }
+  }
   const merged = mergeWithCliOpts(cliOpts, config);
   for (const [key, value] of Object.entries(merged)) {
     if (value !== undefined && cliOpts[key] === undefined) {
@@ -224,6 +233,7 @@ async function executeConversion(
 
 async function handleAutoDetect(input: string): Promise<void> {
   const opts = program.opts();
+  const normalizedInput = cleanFilePath(input);
   const conversionOpts: ConversionOptions = {
     output: opts.output,
     verbose: opts.verbose,
@@ -232,10 +242,10 @@ async function handleAutoDetect(input: string): Promise<void> {
     speakerReferences: opts.speakerReferences as string[] | undefined,
     speakers: opts.speakers as string[] | undefined,
   };
-  const { type } = classifyInput(input);
+  const { type } = classifyInput(normalizedInput);
 
   if (type === "url") {
-    const urlType = classifyURL(input);
+    const urlType = classifyURL(normalizedInput);
     const converter = urlConverters[urlType];
     if (!converter) {
       await runInteractive();
@@ -247,12 +257,12 @@ async function handleAutoDetect(input: string): Promise<void> {
       firecrawl: urlType === "web",
     });
     info(`Detected: ${DETECTION_LABELS[urlType]}. Converting...`);
-    await executeConversion(converter, input, conversionOpts, opts);
+    await executeConversion(converter, normalizedInput, conversionOpts, opts);
     return;
   }
 
   if (type === "file") {
-    const fileType = classifyFile(input);
+    const fileType = classifyFile(normalizedInput);
     const converter = fileConverters[fileType];
     if (!converter) {
       info("Could not detect file type. Launching interactive mode...");
@@ -271,6 +281,15 @@ async function handleAutoDetect(input: string): Promise<void> {
     return;
   }
 
+  const fileType = classifyFile(normalizedInput);
+  if (fileType !== "unknown") {
+    const converter = fileConverters[fileType];
+    assertRequiredApiKeys({ openai: true });
+    info(`Detected: ${DETECTION_LABELS[fileType]}. Converting...`);
+    await executeConversion(converter, normalizedInput, conversionOpts, opts);
+    return;
+  }
+
   await runInteractive();
 }
 
@@ -279,6 +298,10 @@ program
   .action(async (input?: string) => {
     if (input) {
       await handleAutoDetect(input);
+    } else if (program.opts().clipboard) {
+      await handleAutoDetect(await readClipboard());
+    } else if (isStdinPiped()) {
+      await handleAutoDetect(await readStdin());
     } else {
       await runInteractive();
     }
@@ -290,4 +313,10 @@ if (handleTabCompletion()) {
   process.exit(0);
 }
 
-program.parse();
+await program.parseAsync().catch((err: unknown) => {
+  if (isInterruptedError(err)) {
+    process.exit(130);
+  }
+  error(formatError(err));
+  process.exit(1);
+});

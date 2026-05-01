@@ -1,7 +1,6 @@
-import { mkdtemp, readFile, unlink } from "node:fs/promises";
+import { mkdtemp, readFile, rm, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, extname, join } from "node:path";
-import extractAudio from "ffmpeg-extract-audio";
 import pLimit from "p-limit";
 import {
   type DiarizedSegment,
@@ -15,6 +14,7 @@ import {
   compressAudio,
   DIARIZE_CHUNK_SECONDS,
   extractAudioChunk,
+  extractAudioToMp3,
   getAudioDuration,
   isAudioOversized,
   needsChunking,
@@ -523,7 +523,7 @@ async function compressAndTranscribe(
 
 export async function convertVideo(
   filePath: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   const { isAudio, isVideo, diarize } = parseVideoOptions(filePath, options);
 
@@ -540,7 +540,7 @@ export async function convertVideo(
     tempDir = await mkdtemp(join(tmpdir(), "md-video-"));
     audioPath = join(tempDir, "audio.mp3");
     filesToCleanup.push(audioPath);
-    await extractAudio({ input: filePath, output: audioPath, format: "mp3" });
+    await extractAudioToMp3(filePath, audioPath, options.abortSignal);
     verbose(`Audio extracted to ${audioPath}`, options.verbose);
   } else {
     audioPath = filePath;
@@ -607,6 +607,11 @@ export async function convertVideo(
   } finally {
     for (const f of filesToCleanup) {
       await unlink(f).catch(() => {
+        /* cleanup best-effort */
+      });
+    }
+    if (tempDir) {
+      await rm(tempDir, { force: true, recursive: true }).catch(() => {
         /* cleanup best-effort */
       });
     }

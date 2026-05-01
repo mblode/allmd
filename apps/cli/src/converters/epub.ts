@@ -12,7 +12,7 @@ const EPubClass = mod.EPub ?? mod.default ?? EPub;
 
 export async function convertEpub(
   filePath: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   verbose(`Reading EPUB: ${filePath}`, options.verbose);
 

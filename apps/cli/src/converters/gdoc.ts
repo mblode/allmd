@@ -28,7 +28,7 @@ function extractTitle(markdown: string): string {
 
 export async function convertGdoc(
   url: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   const docId = extractDocId(url);
   verbose(`Document ID: ${docId}`, options.verbose);
@@ -37,7 +37,9 @@ export async function convertGdoc(
   options.onProgress?.("Fetching Google Doc...");
   verbose("Fetching markdown export...", options.verbose);
 
-  const response = await fetchWithTimeout(exportUrl);
+  const response = await fetchWithTimeout(exportUrl, undefined, {
+    signal: options.abortSignal,
+  });
   if (!response.ok) {
     if (response.status === 404) {
       throw new Error(

@@ -95,12 +95,13 @@ describe("transcribeAudioDiarized", () => {
     );
 
     const request = createTranscription.mock.calls[0]?.[0] as {
-      extra_body?: Record<string, unknown>;
+      known_speaker_names?: string[];
+      known_speaker_references?: string[];
     };
-    expect(request.extra_body).toEqual({
-      known_speaker_names: ["Alice"],
-      known_speaker_references: ["data:audio/wav;base64,QUJD"],
-    });
+    expect(request.known_speaker_names).toEqual(["Alice"]);
+    expect(request.known_speaker_references).toEqual([
+      "data:audio/wav;base64,QUJD",
+    ]);
   });
 
   it("throws when speaker names and references are not paired", async () => {

@@ -13,7 +13,7 @@
 - **YouTube videos:** extract transcripts with timestamps.
 - **PDFs:** parse text content from PDF files.
 - **Google Docs:** convert published Google Docs to markdown.
-- **Video/audio:** transcribe media files using Whisper.
+- **Video/audio:** transcribe media files with OpenAI transcription models and optional speaker controls.
 - **Images:** describe images using GPT vision.
 - **Word documents:** convert `.docx` files to markdown.
 - **EPUB ebooks:** convert `.epub` files to markdown.
@@ -40,7 +40,22 @@ export FIRECRAWL_API_KEY=your-key
 
 `OPENAI_API_KEY` is required for AI-backed converters. `FIRECRAWL_API_KEY` is required for web page conversion. Web pages use Firecrawl markdown directly and do not require `OPENAI_API_KEY`.
 
-Requires Node.js 20+ and `ffmpeg` for video/audio (bundled via `ffmpeg-static`).
+Requires Node.js 20+. Video/audio conversion uses the bundled `ffmpeg-static` binary.
+
+## Testing
+
+```bash
+npm run test
+npm run test:e2e
+```
+
+`npm run test:e2e` builds the package, runs `npm pack`, installs the packed tarball into an isolated temporary global npm prefix, and tests the installed `allmd` binary. It does not modify your real global npm packages.
+
+Live converter smoke tests are opt-in because they use network APIs:
+
+```bash
+OPENAI_API_KEY=... FIRECRAWL_API_KEY=... npm run test:e2e:live
+```
 
 ## Usage
 

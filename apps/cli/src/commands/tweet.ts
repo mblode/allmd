@@ -3,12 +3,17 @@ import { convertTweet } from "../converters/tweet.js";
 import { createUrlCommand } from "../utils/command.js";
 
 const WWW_PREFIX_RE = /^www\./;
+const TWEET_PATH_RE = /^\/[^/]+\/status(?:es)?\/\d+/;
 
 function validateTweetUrl(url: string): string | null {
   try {
-    const hostname = new URL(url).hostname.replace(WWW_PREFIX_RE, "");
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.replace(WWW_PREFIX_RE, "");
     if (hostname !== "twitter.com" && hostname !== "x.com") {
       return `Invalid tweet URL: expected twitter.com or x.com, got ${hostname}`;
+    }
+    if (!TWEET_PATH_RE.test(parsed.pathname)) {
+      return "Invalid tweet URL: expected a /<user>/status/<id> path";
     }
     return null;
   } catch {

@@ -1,13 +1,13 @@
 # Convert Video/Audio to Markdown
 
-Extracts audio from video files using ffmpeg, transcribes it with OpenAI Whisper via the Vercel AI Gateway, and formats the transcript as markdown.
+Extracts audio from video files with the bundled ffmpeg binary, transcribes audio with OpenAI transcription models, and formats the transcript as markdown.
 
 ## Conversion Workflow
 
 ```text
 - [ ] Step 1: Validate file and format
 - [ ] Step 2: Extract audio (video files only)
-- [ ] Step 3: Transcribe with Whisper
+- [ ] Step 3: Transcribe audio
 - [ ] Step 4: Format transcript
 - [ ] Step 5: Add frontmatter and output
 - [ ] Step 6: Cleanup temp files
@@ -23,14 +23,14 @@ Audio files skip the extraction step and go directly to transcription.
 ### Step 2: Extract audio (video files only)
 
 - Creates a temporary directory in the system temp folder
-- Uses `ffmpeg-extract-audio` (with bundled `ffmpeg-static`) to extract audio as MP3
+- Uses the bundled `ffmpeg-static` binary to extract audio as MP3
 - Audio files bypass this step entirely
 
-### Step 3: Transcribe with Whisper
+### Step 3: Transcribe audio
 
 - Reads the audio file into a buffer
-- Sends to OpenAI Whisper (`whisper-1` model) via Vercel AI Gateway
-- Returns: full text + timestamped segments (start time and text for each segment)
+- Uses `gpt-4o-transcribe-diarize` by default for speaker-labeled transcripts
+- Uses `gpt-4o-mini-transcribe` when `--no-diarize` is passed
 
 ### Step 4: Format transcript
 
@@ -42,7 +42,7 @@ Frontmatter fields: `title` (filename), `source` (file path), `date`, `type` ("v
 
 ### Step 6: Cleanup temp files
 
-Temporary audio files are always deleted, even if transcription fails (uses `finally` block).
+Temporary audio files and directories are always deleted, even if transcription fails.
 
 ## CLI Usage
 
@@ -51,6 +51,8 @@ allmd video <file>
 allmd video recording.mp4 -o transcript.md
 allmd video podcast.mp3 -o podcast.md
 allmd video interview.wav -o transcript.md
+allmd video meeting.mp4 --speakers "Alice,Bob"
+allmd video recording.mp4 --no-diarize
 ```
 
 ## Best Practices
@@ -61,10 +63,10 @@ allmd video interview.wav -o transcript.md
 
 ## Edge Cases
 
-- **Very long recordings**: Whisper has file size limits; large files may need to be split
-- **Multiple speakers**: No speaker diarization — all speech is merged into a single stream
+- **Very long recordings**: long files are split into chunks for progress and API limits
+- **Multiple speakers**: diarization is on by default; pass `--no-diarize` for plain transcription
 - **Background music or noise**: Degrades transcription accuracy significantly
-- **Non-English audio**: Whisper auto-detects language but defaults may vary
+- **Non-English audio**: transcription language detection is automatic, but defaults may vary
 - **Corrupted media files**: ffmpeg extraction may fail; check the source file plays correctly
 - **Files with no audio track**: Some video files (e.g., screen recordings) may have no audio
 

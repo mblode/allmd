@@ -13,7 +13,7 @@ import { SplitText } from "griffo/motion";
 import { stagger } from "motion";
 import { motion } from "motion/react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { siteConfig } from "@/lib/config";
 
@@ -24,8 +24,7 @@ const features = [
     title: "Auto-detect",
   },
   {
-    description:
-      "AI cleans up the output into consistent, readable markdown.",
+    description: "AI cleans up the output into consistent, readable markdown.",
     icon: MagicWandIcon,
     title: "AI formatting",
   },
@@ -47,8 +46,7 @@ const features = [
     title: "Frontmatter",
   },
   {
-    description:
-      "Works with Claude Code, Cursor, and other AI coding agents.",
+    description: "Works with Claude Code, Cursor, and other AI coding agents.",
     icon: ConsoleIcon,
     title: "Agent skill",
   },
@@ -63,8 +61,8 @@ export default function HomePage(): React.JSX.Element {
           <SplitText
             animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
             as="h1"
-            className="text-balance text-4xl font-medium tracking-tight leading-[1.2] sm:text-5xl sm:tracking-[-0.03em] sm:leading-[1.15]"
-            initial={{ filter: "blur(8px)", opacity: 0, y: 20 }}
+            className="text-balance font-medium text-4xl leading-[1.2] tracking-tight sm:text-5xl sm:leading-[1.15] sm:tracking-[-0.03em]"
+            initial={false}
             options={{ type: "words" }}
             transition={{
               delay: stagger(0.04),
@@ -72,12 +70,12 @@ export default function HomePage(): React.JSX.Element {
               ease: [0.25, 1, 0.5, 1],
             }}
           >
-            <p>Turn the whole universe into markdown.</p>
+            <span>Turn the whole universe into markdown.</span>
           </SplitText>
           <motion.p
             animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
             className="mx-auto mt-4 max-w-[60ch] text-lg text-muted-foreground leading-relaxed"
-            initial={{ filter: "blur(8px)", opacity: 0, y: 8 }}
+            initial={false}
             transition={{
               delay: 0.35,
               duration: 0.65,
@@ -90,30 +88,26 @@ export default function HomePage(): React.JSX.Element {
           <motion.div
             animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
             className="mt-8 flex flex-wrap items-center justify-center gap-3"
-            initial={{ filter: "blur(8px)", opacity: 0, y: 4 }}
+            initial={false}
             transition={{
               delay: 0.5,
               duration: 0.65,
               ease: [0.25, 1, 0.5, 1],
             }}
           >
-            <Button
-              render={
-                <a
-                  href={`${siteConfig.links.docs}/cli`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
-              size="lg"
+            <a
+              className={buttonVariants({ size: "lg" })}
+              href={`${siteConfig.links.docs}/cli`}
+              rel="noopener noreferrer"
+              target="_blank"
             >
               Get started
-            </Button>
+            </a>
           </motion.div>
           <motion.code
             animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
-            className="relative mt-8 inline-flex items-center gap-2 font-mono text-sm text-muted-foreground"
-            initial={{ filter: "blur(8px)", opacity: 0, y: 4 }}
+            className="relative mt-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-sm"
+            initial={false}
             transition={{
               delay: 0.65,
               duration: 0.65,
@@ -127,12 +121,15 @@ export default function HomePage(): React.JSX.Element {
       </section>
 
       {/* Features */}
-      <section className="@container pt-8 pb-16 sm:pt-16 sm:pb-24" id="features">
+      <section
+        className="@container pt-8 pb-16 sm:pt-16 sm:pb-24"
+        id="features"
+      >
         <div className="mx-auto max-w-3xl px-6">
-          <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
+          <h2 className="text-balance font-medium text-3xl leading-[1.15] tracking-tight">
             Features
           </h2>
-          <div className="mt-12 grid grid-cols-1 gap-6 text-sm @sm:grid-cols-2 @xl:grid-cols-3">
+          <div className="mt-12 grid @sm:grid-cols-2 @xl:grid-cols-3 grid-cols-1 gap-6 text-sm">
             {features.map((feature) => (
               <div
                 className="feature-card space-y-3 border-t pt-6"
@@ -153,34 +150,31 @@ export default function HomePage(): React.JSX.Element {
 
       {/* Install */}
       <section className="@container py-16 sm:py-24" id="install">
-        <div className="mx-auto grid max-w-3xl gap-6 px-6 @2xl:grid-cols-2 @2xl:gap-12">
+        <div className="mx-auto grid max-w-3xl @2xl:grid-cols-2 @2xl:gap-12 gap-6 px-6">
           <div className="space-y-4">
-            <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
+            <h2 className="text-balance font-medium text-3xl leading-[1.15] tracking-tight">
               Install
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               One command to set up, one command to convert.
             </p>
-            <Button
-              render={
-                <a
-                  href={`${siteConfig.links.docs}/cli/installation`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
+            <a
+              className={buttonVariants()}
+              href={`${siteConfig.links.docs}/cli/installation`}
+              rel="noopener noreferrer"
+              target="_blank"
             >
               Read the docs
               <ArrowRightIcon data-icon="inline-end" />
-            </Button>
+            </a>
           </div>
-          <div className="grid grid-cols-1 gap-6 text-sm @sm:grid-cols-2 @2xl:grid-cols-1">
+          <div className="grid @2xl:grid-cols-1 @sm:grid-cols-2 grid-cols-1 gap-6 text-sm">
             <div className="feature-card space-y-3 border-t pt-6">
               <FileDownloadIcon className="size-4 text-muted-foreground" />
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Install</span>
               </p>
-              <code className="block font-mono text-xs text-muted-foreground">
+              <code className="block font-mono text-muted-foreground text-xs">
                 npm install -g allmd
               </code>
             </div>
@@ -189,7 +183,7 @@ export default function HomePage(): React.JSX.Element {
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Convert</span>
               </p>
-              <code className="block font-mono text-xs text-muted-foreground">
+              <code className="block font-mono text-muted-foreground text-xs">
                 allmd https://example.com
               </code>
             </div>
@@ -199,34 +193,31 @@ export default function HomePage(): React.JSX.Element {
 
       {/* Node.js API */}
       <section className="@container py-16 sm:py-24" id="api">
-        <div className="mx-auto grid max-w-3xl gap-6 px-6 @2xl:grid-cols-2 @2xl:gap-12">
+        <div className="mx-auto grid max-w-3xl @2xl:grid-cols-2 @2xl:gap-12 gap-6 px-6">
           <div className="space-y-4">
-            <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
+            <h2 className="text-balance font-medium text-3xl leading-[1.15] tracking-tight">
               Node.js API
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               Import converters directly in your TypeScript projects.
             </p>
-            <Button
-              render={
-                <a
-                  href={`${siteConfig.links.docs}/api`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
+            <a
+              className={buttonVariants()}
+              href={`${siteConfig.links.docs}/api`}
+              rel="noopener noreferrer"
+              target="_blank"
             >
               API reference
               <ArrowRightIcon data-icon="inline-end" />
-            </Button>
+            </a>
           </div>
-          <div className="grid grid-cols-1 gap-6 text-sm @sm:grid-cols-2 @2xl:grid-cols-1">
+          <div className="grid @2xl:grid-cols-1 @sm:grid-cols-2 grid-cols-1 gap-6 text-sm">
             <div className="feature-card space-y-3 border-t pt-6">
               <MagicWandIcon className="size-4 text-muted-foreground" />
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Import</span>
               </p>
-              <code className="block font-mono text-xs text-muted-foreground">
+              <code className="block font-mono text-muted-foreground text-xs">
                 {`import { convertWeb } from "allmd";`}
               </code>
             </div>
@@ -235,7 +226,7 @@ export default function HomePage(): React.JSX.Element {
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Convert</span>
               </p>
-              <code className="block font-mono text-xs text-muted-foreground">
+              <code className="block font-mono text-muted-foreground text-xs">
                 {`const { markdown } = await convertWeb("https://example.com");`}
               </code>
             </div>
@@ -245,35 +236,32 @@ export default function HomePage(): React.JSX.Element {
 
       {/* AI agent skill */}
       <section className="@container py-16 sm:py-24" id="skill">
-        <div className="mx-auto grid max-w-3xl gap-6 px-6 @2xl:grid-cols-2 @2xl:gap-12">
+        <div className="mx-auto grid max-w-3xl @2xl:grid-cols-2 @2xl:gap-12 gap-6 px-6">
           <div className="space-y-4">
-            <h2 className="text-balance text-3xl font-medium tracking-tight leading-[1.15]">
+            <h2 className="text-balance font-medium text-3xl leading-[1.15] tracking-tight">
               AI agent skill
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               Give your AI coding agent the ability to convert anything to
               markdown.
             </p>
-            <Button
-              render={
-                <a
-                  href={`${siteConfig.links.docs}/skills`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
+            <a
+              className={buttonVariants()}
+              href={`${siteConfig.links.docs}/skills`}
+              rel="noopener noreferrer"
+              target="_blank"
             >
               Add the skill
               <ArrowRightIcon data-icon="inline-end" />
-            </Button>
+            </a>
           </div>
-          <div className="grid grid-cols-1 gap-6 text-sm @sm:grid-cols-2 @2xl:grid-cols-1">
+          <div className="grid @2xl:grid-cols-1 @sm:grid-cols-2 grid-cols-1 gap-6 text-sm">
             <div className="feature-card space-y-3 border-t pt-6">
               <FileDownloadIcon className="size-4 text-muted-foreground" />
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Install</span>
               </p>
-              <code className="block font-mono text-xs text-muted-foreground">
+              <code className="block font-mono text-muted-foreground text-xs">
                 npx skills add mblode/allmd
               </code>
             </div>
@@ -282,7 +270,7 @@ export default function HomePage(): React.JSX.Element {
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Use</span>
               </p>
-              <code className="block font-mono text-xs text-muted-foreground">
+              <code className="block font-mono text-muted-foreground text-xs">
                 /allmd https://youtu.be/dQw4w9WgXcQ
               </code>
             </div>

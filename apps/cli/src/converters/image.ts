@@ -21,7 +21,7 @@ function getMimeType(filePath: string): string {
 
 export async function convertImage(
   filePath: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   const ext = extname(filePath).toLowerCase();
   if (!SUPPORTED.has(ext)) {

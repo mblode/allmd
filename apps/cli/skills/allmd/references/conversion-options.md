@@ -4,9 +4,14 @@
 
 ```typescript
 interface ConversionOptions {
-  output?: string;      // Output file path (undefined = stdout)
-  verbose?: boolean;    // Enable verbose logging
+  abortSignal?: AbortSignal;
+  diarize?: boolean;
   frontmatter?: boolean; // Add YAML frontmatter (default: true)
+  onProgress?: (message: string) => void;
+  output?: string;
+  speakerReferences?: string[];
+  speakers?: string[];
+  verbose?: boolean;
 }
 
 interface ConversionResult {
@@ -23,7 +28,7 @@ All `allmd` commands accept:
 
 | Flag | Effect |
 |------|--------|
-| `-o, --output <file>` | Write markdown to file instead of stdout |
+| `-o, --output <file>` | Write markdown to a specific file |
 | `-v, --verbose` | Enable verbose output |
 | `-c, --clipboard` | Read input from clipboard |
 | `--copy` | Copy output to clipboard |
@@ -69,12 +74,11 @@ Supports `.allmdrc`, `.allmdrc.json`, `.allmdrc.yaml`, `allmd.config.js`, or `al
 
 ```json
 {
-  "output": "docs/",
+  "output": "docs/page.md",
+  "outputDir": "docs",
   "verbose": true,
   "frontmatter": true,
-  "openai": {
-    "model": "gpt-5-mini"
-  }
+  "parallel": 3
 }
 ```
 
@@ -112,4 +116,5 @@ echo "https://example.com" | allmd web -
 - **With `-o output.md`**: Writes to the specified file, creates parent directories if needed
 - **With `-d output/`**: Auto-generates filenames from document titles in the specified directory
 - **With `--copy`**: Copies markdown to system clipboard
-- **Without flags**: Writes markdown to stdout (pipeable to other commands)
+- **Without output flags**: Saves a generated `.md` file in the current directory
+- **With `--stdout`**: Writes markdown to stdout (pipeable to other commands)

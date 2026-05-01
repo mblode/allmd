@@ -8,7 +8,7 @@ import { trackProgress, verbose } from "../utils/ui.js";
 
 export async function convertPdf(
   filePath: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   verbose(`Reading PDF: ${filePath}`, options.verbose);
   options.onProgress?.("Parsing PDF...");

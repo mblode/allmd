@@ -62,6 +62,27 @@ describe("convertCsv", () => {
     expect(result.markdown).toContain("123 Main St, Apt 4");
   });
 
+  it("handles quoted multiline fields as one row", async () => {
+    const filePath = await writeTempFile(
+      "multiline.csv",
+      'Name,Notes\nAlice,"Line one\nLine two"\nBob,"Plain note"\n'
+    );
+    const result = await convertCsv(filePath, {});
+
+    expect(result.markdown).toContain("Line one<br>Line two");
+    expect(result.metadata.rows).toBe(2);
+  });
+
+  it("escapes markdown table pipes in cell values", async () => {
+    const filePath = await writeTempFile(
+      "pipes.csv",
+      'Name,Notes\nAlice,"uses A | B syntax"\n'
+    );
+    const result = await convertCsv(filePath, {});
+
+    expect(result.markdown).toContain("A \\| B");
+  });
+
   it("includes frontmatter by default", async () => {
     const filePath = await writeTempFile("data.csv", "A,B\n1,2\n");
     const result = await convertCsv(filePath, {});

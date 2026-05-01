@@ -39,7 +39,7 @@ A CLI tool that converts web pages, Google Docs, PDFs, images, video/audio files
 | Image file (`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`) | `allmd image <file>` | `references/image.md` |
 | Video file (`.mp4`, `.mkv`, `.avi`, `.mov`, `.webm`, `.flv`, `.wmv`, `.m4v`) | `allmd video <file>` | `references/video.md` |
 | Audio file (`.mp3`, `.wav`, `.m4a`, `.ogg`, `.flac`, `.aac`, `.wma`) | `allmd video <file>` | `references/video.md` |
-| Word document (`.docx`, `.doc`) | `allmd docx <file>` | `references/docx.md` |
+| Word document (`.docx`) | `allmd docx <file>` | `references/docx.md` |
 | EPUB ebook (`.epub`) | `allmd epub <file>` | `references/epub.md` |
 | CSV/TSV file (`.csv`, `.tsv`) | `allmd csv <file>` | `references/csv.md` |
 | PowerPoint (`.pptx`) | `allmd pptx <file>` | `references/pptx.md` |

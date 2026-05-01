@@ -1,14 +1,10 @@
 import { existsSync } from "node:fs";
 import { extname } from "node:path";
 
-const VIDEO_ID_PATTERNS = [
-  /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
-  /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
-  /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-  /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
-];
-
 const GDOC_ID_RE = /docs\.google\.com\/document\/d\/([a-zA-Z0-9_-]+)/;
+const TWEET_PATH_RE = /^\/[^/]+\/status(?:es)?\/\d+/;
+const VIDEO_ID_RE = /^[a-zA-Z0-9_-]{11}$/;
+const YOUTUBE_HOST_PREFIX_RE = /^(www\.|m\.)/;
 const WWW_PREFIX_RE = /^www\./;
 
 export const IMAGE_EXTS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
@@ -66,10 +62,37 @@ export function classifyInput(input: string): { type: InputType } {
 }
 
 export function classifyURL(url: string): URLType {
-  for (const pattern of VIDEO_ID_PATTERNS) {
-    if (pattern.test(url)) {
-      return "youtube";
+  try {
+    const parsed = new URL(url);
+    const youtubeHost = parsed.hostname.replace(YOUTUBE_HOST_PREFIX_RE, "");
+    if (youtubeHost === "youtu.be") {
+      const id = parsed.pathname.split("/").filter(Boolean)[0];
+      if (id && VIDEO_ID_RE.test(id)) {
+        return "youtube";
+      }
     }
+    if (
+      youtubeHost === "youtube.com" ||
+      youtubeHost === "youtube-nocookie.com"
+    ) {
+      const id =
+        parsed.pathname === "/watch"
+          ? parsed.searchParams.get("v")
+          : parsed.pathname.split("/").filter(Boolean)[1];
+      const kind = parsed.pathname.split("/").filter(Boolean)[0];
+      if (
+        id &&
+        VIDEO_ID_RE.test(id) &&
+        (parsed.pathname === "/watch" ||
+          kind === "embed" ||
+          kind === "shorts" ||
+          kind === "live")
+      ) {
+        return "youtube";
+      }
+    }
+  } catch {
+    // Fall through to the generic URL checks.
   }
 
   if (GDOC_ID_RE.test(url)) {
@@ -80,7 +103,10 @@ export function classifyURL(url: string): URLType {
     const parsed = new URL(url);
     const hostname = parsed.hostname.replace(WWW_PREFIX_RE, "");
 
-    if (hostname === "twitter.com" || hostname === "x.com") {
+    if (
+      (hostname === "twitter.com" || hostname === "x.com") &&
+      TWEET_PATH_RE.test(parsed.pathname)
+    ) {
       return "tweet";
     }
 
@@ -115,7 +141,7 @@ export function classifyFile(filePath: string): FileType {
   if (AUDIO_EXTS.has(ext)) {
     return "audio";
   }
-  if (ext === ".docx" || ext === ".doc") {
+  if (ext === ".docx") {
     return "docx";
   }
   if (ext === ".epub") {

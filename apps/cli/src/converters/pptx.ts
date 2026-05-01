@@ -55,7 +55,7 @@ function extractNotesFromXml(xml: string): string {
 
 export async function convertPptx(
   filePath: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   verbose(`Reading PPTX: ${filePath}`, options.verbose);
   options.onProgress?.("Extracting slides...");

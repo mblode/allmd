@@ -5,7 +5,7 @@ import { verbose } from "../utils/ui.js";
 
 export async function convertWeb(
   url: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   verbose(`Fetching ${url}`, options.verbose);
 

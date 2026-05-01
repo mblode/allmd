@@ -45,7 +45,7 @@ allmd web <url> --no-frontmatter
 
 - Set `FIRECRAWL_API_KEY` before using `allmd web`
 - Use `-v` when debugging extraction latency or page-specific failures
-- Use `-o article.md` when converting long pages so output is saved to disk instead of dumped to stdout
+- Use `--stdout` only when you want pipeable output; otherwise allmd saves a generated `.md` file by default
 - Use `Ctrl+C` to interrupt a slow Firecrawl run
 
 ## Edge Cases

@@ -7,7 +7,7 @@ export function registerDocxCommand(program: Command): void {
     name: "docx",
     description: "Convert a Word document to markdown",
     argument: "file",
-    extensions: [".docx", ".doc"],
+    extensions: [".docx"],
     converter: convertDocx,
     spinnerText: "Extracting Word document content...",
     helpText: `Examples:

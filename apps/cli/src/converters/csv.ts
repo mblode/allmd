@@ -7,55 +7,128 @@ import { titleFromFilename } from "../utils/slug.js";
 import { trackProgress, verbose } from "../utils/ui.js";
 
 function detectDelimiter(text: string): string {
-  const firstLine = text.split("\n")[0] ?? "";
-  const tabs = (firstLine.match(/\t/g) ?? []).length;
-  const commas = (firstLine.match(/,/g) ?? []).length;
+  let tabs = 0;
+  let commas = 0;
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === '"') {
+      if (inQuotes && text[i + 1] === '"') {
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+    if (!inQuotes && (char === "\n" || char === "\r")) {
+      break;
+    }
+    if (!inQuotes && char === "\t") {
+      tabs++;
+    }
+    if (!inQuotes && char === ",") {
+      commas++;
+    }
+  }
+
   return tabs > commas ? "\t" : ",";
 }
 
-function parseCsvLine(line: string, delimiter: string): string[] {
-  const fields: string[] = [];
-  let current = "";
-  let inQuotes = false;
+function parseCsvRows(text: string, delimiter: string): string[][] {
+  const state = {
+    current: "",
+    inQuotes: false,
+    row: [] as string[],
+    rows: [] as string[][],
+  };
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (inQuotes) {
-      if (char === '"') {
-        if (i + 1 < line.length && line[i + 1] === '"') {
-          current += '"';
-          i++;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        current += char;
-      }
-    } else if (char === '"') {
-      if (current.length === 0) {
-        inQuotes = true;
-      } else {
-        current += char;
-      }
-    } else if (char === delimiter) {
-      fields.push(current.trim());
-      current = "";
-    } else {
-      current += char;
-    }
+  for (let i = 0; i < text.length; i++) {
+    i = state.inQuotes
+      ? readQuotedChar(text, i, state)
+      : readUnquotedChar(text, i, delimiter, state);
   }
-  fields.push(current.trim());
-  return fields;
+  if (state.current.length > 0 || state.row.length > 0) {
+    pushRow(state);
+  }
+  return state.rows;
+}
+
+interface CsvParserState {
+  current: string;
+  inQuotes: boolean;
+  row: string[];
+  rows: string[][];
+}
+
+function pushField(state: CsvParserState): void {
+  state.row.push(state.current.trim());
+  state.current = "";
+}
+
+function pushRow(state: CsvParserState): void {
+  pushField(state);
+  if (state.row.some((field) => field.length > 0)) {
+    state.rows.push(state.row);
+  }
+  state.row = [];
+}
+
+function readQuotedChar(
+  text: string,
+  index: number,
+  state: CsvParserState
+): number {
+  const char = text[index];
+  if (char !== '"') {
+    state.current += char;
+    return index;
+  }
+  if (text[index + 1] === '"') {
+    state.current += '"';
+    return index + 1;
+  }
+  state.inQuotes = false;
+  return index;
+}
+
+function readUnquotedChar(
+  text: string,
+  index: number,
+  delimiter: string,
+  state: CsvParserState
+): number {
+  const char = text[index];
+  if (char === '"') {
+    state.inQuotes = state.current.length === 0;
+    if (!state.inQuotes) {
+      state.current += char;
+    }
+    return index;
+  }
+  if (char === delimiter) {
+    pushField(state);
+    return index;
+  }
+  if (char === "\n" || char === "\r") {
+    pushRow(state);
+    return char === "\r" && text[index + 1] === "\n" ? index + 1 : index;
+  }
+  state.current += char;
+  return index;
+}
+
+function escapeMarkdownTableCell(cell: string): string {
+  return cell.replace(/\|/g, "\\|").replace(/\r?\n/g, "<br>");
 }
 
 function csvToMarkdownTable(text: string, delimiter: string): string {
-  const lines = text.split("\n").filter((l) => l.trim());
-  if (lines.length === 0) {
+  const rows = parseCsvRows(text, delimiter);
+  if (rows.length === 0) {
     return "";
   }
 
-  const rows = lines.map((line) => parseCsvLine(line, delimiter));
-  const header = rows[0];
+  const header = rows[0].map(escapeMarkdownTableCell);
   if (!header) {
     return "";
   }
@@ -68,7 +141,7 @@ function csvToMarkdownTable(text: string, delimiter: string): string {
     while (row.length < colCount) {
       row.push("");
     }
-    return `| ${row.slice(0, colCount).join(" | ")} |`;
+    return `| ${row.slice(0, colCount).map(escapeMarkdownTableCell).join(" | ")} |`;
   });
 
   return [headerRow, separatorRow, ...dataRows].join("\n");
@@ -76,7 +149,7 @@ function csvToMarkdownTable(text: string, delimiter: string): string {
 
 export async function convertCsv(
   filePath: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   verbose(`Reading CSV/TSV: ${filePath}`, options.verbose);
   options.onProgress?.("Parsing spreadsheet...");
@@ -95,10 +168,8 @@ export async function convertCsv(
     options.verbose
   );
 
-  const lines = content.split("\n").filter((l) => l.trim());
-  const rowCount = Math.max(0, lines.length - 1);
-
   const markdownTable = csvToMarkdownTable(content, delimiter);
+  const rowCount = Math.max(0, parseCsvRows(content, delimiter).length - 1);
   verbose(
     `Converted to markdown table: ${rowCount} data rows`,
     options.verbose

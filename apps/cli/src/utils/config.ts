@@ -1,9 +1,11 @@
 import { cosmiconfig } from "cosmiconfig";
 
 export interface AllmdConfig {
+  frontmatter?: boolean;
   openai?: {
     model?: string;
   };
+  output?: string;
   outputDir?: string;
   parallel?: number;
   verbose?: boolean;
@@ -35,11 +37,12 @@ export function mergeWithCliOpts(
   return {
     outputDir: cliOpts.outputDir ?? config.outputDir,
     verbose: cliOpts.verbose ?? config.verbose,
+    frontmatter: cliOpts.frontmatter ?? config.frontmatter,
     parallel:
       cliOpts.parallel ??
       (config.parallel == null ? undefined : String(config.parallel)),
     openai: config.openai,
-    output: cliOpts.output,
+    output: cliOpts.output ?? config.output,
     clipboard: cliOpts.clipboard,
     copy: cliOpts.copy,
   };

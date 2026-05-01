@@ -9,7 +9,7 @@ import { trackProgress, verbose } from "../utils/ui.js";
 
 export async function convertDocx(
   filePath: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   verbose(`Reading DOCX: ${filePath}`, options.verbose);
   options.onProgress?.("Extracting text...");

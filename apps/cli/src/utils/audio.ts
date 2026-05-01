@@ -153,6 +153,34 @@ export async function compressAudio(
   );
 }
 
+export async function extractAudioToMp3(
+  inputPath: string,
+  outputPath: string,
+  abortSignal?: AbortSignal
+): Promise<void> {
+  if (!ffmpegPath) {
+    throw new Error("ffmpeg binary not found.");
+  }
+
+  await execFile(
+    ffmpegPath,
+    [
+      "-y",
+      "-i",
+      inputPath,
+      "-vn",
+      "-ac",
+      "1",
+      "-ar",
+      String(SPEECH_SAMPLE_RATE),
+      "-f",
+      "mp3",
+      outputPath,
+    ],
+    { timeout: 300_000, signal: abortSignal }
+  );
+}
+
 export async function extractAudioChunk(
   inputPath: string,
   outputPath: string,

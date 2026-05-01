@@ -53,4 +53,14 @@ describe("mergeWithCliOpts", () => {
 
     expect(result.output).toBe("/tmp/out.md");
   });
+
+  it("falls back to config output and frontmatter", () => {
+    const result = mergeWithCliOpts(
+      { frontmatter: undefined, output: undefined },
+      { frontmatter: false, output: "/tmp/config.md" }
+    );
+
+    expect(result.frontmatter).toBe(false);
+    expect(result.output).toBe("/tmp/config.md");
+  });
 });

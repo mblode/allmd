@@ -66,6 +66,24 @@ describe("classifyURL", () => {
     ).toBe("youtube");
   });
 
+  it("detects YouTube URL when v is not the first query parameter", () => {
+    expect(
+      classifyURL("https://www.youtube.com/watch?t=42s&v=dQw4w9WgXcQ")
+    ).toBe("youtube");
+  });
+
+  it("detects YouTube live URL", () => {
+    expect(classifyURL("https://www.youtube.com/live/dQw4w9WgXcQ")).toBe(
+      "youtube"
+    );
+  });
+
+  it("does not classify embedded YouTube text on another host as YouTube", () => {
+    expect(
+      classifyURL("https://example.com/?next=youtube.com/watch?v=dQw4w9WgXcQ")
+    ).toBe("web");
+  });
+
   it("detects Google Docs URL", () => {
     expect(
       classifyURL(
@@ -94,6 +112,11 @@ describe("classifyURL", () => {
     expect(classifyURL("https://www.twitter.com/user/status/123456")).toBe(
       "tweet"
     );
+  });
+
+  it("does not classify generic X/Twitter pages as tweets", () => {
+    expect(classifyURL("https://x.com/settings")).toBe("web");
+    expect(classifyURL("https://twitter.com/user")).toBe("web");
   });
 
   it("detects RSS feed URL with /feed path", () => {
@@ -212,8 +235,8 @@ describe("classifyFile", () => {
     expect(classifyFile("document.docx")).toBe("docx");
   });
 
-  it("detects DOC files", () => {
-    expect(classifyFile("document.doc")).toBe("docx");
+  it("does not claim binary DOC support", () => {
+    expect(classifyFile("document.doc")).toBe("unknown");
   });
 
   it("detects EPUB files", () => {

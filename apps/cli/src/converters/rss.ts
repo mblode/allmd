@@ -64,7 +64,7 @@ function formatItem(item: RssItem): string {
 
 export async function convertRss(
   url: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   options.onProgress?.("Fetching RSS feed...");
   verbose(`Fetching RSS feed: ${url}`, options.verbose);

@@ -4,7 +4,7 @@ import { GithubIcon, StarIcon } from "blode-icons-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
@@ -45,21 +45,16 @@ export const Navbar = () => {
               allmd
             </Link>
 
-            <Button
-              render={
-                <a
-                  href={siteConfig.links.github}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
-              size="sm"
-              variant="outline"
+            <a
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+              href={siteConfig.links.github}
+              rel="noopener noreferrer"
+              target="_blank"
             >
               <GithubIcon data-icon="inline-start" />
               Star on GitHub
               <StarIcon data-icon="inline-end" />
-            </Button>
+            </a>
           </div>
         </div>
       </nav>

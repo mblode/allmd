@@ -19,7 +19,7 @@ function prefersMarkdown(accept: string | null): boolean {
   return /(^|[\s,])text\/markdown(\s*;|\s*,|\s*$)/i.test(accept);
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   // Markdown content negotiation for agent clients (RFC 9110 §12.5.1).

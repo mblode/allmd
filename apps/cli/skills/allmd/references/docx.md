@@ -1,10 +1,10 @@
 # Convert Word Document to Markdown
 
-Reads a `.docx` or `.doc` file, converts HTML content via mammoth, then converts to markdown using Turndown with GFM support.
+Reads a `.docx` file, converts HTML content via mammoth, then converts to markdown using Turndown with GFM support.
 
 ## Conversion Workflow
 
-1. **Validate** file exists and has `.docx` or `.doc` extension
+1. **Validate** file exists and has a `.docx` extension
 2. **Extract** HTML content using mammoth
 3. **Convert** HTML to markdown via Turndown (same engine as web converter)
 4. **AI format** — restructures into clean markdown via GPT-5-mini
@@ -35,6 +35,6 @@ allmd docx "docs/*.docx" -d output/
 
 ## Edge Cases
 
-- **`.doc` files**: mammoth has limited support for legacy `.doc` format; results may vary
+- **`.doc` files**: legacy binary Word documents are not supported; save/export as `.docx` first
 - **Complex formatting**: Tables, images, and advanced layouts may not convert perfectly
 - **Embedded images**: Not extracted; only text content is converted

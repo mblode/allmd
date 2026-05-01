@@ -102,6 +102,7 @@ export async function runInteractive(): Promise<void> {
   }
 
   const s = spinner();
+  let spinnerStarted = false;
   const abortController = beginInterruptibleOperation();
   const options: ConversionOptions = {
     abortSignal: abortController.signal,
@@ -109,14 +110,15 @@ export async function runInteractive(): Promise<void> {
       s.message(message);
     },
   };
-  assertRequiredApiKeys({
-    openai: type !== "web",
-    firecrawl: type === "web",
-  });
-
-  s.start("Converting...");
 
   try {
+    assertRequiredApiKeys({
+      openai: type !== "web",
+      firecrawl: type === "web",
+    });
+
+    s.start("Converting...");
+    spinnerStarted = true;
     const cleanInput =
       converter.inputType === "file" ? cleanFilePath(input) : input;
     const result = await converterFns[type](cleanInput, options);
@@ -126,7 +128,9 @@ export async function runInteractive(): Promise<void> {
     await writeOutput(result.markdown, { output: outputPath });
     note(`Saved to ${outputPath}`, "Output");
   } catch (err) {
-    s.stop("Conversion failed.");
+    if (spinnerStarted) {
+      s.stop("Conversion failed.");
+    }
     if (isInterruptedError(err)) {
       process.exit(130);
     }

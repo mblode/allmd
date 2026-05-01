@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { basename, extname } from "node:path";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, experimental_transcribe as transcribe } from "ai";
+import pLimit from "p-limit";
 import type { ConversionOptions } from "../types.js";
 import { verbose as log } from "../utils/ui.js";
 
@@ -16,10 +17,8 @@ const TRANSCRIPTION_TIMEOUT_MS = 300_000;
 const SYSTEM_PROMPT =
   "You are a markdown formatting assistant. Convert the provided raw text into clean, well-structured markdown. Preserve ALL content completely — do not summarize, condense, paraphrase, or omit any text. Every paragraph, sentence, list item, table, figure description, footnote, and reference must appear in the output. Use headings, lists, code blocks, and emphasis where appropriate. Do not add information not present in the source. Output only the markdown, no preamble.";
 
-// ~4 chars per token, conservative estimate
-const CHARS_PER_TOKEN = 4;
-// gpt-5-mini has 1M+ context. Leave room for system prompt (~300 tokens), user template (~100 tokens), output (16384 tokens)
-const MAX_INPUT_CHARS = 250_000 * CHARS_PER_TOKEN;
+const MAX_INPUT_CHARS = 48_000;
+const FORMAT_CHUNK_CONCURRENCY = 2;
 
 function splitIntoChunks(text: string, maxChars: number): string[] {
   if (text.length <= maxChars) {
@@ -98,7 +97,7 @@ async function formatChunk(
     );
   }
 
-  const { text } = await generateText({
+  const { finishReason, text } = await generateText({
     model: MODEL,
     system: SYSTEM_PROMPT,
     prompt: `Convert this ${context.type} content into clean markdown:\n\nTitle: ${context.title ?? "Unknown"}\nSource: ${context.source ?? "Unknown"}${chunkLabel}\n\n---\n\n${rawText}`,
@@ -106,6 +105,10 @@ async function formatChunk(
     abortSignal: options.abortSignal,
   }).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
+
+    if (error instanceof Error && options.abortSignal?.aborted) {
+      throw error;
+    }
 
     if (
       error instanceof Error &&
@@ -118,6 +121,12 @@ async function formatChunk(
 
     throw error;
   });
+
+  if (finishReason === "length") {
+    throw new Error(
+      "AI formatting stopped because the model output limit was reached. Try a smaller input or split the source file."
+    );
+  }
 
   if (chunkInfo) {
     log(
@@ -154,9 +163,12 @@ export async function formatAsMarkdown(
     return result;
   }
 
+  const limit = pLimit(FORMAT_CHUNK_CONCURRENCY);
   const results = await Promise.all(
     chunks.map((chunk, index) =>
-      formatChunk(chunk, context, options, { index, total: chunks.length })
+      limit(() =>
+        formatChunk(chunk, context, options, { index, total: chunks.length })
+      )
     )
   );
 
@@ -230,11 +242,26 @@ export async function transcribeAudio(
     options.verbose
   );
 
-  const result = await transcribe({
-    model: openai.transcription("gpt-4o-mini-transcribe"),
-    audio: audioData,
-    abortSignal: options.abortSignal,
-  });
+  const timeoutSignal = AbortSignal.timeout(TRANSCRIPTION_TIMEOUT_MS);
+  const combinedSignal = options.abortSignal
+    ? AbortSignal.any([options.abortSignal, timeoutSignal])
+    : timeoutSignal;
+
+  let result: Awaited<ReturnType<typeof transcribe>>;
+  try {
+    result = await transcribe({
+      model: openai.transcription("gpt-4o-mini-transcribe"),
+      audio: audioData,
+      abortSignal: combinedSignal,
+    });
+  } catch (error) {
+    if (timeoutSignal.aborted) {
+      throw new Error(
+        `Audio transcription timed out after ${TRANSCRIPTION_TIMEOUT_MS / 1000}s`
+      );
+    }
+    throw error;
+  }
 
   log(
     `Transcription complete (${result.text.length.toLocaleString()} chars, ${result.segments?.length ?? 0} segments)`,
@@ -395,10 +422,8 @@ export async function transcribeAudioDiarized(
       normalizedSpeakerReferences.map((reference) => toAudioDataUrl(reference))
     );
 
-    params.extra_body = {
-      known_speaker_names: normalizedSpeakerNames,
-      known_speaker_references: dataUrlReferences,
-    };
+    params.known_speaker_names = normalizedSpeakerNames;
+    params.known_speaker_references = dataUrlReferences;
     log(
       `Using ${normalizedSpeakerNames.length} known speaker references for diarization`,
       options.verbose
@@ -426,12 +451,22 @@ export async function transcribeAudioDiarized(
     ? AbortSignal.any([options.abortSignal, timeoutSignal])
     : timeoutSignal;
 
-  const response = (await client.audio.transcriptions.create(
-    params as unknown as Parameters<
-      typeof client.audio.transcriptions.create
-    >[0],
-    { signal: combinedSignal }
-  )) as unknown as DiarizedApiResponse;
+  let response: DiarizedApiResponse;
+  try {
+    response = (await client.audio.transcriptions.create(
+      params as unknown as Parameters<
+        typeof client.audio.transcriptions.create
+      >[0],
+      { signal: combinedSignal }
+    )) as unknown as DiarizedApiResponse;
+  } catch (error) {
+    if (timeoutSignal.aborted) {
+      throw new Error(
+        `Audio transcription timed out after ${TRANSCRIPTION_TIMEOUT_MS / 1000}s`
+      );
+    }
+    throw error;
+  }
 
   const segments: DiarizedSegment[] = (response.segments ?? []).map((s) => ({
     start: s.start,

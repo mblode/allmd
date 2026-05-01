@@ -1,11 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 import { isGlobPattern, processBatch } from "./batch.js";
 
+const writeOutputMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+
 vi.mock("clipboardy", () => ({
   default: {
     read: vi.fn().mockResolvedValue(""),
     write: vi.fn().mockResolvedValue(undefined),
   },
+}));
+
+vi.mock("./output.js", () => ({
+  writeOutput: writeOutputMock,
 }));
 
 describe("isGlobPattern", () => {
@@ -126,5 +132,29 @@ describe("processBatch", () => {
     );
 
     expect(maxConcurrent).toBeLessThanOrEqual(2);
+  });
+
+  it("generates unique output paths for duplicate titles", async () => {
+    const converter = vi.fn().mockResolvedValue({
+      title: "Duplicate",
+      markdown: "# Test",
+      rawContent: "test",
+      metadata: {},
+    });
+
+    await processBatch(
+      ["/tmp/a.pdf", "/tmp/b.pdf"],
+      converter,
+      {},
+      { outputDir: "/tmp/out", parallel: 2 }
+    );
+
+    const outputPaths = writeOutputMock.mock.calls
+      .slice(-2)
+      .map(([, options]) => options.output);
+    expect(outputPaths).toEqual([
+      "/tmp/out/duplicate.md",
+      "/tmp/out/duplicate-2.md",
+    ]);
   });
 });

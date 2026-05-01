@@ -2,18 +2,15 @@ import type { MetadataRoute } from "next";
 
 import { siteConfig } from "@/lib/config";
 
-const staticRoutes = ["", "docs"];
+const staticRoutes = [""];
 const TRAILING_SLASH_REGEX = /\/$/;
 
 const getChangeFrequency = (route: string) =>
-  route === "" || route === "docs" ? "weekly" : "monthly";
+  route === "" ? "weekly" : "monthly";
 
 const getPriority = (route: string) => {
   if (route === "") {
     return 1;
-  }
-  if (route === "docs") {
-    return 0.8;
   }
   return 0.6;
 };

@@ -2,6 +2,7 @@
   "name": "@allmd/web",
   "version": "1.1.2",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "portless allmd next dev",
     "build": "node scripts/build-well-known-skills.mjs && next build",
@@ -10,7 +11,7 @@
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
-    "check-types": "tsc --noEmit",
+    "check-types": "next typegen && tsc --noEmit",
     "check": "npm run lint && npm run format:check && npm run check-types",
     "fix": "npm run format && npm run lint:fix"
   },
@@ -24,7 +25,7 @@
     "geist": "^1.7.0",
     "griffo": "^1.0.0",
     "motion": "^12.37.0",
-    "next": "16.1.6",
+    "next": "16.2.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "shadcn": "^4.0.6",

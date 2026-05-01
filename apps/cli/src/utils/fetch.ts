@@ -5,12 +5,18 @@ export async function fetchWithTimeout(
   timeoutMs = DEFAULT_FETCH_TIMEOUT_MS,
   options?: RequestInit
 ): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timeoutController = new AbortController();
+  const signal = options?.signal
+    ? AbortSignal.any([options.signal, timeoutController.signal])
+    : timeoutController.signal;
+  const timer = setTimeout(() => timeoutController.abort(), timeoutMs);
   try {
-    return await fetch(url, { ...options, signal: controller.signal });
+    return await fetch(url, { ...options, signal });
   } catch (err) {
-    if ((err as Error).name === "AbortError") {
+    if (
+      (err as Error).name === "AbortError" &&
+      timeoutController.signal.aborted
+    ) {
       throw new Error(
         `Request timed out after ${timeoutMs / 1000}s fetching ${url}. ` +
           "The server may be slow or require JavaScript rendering. " +

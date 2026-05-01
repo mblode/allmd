@@ -15,6 +15,8 @@
     "check-types": "turbo check-types",
     "typecheck": "turbo check-types",
     "test": "turbo test",
+    "test:e2e": "npm --workspace allmd run test:e2e",
+    "test:e2e:live": "npm --workspace allmd run test:e2e:live",
     "check": "ultracite check",
     "fix": "ultracite fix",
     "changeset": "changeset",

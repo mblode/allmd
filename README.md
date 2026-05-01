@@ -39,8 +39,11 @@ CLI package commands:
 cd apps/cli
 npm run build
 npm run test
+npm run test:e2e
 npm run check-types
 ```
+
+The CLI E2E suite builds and packs `apps/cli`, installs the tarball into an isolated temporary global npm prefix, and exercises the installed `allmd` binary. Use `npm run test:e2e:live` with `OPENAI_API_KEY` and `FIRECRAWL_API_KEY` to include live conversion smoke tests.
 
 Web app commands:
 
@@ -55,7 +58,7 @@ npm run check
 
 - `OPENAI_API_KEY` is required for AI-backed converters. `apps/cli/src/ai/client.ts` reads it from the environment or `apps/cli/.env`.
 - `FIRECRAWL_API_KEY` is required for web page conversion.
-- Video and audio conversion expects `ffmpeg` on `PATH`. The CLI also ships `ffmpeg-static`.
+- Video and audio conversion uses the bundled `ffmpeg-static` binary.
 
 ## Architecture
 

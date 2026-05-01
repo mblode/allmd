@@ -38,7 +38,7 @@ function normalizeUrl(url: string): string {
 
 export async function convertTweet(
   url: string,
-  options: ConversionOptions
+  options: ConversionOptions = {}
 ): Promise<ConversionResult> {
   verbose(`Fetching tweet: ${url}`, options.verbose);
 
@@ -53,7 +53,9 @@ export async function convertTweet(
     options.onProgress?.("Fetching tweet...");
     verbose(`Trying oEmbed API: ${oembedUrl}`, options.verbose);
 
-    const response = await fetchWithTimeout(oembedUrl);
+    const response = await fetchWithTimeout(oembedUrl, undefined, {
+      signal: options.abortSignal,
+    });
     if (response.ok) {
       const data = (await response.json()) as OEmbedResponse;
       tweetText = extractTextFromOEmbed(data.html);

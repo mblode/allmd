@@ -18,7 +18,6 @@ const glide = localFont({
 const siteTitle = `${siteConfig.name} | Turn the whole universe into markdown`;
 
 export const viewport: Viewport = {
-  maximumScale: 1,
   width: "device-width",
 };
 
