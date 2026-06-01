@@ -17,6 +17,15 @@ import { buttonVariants } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { siteConfig } from "@/lib/config";
 
+const blurUp = {
+  animate: { filter: "blur(0px)", opacity: 1, y: 0 },
+  initial: { filter: "blur(8px)", opacity: 0, y: 8 },
+  transition: {
+    duration: 0.65,
+    ease: [0.25, 1, 0.5, 1] as const,
+  },
+};
+
 const features = [
   {
     description: "Pass any URL or file path. allmd figures out the type.",
@@ -62,7 +71,7 @@ export default function HomePage(): React.JSX.Element {
             animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
             as="h1"
             className="text-balance font-medium text-4xl leading-[1.2] tracking-tight sm:text-5xl sm:leading-[1.15] sm:tracking-[-0.03em]"
-            initial={false}
+            initial={{ filter: "blur(8px)", opacity: 0, y: 20 }}
             options={{ type: "words" }}
             transition={{
               delay: stagger(0.04),
@@ -73,27 +82,17 @@ export default function HomePage(): React.JSX.Element {
             <span>Turn the whole universe into markdown.</span>
           </SplitText>
           <motion.p
-            animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+            {...blurUp}
             className="mx-auto mt-4 max-w-[60ch] text-lg text-muted-foreground leading-relaxed"
-            initial={false}
-            transition={{
-              delay: 0.35,
-              duration: 0.65,
-              ease: [0.25, 1, 0.5, 1],
-            }}
+            transition={{ ...blurUp.transition, delay: 0.35 }}
           >
             Convert anything to markdown. Web pages, YouTube, PDFs, images,
             audio, and more.
           </motion.p>
           <motion.div
-            animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+            {...blurUp}
             className="mt-8 flex flex-wrap items-center justify-center gap-3"
-            initial={false}
-            transition={{
-              delay: 0.5,
-              duration: 0.65,
-              ease: [0.25, 1, 0.5, 1],
-            }}
+            transition={{ ...blurUp.transition, delay: 0.5 }}
           >
             <a
               className={buttonVariants({ size: "lg" })}
@@ -105,14 +104,9 @@ export default function HomePage(): React.JSX.Element {
             </a>
           </motion.div>
           <motion.code
-            animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+            {...blurUp}
             className="relative mt-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-sm"
-            initial={false}
-            transition={{
-              delay: 0.65,
-              duration: 0.65,
-              ease: [0.25, 1, 0.5, 1],
-            }}
+            transition={{ ...blurUp.transition, delay: 0.65 }}
           >
             <span>npx skills add mblode/allmd</span>
             <CopyButton content="npx skills add mblode/allmd" />
