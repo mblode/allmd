@@ -9,7 +9,7 @@ export const Footer = (): React.JSX.Element => (
       <a
         className="flex items-center gap-2 rounded-full py-1.5 pr-2.5 pl-1.5 transition-colors hover:text-foreground"
         href={siteConfig.links.author}
-        rel="noopener noreferrer"
+        rel="author noopener"
         target="_blank"
       >
         <Image
