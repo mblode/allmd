@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { siteConfig } from "@/lib/config";
 import { version } from "@/package.json";
 
@@ -12,11 +11,13 @@ export const Footer = (): React.JSX.Element => (
         rel="author noopener"
         target="_blank"
       >
-        <Image
+        {/* biome-ignore lint/performance/noImgElement: external avatar from matthewblode.com, not a local asset */}
+        <img
           alt="Avatar of Matthew Blode"
           className="rounded-full"
           height={20}
-          src="/matthew-blode-profile.jpg"
+          loading="lazy"
+          src="https://matthewblode.com/avatar-sm.png"
           width={20}
         />
         Matthew Blode
