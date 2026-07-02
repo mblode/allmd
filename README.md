@@ -19,7 +19,7 @@ npm install
 npm run build
 ```
 
-Requires Node.js 20+.
+Requires Node.js 22.12+.
 
 ## Development
 

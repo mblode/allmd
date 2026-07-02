@@ -6,7 +6,7 @@ Next.js marketing site), and `apps/docs` (MDX documentation source).
 
 ## Setup
 
-Requires Node.js 20 or newer.
+Requires Node.js 22.12 or newer.
 
 ```bash
 git clone https://github.com/mblode/allmd.git
@@ -59,4 +59,4 @@ limited to `apps/web` or `apps/docs` do not need a changeset. CI runs
 - Keep the PR focused on a single change.
 - Run `npm run check`, `npm run typecheck`, and `npm run test` before pushing.
 - Include a changeset for `apps/cli` changes (see above).
-- CI must be green (lint, typecheck, and tests on Node 20, 22, and 24).
+- CI must be green (lint, typecheck, and tests on Node 22 and 24).

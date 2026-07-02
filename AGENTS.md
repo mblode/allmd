@@ -12,7 +12,7 @@ Turborepo with npm workspaces (`apps/*` — a directory joins the workspace only
 ## Commands
 
 ```bash
-npm install              # setup (requires Node >= 20)
+npm install              # setup (requires Node >= 22.12)
 npm run build            # turbo build (all apps)
 npm run dev              # turbo dev (all apps)
 npm run test             # turbo test (vitest in apps/cli)

@@ -1,30 +1,32 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("rss-parser", () => ({
-  default: vi.fn().mockImplementation(() => ({
-    parseURL: vi.fn().mockResolvedValue({
-      title: "Test Blog",
-      description: "A test blog feed",
-      link: "https://example.com",
-      feedUrl: "https://example.com/feed.xml",
-      items: [
-        {
-          title: "First Post",
-          link: "https://example.com/post-1",
-          creator: "Alice",
-          content: "<p>First post content</p>",
-          isoDate: "2025-01-15T12:00:00Z",
-          categories: ["tech", "news"],
-        },
-        {
-          title: "Second Post",
-          link: "https://example.com/post-2",
-          contentSnippet: "Second post snippet text",
-          pubDate: "Mon, 14 Jan 2025 12:00:00 GMT",
-        },
-      ],
-    }),
-  })),
+  default: vi.fn().mockImplementation(function RssParser() {
+    return {
+      parseURL: vi.fn().mockResolvedValue({
+        title: "Test Blog",
+        description: "A test blog feed",
+        link: "https://example.com",
+        feedUrl: "https://example.com/feed.xml",
+        items: [
+          {
+            title: "First Post",
+            link: "https://example.com/post-1",
+            creator: "Alice",
+            content: "<p>First post content</p>",
+            isoDate: "2025-01-15T12:00:00Z",
+            categories: ["tech", "news"],
+          },
+          {
+            title: "Second Post",
+            link: "https://example.com/post-2",
+            contentSnippet: "Second post snippet text",
+            pubDate: "Mon, 14 Jan 2025 12:00:00 GMT",
+          },
+        ],
+      }),
+    };
+  }),
 }));
 
 vi.mock("../ai/client.js", () => ({

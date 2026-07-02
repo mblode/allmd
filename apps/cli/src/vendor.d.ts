@@ -1,16 +1,3 @@
-declare module "pdf-parse" {
-  interface PdfParseResult {
-    info: Record<string, unknown>;
-    metadata: unknown;
-    numpages: number;
-    numrender: number;
-    text: string;
-    version: string;
-  }
-  function pdfParse(dataBuffer: Buffer): Promise<PdfParseResult>;
-  export default pdfParse;
-}
-
 declare module "mammoth" {
   interface MammothResult {
     messages: Array<{ type: string; message: string }>;

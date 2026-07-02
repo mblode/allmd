@@ -92,7 +92,7 @@ export async function runInteractive(): Promise<void> {
     message:
       converter.inputType === "url" ? "Enter the URL:" : "Enter the file path:",
     validate: (v) => {
-      if (!v.trim()) {
+      if (!v?.trim()) {
         return "Input is required";
       }
     },

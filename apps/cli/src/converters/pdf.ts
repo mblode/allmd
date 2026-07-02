@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import pdfParse from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
@@ -19,26 +19,37 @@ export async function convertPdf(
     options.verbose
   );
 
-  const parsed = await pdfParse(buffer);
+  const parser = new PDFParse({ data: new Uint8Array(buffer) });
+  let text: string;
+  let numpages: number;
+  let info: Record<string, unknown>;
+  try {
+    const parsed = await parser.getText({ pageJoiner: "" });
+    text = parsed.text;
+    numpages = parsed.total;
+    ({ info } = await parser.getInfo());
+  } finally {
+    await parser.destroy();
+  }
   verbose(
-    `Parsed ${parsed.numpages} pages, ${parsed.text.length.toLocaleString()} chars extracted`,
+    `Parsed ${numpages} pages, ${text.length.toLocaleString()} chars extracted`,
     options.verbose
   );
 
-  const hasText = parsed.text.trim().length > 100;
+  const hasText = text.trim().length > 100;
 
   let markdown: string;
   let title = filename;
 
   if (options.ai === false) {
     verbose("Skipping AI formatting (--no-ai)", options.verbose);
-    markdown = parsed.text;
+    markdown = text;
   } else if (hasText) {
     markdown = await trackProgress(
       options.onProgress,
       "Formatting with AI...",
       formatAsMarkdown(
-        parsed.text,
+        text,
         {
           title: filename,
           source: filePath,
@@ -55,18 +66,18 @@ export async function convertPdf(
     markdown =
       `# ${filename}\n\n` +
       "> This PDF appears to be scanned/image-based. Text extraction may be incomplete.\n\n" +
-      parsed.text;
+      text;
   }
 
-  if (parsed.info?.Title && typeof parsed.info.Title === "string") {
-    title = parsed.info.Title;
+  if (info?.Title && typeof info.Title === "string") {
+    title = info.Title;
   }
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title,
     source: filePath,
     type: "pdf",
-    pages: parsed.numpages,
+    pages: numpages,
   });
 
   verbose(
@@ -77,10 +88,10 @@ export async function convertPdf(
   return {
     title,
     markdown: withFrontmatter,
-    rawContent: parsed.text,
+    rawContent: text,
     metadata: {
-      pages: parsed.numpages,
-      info: parsed.info,
+      pages: numpages,
+      info,
     },
   };
 }

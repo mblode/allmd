@@ -40,7 +40,7 @@ export FIRECRAWL_API_KEY=your-key
 
 `OPENAI_API_KEY` is required for AI-backed converters. `FIRECRAWL_API_KEY` is required for web page conversion. Web pages use Firecrawl markdown directly and do not require `OPENAI_API_KEY`.
 
-Requires Node.js 20+. Video/audio conversion uses the bundled `ffmpeg-static` binary.
+Requires Node.js 22.12+. Video/audio conversion uses the bundled `ffmpeg-static` binary.
 
 ## Testing
 
