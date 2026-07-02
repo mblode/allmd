@@ -1,4 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GeistMono } from "geist/font/mono";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
@@ -38,14 +40,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   openGraph: {
     description: siteConfig.description,
-    images: [
-      {
-        alt: siteTitle,
-        height: 630,
-        url: "/opengraph-image.png",
-        width: 1200,
-      },
-    ],
     siteName: siteConfig.name,
     title: siteTitle,
     type: "website",
@@ -59,7 +53,6 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     description: siteConfig.description,
-    images: ["/opengraph-image.png"],
     title: siteTitle,
   },
 };
@@ -118,6 +111,8 @@ export default function RootLayout({
         <JsonLd data={webSiteJsonLd} />
         <JsonLd data={softwareJsonLd} />
         {children}
+        <Analytics />
+        <SpeedInsights />
         <GoogleAnalytics gaId="G-SSFCC1ZF38" />
       </body>
     </html>

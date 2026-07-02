@@ -9,10 +9,19 @@ try {
   // CLI package unavailable in standalone Vercel deployments
 }
 
+const isDev = process.env.NODE_ENV === "development";
+
+// Vercel Analytics and Speed Insights load first-party on Vercel (covered by
+// 'self'); only local dev pulls their scripts/beacons from external Vercel hosts.
+const devAnalyticsScriptSrc = isDev ? " https://va.vercel-scripts.com" : "";
+const devAnalyticsConnectSrc = isDev
+  ? " https://vitals.vercel-insights.com"
+  : "";
+
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com`,
-  "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com${devAnalyticsScriptSrc}`,
+  `connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com${devAnalyticsConnectSrc}`,
   "img-src 'self' data: https://www.google-analytics.com https://matthewblode.com",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
@@ -70,30 +79,29 @@ const nextConfig = {
     };
   },
   headers() {
+    // All matching rules apply in array order and later values win per header
+    // key, so the catch-all must come first and per-route overrides after it.
     return [
       {
+        headers: securityHeaders,
+        source: "/(.*)",
+      },
+      // Dynamic OG image from app/opengraph-image.tsx (also serves as the
+      // Twitter image). Cover both path forms Next may emit for the route.
+      {
         headers: [
-          ...securityHeaders.filter(
-            (h) => h.key !== "Cross-Origin-Resource-Policy"
-          ),
+          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+        ],
+        source: "/opengraph-image",
+      },
+      {
+        headers: [
           { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
         ],
         source: "/opengraph-image.png",
       },
       {
         headers: [
-          ...securityHeaders.filter(
-            (h) => h.key !== "Cross-Origin-Resource-Policy"
-          ),
-          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
-        ],
-        source: "/twitter-image.png",
-      },
-      {
-        headers: [
-          ...securityHeaders.filter(
-            (h) => h.key !== "Cross-Origin-Resource-Policy"
-          ),
           { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
         ],
         source: "/web-app-manifest-:size.png",
@@ -104,10 +112,6 @@ const nextConfig = {
           { key: "Vary", value: "Accept" },
         ],
         source: "/",
-      },
-      {
-        headers: securityHeaders,
-        source: "/(.*)",
       },
     ];
   },
