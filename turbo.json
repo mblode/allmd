@@ -24,6 +24,8 @@
     "check-types": {
       "dependsOn": ["^build"]
     },
-    "test": {}
+    "test": {
+      "inputs": ["src/**", "vitest.config.*", "tsconfig.json", "package.json"]
+    }
   }
 }

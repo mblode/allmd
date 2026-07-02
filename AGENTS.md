@@ -4,9 +4,10 @@ CLI tool that converts web pages, YouTube videos, PDFs, Google Docs, video/audio
 
 ## Monorepo Structure
 
-Turborepo with npm workspaces:
-- `apps/cli/` — CLI tool published to npm as `allmd`
-- `apps/web/` — Landing page (Next.js 16, deployed to Vercel)
+Turborepo with npm workspaces (`apps/*` — a directory joins the workspace only if it has a `package.json`):
+- `apps/cli/` — CLI tool published to npm as `allmd` (lints with Biome)
+- `apps/web/` — Landing page (Next.js 16, deployed to Vercel; lints with oxlint)
+- `apps/docs/` — MDX documentation source (Blode.md `docs.json` schema, deployed to Vercel on its own). No `package.json`, so it is not part of the Turborepo build or npm workspaces.
 
 ## Commands
 
@@ -14,10 +15,14 @@ Turborepo with npm workspaces:
 npm install              # setup (requires Node >= 20)
 npm run build            # turbo build (all apps)
 npm run dev              # turbo dev (all apps)
-npm run test             # turbo test
-npm run check            # ultracite check
+npm run test             # turbo test (vitest in apps/cli)
+npm run lint             # turbo lint (Biome in apps/cli, oxlint in apps/web)
+npm run typecheck        # turbo check-types (tsc --noEmit)
+npm run check            # ultracite check (Biome-based format + lint, whole repo)
 npm run fix              # ultracite fix
 ```
+
+Root lint/format is driven by ultracite (Biome) via `biome.jsonc`; `npm run lint`/`npm run typecheck` fan out to each app's own tooling through Turbo.
 
 ### CLI-specific (from apps/cli/)
 
@@ -58,8 +63,8 @@ Most converters follow: validate → extract → AI format → add frontmatter �
 
 ## Gotchas
 
-- **`vendor.d.ts`**: `pdf-parse`, `ffmpeg-extract-audio`, and `turndown-plugin-gfm` have no published types. Hand-written declarations live in `apps/cli/src/vendor.d.ts`. Update these if you upgrade those packages.
-- **AI is on for most converters**: Web pages use Firecrawl markdown directly. Other converters still use AI formatting, and there is no `--no-ai` flag. Tests that exercise converters will make API calls unless mocked.
+- **`vendor.d.ts`**: `pdf-parse`, `mammoth`, `epub2`, `rss-parser`, `update-notifier`, `tabtab`, and `turndown-plugin-gfm` ship without usable published types, so hand-written declarations live in `apps/cli/src/vendor.d.ts`. Update these if you upgrade those packages.
+- **AI is on by default for most converters**: Web pages use Firecrawl markdown directly. Other converters run AI formatting by default; pass `--no-ai` to skip it and emit raw extracted text for text-based sources (PDF, docx, epub, csv, pptx, gdoc, etc.). Image and video/audio inherently need AI (vision / transcription) and reject `--no-ai` with an error. Tests that exercise converters will make API calls unless mocked.
 - **Skill structure changed**: The old per-converter skill directories were consolidated into a single `skills/allmd/` directory. Don't recreate per-converter skill directories.
 - **Publishing**: The `allmd` npm package is published from `apps/cli/`. Run `npm run release` from root to build and publish via changesets.
 
