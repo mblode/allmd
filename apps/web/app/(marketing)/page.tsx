@@ -1,5 +1,3 @@
-"use client";
-
 import {
   ArrowRightIcon,
   ConsoleIcon,
@@ -9,22 +7,13 @@ import {
   MagicWandIcon,
   SparkleIcon,
 } from "blode-icons-react";
-import { SplitText } from "griffo/motion";
-import { stagger } from "motion";
-import { motion } from "motion/react";
+import { Fragment } from "react";
 
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { CopyButton } from "@/components/ui/copy-button";
 import { siteConfig } from "@/lib/config";
 
-const blurUp = {
-  animate: { filter: "blur(0px)", opacity: 1, y: 0 },
-  initial: { filter: "blur(8px)", opacity: 0, y: 8 },
-  transition: {
-    duration: 0.65,
-    ease: [0.25, 1, 0.5, 1] as const,
-  },
-};
+const heroWords = "Turn the whole universe into markdown.".split(" ");
 
 const features = [
   {
@@ -67,32 +56,29 @@ export default function HomePage(): React.JSX.Element {
       {/* Hero */}
       <section className="@container py-16 sm:py-24">
         <div className="mx-auto max-w-3xl px-6 text-center">
-          <SplitText
-            animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
-            as="h1"
-            className="text-balance font-medium text-4xl leading-[1.2] tracking-tight sm:text-5xl sm:leading-[1.15] sm:tracking-[-0.03em]"
-            initial={{ filter: "blur(8px)", opacity: 0, y: 20 }}
-            options={{ type: "words" }}
-            transition={{
-              delay: stagger(0.04),
-              duration: 0.65,
-              ease: [0.25, 1, 0.5, 1],
-            }}
-          >
-            <span>Turn the whole universe into markdown.</span>
-          </SplitText>
-          <motion.p
-            {...blurUp}
-            className="mx-auto mt-4 max-w-[60ch] text-lg text-muted-foreground leading-relaxed"
-            transition={{ ...blurUp.transition, delay: 0.35 }}
+          <h1 className="text-balance font-medium text-4xl leading-[1.2] tracking-tight sm:text-5xl sm:leading-[1.15] sm:tracking-[-0.03em]">
+            {heroWords.map((word, index) => (
+              <Fragment key={word}>
+                <span
+                  className="blur-up-word"
+                  style={{ animationDelay: `${index * 0.04}s` }}
+                >
+                  {word}
+                </span>
+                {index < heroWords.length - 1 ? " " : null}
+              </Fragment>
+            ))}
+          </h1>
+          <p
+            className="mx-auto mt-4 max-w-[60ch] text-lg text-muted-foreground leading-relaxed blur-up"
+            style={{ animationDelay: "0.35s" }}
           >
             Convert anything to markdown. Web pages, YouTube, PDFs, images,
             audio, and more.
-          </motion.p>
-          <motion.div
-            {...blurUp}
-            className="mt-8 flex flex-wrap items-center justify-center gap-3"
-            transition={{ ...blurUp.transition, delay: 0.5 }}
+          </p>
+          <div
+            className="mt-8 flex flex-wrap items-center justify-center gap-3 blur-up"
+            style={{ animationDelay: "0.5s" }}
           >
             <a
               className={buttonVariants({ size: "lg" })}
@@ -102,15 +88,14 @@ export default function HomePage(): React.JSX.Element {
             >
               Get started
             </a>
-          </motion.div>
-          <motion.code
-            {...blurUp}
-            className="relative mt-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-sm"
-            transition={{ ...blurUp.transition, delay: 0.65 }}
+          </div>
+          <code
+            className="relative mt-8 inline-flex items-center gap-2 font-mono text-muted-foreground text-sm blur-up"
+            style={{ animationDelay: "0.65s" }}
           >
             <span>npx skills add mblode/allmd</span>
             <CopyButton content="npx skills add mblode/allmd" />
-          </motion.code>
+          </code>
         </div>
       </section>
 
@@ -129,7 +114,10 @@ export default function HomePage(): React.JSX.Element {
                 className="feature-card space-y-3 border-t pt-6"
                 key={feature.title}
               >
-                <feature.icon className="size-4 text-muted-foreground" />
+                <feature.icon
+                  aria-hidden="true"
+                  className="size-4 text-muted-foreground"
+                />
                 <p className="text-muted-foreground leading-5">
                   <span className="font-medium text-foreground">
                     {feature.title}
@@ -159,12 +147,15 @@ export default function HomePage(): React.JSX.Element {
               target="_blank"
             >
               Read the docs
-              <ArrowRightIcon data-icon="inline-end" />
+              <ArrowRightIcon aria-hidden="true" data-icon="inline-end" />
             </a>
           </div>
           <div className="grid @2xl:grid-cols-1 @sm:grid-cols-2 grid-cols-1 gap-6 text-sm">
             <div className="feature-card space-y-3 border-t pt-6">
-              <FileDownloadIcon className="size-4 text-muted-foreground" />
+              <FileDownloadIcon
+                aria-hidden="true"
+                className="size-4 text-muted-foreground"
+              />
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Install</span>
               </p>
@@ -173,7 +164,10 @@ export default function HomePage(): React.JSX.Element {
               </code>
             </div>
             <div className="feature-card space-y-3 border-t pt-6">
-              <ConsoleIcon className="size-4 text-muted-foreground" />
+              <ConsoleIcon
+                aria-hidden="true"
+                className="size-4 text-muted-foreground"
+              />
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Convert</span>
               </p>
@@ -202,12 +196,15 @@ export default function HomePage(): React.JSX.Element {
               target="_blank"
             >
               API reference
-              <ArrowRightIcon data-icon="inline-end" />
+              <ArrowRightIcon aria-hidden="true" data-icon="inline-end" />
             </a>
           </div>
           <div className="grid @2xl:grid-cols-1 @sm:grid-cols-2 grid-cols-1 gap-6 text-sm">
             <div className="feature-card space-y-3 border-t pt-6">
-              <MagicWandIcon className="size-4 text-muted-foreground" />
+              <MagicWandIcon
+                aria-hidden="true"
+                className="size-4 text-muted-foreground"
+              />
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Import</span>
               </p>
@@ -216,7 +213,10 @@ export default function HomePage(): React.JSX.Element {
               </code>
             </div>
             <div className="feature-card space-y-3 border-t pt-6">
-              <FileTextIcon className="size-4 text-muted-foreground" />
+              <FileTextIcon
+                aria-hidden="true"
+                className="size-4 text-muted-foreground"
+              />
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Convert</span>
               </p>
@@ -246,12 +246,15 @@ export default function HomePage(): React.JSX.Element {
               target="_blank"
             >
               Add the skill
-              <ArrowRightIcon data-icon="inline-end" />
+              <ArrowRightIcon aria-hidden="true" data-icon="inline-end" />
             </a>
           </div>
           <div className="grid @2xl:grid-cols-1 @sm:grid-cols-2 grid-cols-1 gap-6 text-sm">
             <div className="feature-card space-y-3 border-t pt-6">
-              <FileDownloadIcon className="size-4 text-muted-foreground" />
+              <FileDownloadIcon
+                aria-hidden="true"
+                className="size-4 text-muted-foreground"
+              />
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Install</span>
               </p>
@@ -260,7 +263,10 @@ export default function HomePage(): React.JSX.Element {
               </code>
             </div>
             <div className="feature-card space-y-3 border-t pt-6">
-              <SparkleIcon className="size-4 text-muted-foreground" />
+              <SparkleIcon
+                aria-hidden="true"
+                className="size-4 text-muted-foreground"
+              />
               <p className="text-muted-foreground leading-5">
                 <span className="font-medium text-foreground">Use</span>
               </p>

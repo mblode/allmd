@@ -217,3 +217,27 @@
     }
   }
 }
+
+/*
+ * Hero entrance: content is fully visible by default (SSR-safe, no JS needed).
+ * The blur-reveal only runs for users who allow motion, animating from the
+ * hidden state via animation-fill-mode: both back to the visible base state.
+ */
+@keyframes blur-up {
+  from {
+    filter: blur(8px);
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.blur-up-word {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .blur-up,
+  .blur-up-word {
+    animation: blur-up 0.65s cubic-bezier(0.25, 1, 0.5, 1) both;
+  }
+}
