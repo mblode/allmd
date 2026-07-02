@@ -58,7 +58,7 @@ export async function processBatch(
 
   const getOutputPath = (file: string, result: ConversionResult) => {
     if (!resolvedOutputDir) {
-      return undefined;
+      return;
     }
 
     const baseName =
