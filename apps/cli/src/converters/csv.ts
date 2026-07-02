@@ -175,19 +175,22 @@ export async function convertCsv(
     options.verbose
   );
 
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      markdownTable,
-      {
-        title: titleFromFilename(filePath),
-        source: filePath,
-        type: isTsv ? "TSV spreadsheet" : "CSV spreadsheet",
-      },
-      options
-    )
-  );
+  const markdown =
+    options.ai === false
+      ? markdownTable
+      : await trackProgress(
+          options.onProgress,
+          "Formatting with AI...",
+          formatAsMarkdown(
+            markdownTable,
+            {
+              title: titleFromFilename(filePath),
+              source: filePath,
+              type: isTsv ? "TSV spreadsheet" : "CSV spreadsheet",
+            },
+            options
+          )
+        );
 
   const title = titleFromFilename(filePath);
 

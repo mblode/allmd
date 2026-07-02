@@ -93,19 +93,22 @@ export async function convertRss(
     options.verbose
   );
 
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawMarkdown,
-      {
-        title: feed.title ?? "RSS Feed",
-        source: url,
-        type: "RSS feed",
-      },
-      options
-    )
-  );
+  const markdown =
+    options.ai === false
+      ? rawMarkdown
+      : await trackProgress(
+          options.onProgress,
+          "Formatting with AI...",
+          formatAsMarkdown(
+            rawMarkdown,
+            {
+              title: feed.title ?? "RSS Feed",
+              source: url,
+              type: "RSS feed",
+            },
+            options
+          )
+        );
 
   const title = feed.title ?? "RSS Feed";
 

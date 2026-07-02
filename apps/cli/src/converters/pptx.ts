@@ -127,19 +127,22 @@ export async function convertPptx(
     options.verbose
   );
 
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawMarkdown,
-      {
-        title: titleFromFilename(filePath),
-        source: filePath,
-        type: "PowerPoint presentation",
-      },
-      options
-    )
-  );
+  const markdown =
+    options.ai === false
+      ? rawMarkdown
+      : await trackProgress(
+          options.onProgress,
+          "Formatting with AI...",
+          formatAsMarkdown(
+            rawMarkdown,
+            {
+              title: titleFromFilename(filePath),
+              source: filePath,
+              type: "PowerPoint presentation",
+            },
+            options
+          )
+        );
 
   const title = titleFromFilename(filePath);
 

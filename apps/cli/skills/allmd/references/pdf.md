@@ -34,6 +34,7 @@ For scanned PDFs, consider using `allmd image` on individual page screenshots in
 
 - AI receives the raw extracted text and restructures it into clean markdown
 - For scanned PDFs with insufficient text, outputs `# filename` with a warning and raw text
+- With `--no-ai`, this step is skipped and the raw `pdf-parse` text is emitted (frontmatter still applied); `OPENAI_API_KEY` is not required
 
 ### Step 5: Add frontmatter and output
 

@@ -36,6 +36,8 @@ Audio files skip the extraction step and go directly to transcription.
 
 Raw transcript text is sent to AI for structured prose formatting with paragraph breaks and structure.
 
+Transcription itself is AI-powered, so `--no-ai` is not supported: it fails fast with an error explaining that video/audio conversion requires AI transcription.
+
 ### Step 5: Add frontmatter and output
 
 Frontmatter fields: `title` (filename), `source` (file path), `date`, `type` ("video")

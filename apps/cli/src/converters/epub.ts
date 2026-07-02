@@ -61,19 +61,22 @@ export async function convertEpub(
     options.verbose
   );
 
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawMarkdown,
-      {
-        title,
-        source: filePath,
-        type: "EPUB ebook",
-      },
-      options
-    )
-  );
+  const markdown =
+    options.ai === false
+      ? rawMarkdown
+      : await trackProgress(
+          options.onProgress,
+          "Formatting with AI...",
+          formatAsMarkdown(
+            rawMarkdown,
+            {
+              title,
+              source: filePath,
+              type: "EPUB ebook",
+            },
+            options
+          )
+        );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title,

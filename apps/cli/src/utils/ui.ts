@@ -2,11 +2,20 @@ import chalk from "chalk";
 import ora, { type Ora } from "ora";
 
 export function createSpinner(text: string): Ora {
-  return ora({ text, color: "cyan" });
+  // Render decoration on stderr so piped stdout stays clean, and disable the
+  // spinner entirely when stderr is not a TTY (piped/redirected/CI).
+  return ora({
+    text,
+    color: "cyan",
+    stream: process.stderr,
+    isEnabled: process.stderr.isTTY === true,
+  });
 }
 
+// Decorative status output goes to stderr so that --stdout (and piping the
+// converted markdown) keeps stdout clean for the document alone.
 export function success(message: string): void {
-  console.log(`${chalk.green("✓")} ${message}`);
+  console.error(`${chalk.green("✓")} ${message}`);
 }
 
 export function error(message: string): void {
@@ -14,11 +23,11 @@ export function error(message: string): void {
 }
 
 export function info(message: string): void {
-  console.log(`${chalk.blue("ℹ")} ${message}`);
+  console.error(`${chalk.blue("ℹ")} ${message}`);
 }
 
 export function warn(message: string): void {
-  console.log(`${chalk.yellow("⚠")} ${message}`);
+  console.error(`${chalk.yellow("⚠")} ${message}`);
 }
 
 export function hint(message: string): void {

@@ -23,6 +23,12 @@ export async function convertImage(
   filePath: string,
   options: ConversionOptions = {}
 ): Promise<ConversionResult> {
+  if (options.ai === false) {
+    throw new Error(
+      "Image conversion requires AI vision to read text from the image, so --no-ai is not supported. Remove --no-ai to convert images."
+    );
+  }
+
   const ext = extname(filePath).toLowerCase();
   if (!SUPPORTED.has(ext)) {
     throw new Error(

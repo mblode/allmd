@@ -17,8 +17,10 @@ vi.mock("mammoth", () => ({
   },
 }));
 
+const formatAsMarkdown = vi.fn().mockResolvedValue("# Test Doc\n\nHello world");
+
 vi.mock("../ai/client.js", () => ({
-  formatAsMarkdown: vi.fn().mockResolvedValue("# Test Doc\n\nHello world"),
+  formatAsMarkdown: (...args: unknown[]) => formatAsMarkdown(...args),
 }));
 
 import { convertDocx } from "./docx.js";
@@ -51,5 +53,18 @@ describe("convertDocx", () => {
   it("skips frontmatter when option is false", async () => {
     const result = await convertDocx("/tmp/test.docx", { frontmatter: false });
     expect(result.markdown).not.toContain("type: docx");
+  });
+
+  it("skips AI formatting and emits raw markdown when ai is false", async () => {
+    formatAsMarkdown.mockClear();
+    const result = await convertDocx("/tmp/test.docx", { ai: false });
+
+    expect(formatAsMarkdown).not.toHaveBeenCalled();
+    // Raw markdown comes from the HTML-to-markdown step, not the AI stub.
+    expect(result.markdown).toContain("Test Doc");
+    expect(result.markdown).toContain("Hello world");
+    expect(result.markdown).not.toContain("AI output");
+    // Frontmatter is still applied.
+    expect(result.markdown).toContain("type: docx");
   });
 });

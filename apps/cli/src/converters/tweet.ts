@@ -99,19 +99,22 @@ export async function convertTweet(
     ? `**${author}** (${authorUrl || url}):\n\n${tweetText}`
     : tweetText;
 
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawMarkdown,
-      {
-        title: author ? `Tweet by ${author}` : "Tweet",
-        source: url,
-        type: "tweet",
-      },
-      options
-    )
-  );
+  const markdown =
+    options.ai === false
+      ? rawMarkdown
+      : await trackProgress(
+          options.onProgress,
+          "Formatting with AI...",
+          formatAsMarkdown(
+            rawMarkdown,
+            {
+              title: author ? `Tweet by ${author}` : "Tweet",
+              source: url,
+              type: "tweet",
+            },
+            options
+          )
+        );
 
   const title = author ? `Tweet by ${author}` : "Tweet";
 

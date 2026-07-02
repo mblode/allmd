@@ -47,7 +47,7 @@
     "url": "git+https://github.com/mblode/allmd.git",
     "directory": "apps/cli"
   },
-  "homepage": "https://github.com/mblode/allmd#readme",
+  "homepage": "https://allmd.blode.co",
   "bugs": {
     "url": "https://github.com/mblode/allmd/issues"
   },

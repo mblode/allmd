@@ -22,7 +22,7 @@
 - **Tweets:** capture tweets/X posts as markdown.
 - **RSS/Atom feeds:** convert feed entries to markdown.
 - **Auto-detect:** pass any URL or file — allmd figures out the type automatically.
-- **AI formatting:** non-web output is polished with GPT for consistent, readable markdown.
+- **AI formatting:** non-web output is polished with GPT for consistent, readable markdown (opt out with `--no-ai`).
 - **Interactive mode:** run `allmd` with no arguments to pick a converter.
 
 ## Installation
@@ -89,9 +89,21 @@ allmd examples                                  # show more usage examples
     --stdout             Print output to stdout instead of writing a file
     --parallel <n>       Number of parallel conversions (default: 3)
     --no-frontmatter     Skip YAML frontmatter in output
+    --no-ai              Skip AI formatting; emit the raw extracted text
+    --ai                 Force AI formatting on (overrides ai: false in config)
 -V, --version            Show version
 -h, --help               Show help
 ```
+
+### `--no-ai`
+
+By default, text-based converters send the extracted text to GPT for a formatting pass. Pass `--no-ai` to skip that step and write the raw extracted text (still wrapped in frontmatter). This is faster, offline-friendly, and does not require `OPENAI_API_KEY`.
+
+```bash
+allmd pdf report.pdf --no-ai --stdout
+```
+
+`--no-ai` applies to `youtube`, `pdf`, `gdoc`, `docx`, `epub`, `csv`, `pptx`, `tweet`, and `rss`. Web pages already skip AI (Firecrawl markdown is used directly). Image and video/audio conversion depend on AI (vision OCR and transcription), so `--no-ai` is rejected with a clear error for those. If your config file sets `ai: false`, pass `--ai` to force AI formatting back on for a single run.
 
 ## API
 

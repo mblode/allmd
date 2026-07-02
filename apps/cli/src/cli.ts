@@ -74,7 +74,7 @@ program
   .version(packageJson.version)
   .addHelpText(
     "after",
-    "\nQuick start:\n  $ allmd <url-or-file>              Auto-detect and convert\n  $ allmd web https://example.com    Convert a specific type\n  $ allmd examples                   Show more usage examples\n\nRequires OPENAI_API_KEY in .env or environment for AI-backed conversions. Web page conversion uses Firecrawl markdown and requires FIRECRAWL_API_KEY."
+    "\nQuick start:\n  $ allmd <url-or-file>              Auto-detect and convert\n  $ allmd web https://example.com    Convert a specific type\n  $ allmd <file> --no-ai             Skip AI formatting, emit raw text\n  $ allmd examples                   Show more usage examples\n\nRequires OPENAI_API_KEY in .env or environment for AI-backed conversions. Pass --no-ai to skip AI formatting for text-based sources (not images or video/audio). Web page conversion uses Firecrawl markdown and requires FIRECRAWL_API_KEY."
   );
 
 program.option("-o, --output <file>", "Write output to a specific file");
@@ -88,6 +88,14 @@ program.option(
 program.option("--stdout", "Print output to stdout instead of writing a file");
 program.option("--parallel <n>", "Number of parallel conversions (default: 3)");
 program.option("--no-frontmatter", "Skip YAML frontmatter in output");
+program.option(
+  "--ai",
+  "Force AI formatting on (overrides ai: false in config)"
+);
+program.option(
+  "--no-ai",
+  "Skip AI formatting and output the raw extracted text (not supported for images or video/audio)"
+);
 program.option(
   "--no-diarize",
   "Disable speaker diarization (video/audio only)"
@@ -123,6 +131,7 @@ program.hook("preAction", async () => {
   const config = await loadConfig();
   const cliOpts = program.opts();
   for (const key of [
+    "ai",
     "frontmatter",
     "output",
     "outputDir",
@@ -238,6 +247,7 @@ async function handleAutoDetect(input: string): Promise<void> {
     output: opts.output,
     verbose: opts.verbose,
     frontmatter: opts.frontmatter,
+    ai: opts.ai as boolean | undefined,
     diarize: opts.diarize as boolean | undefined,
     speakerReferences: opts.speakerReferences as string[] | undefined,
     speakers: opts.speakers as string[] | undefined,
@@ -253,7 +263,7 @@ async function handleAutoDetect(input: string): Promise<void> {
     }
 
     assertRequiredApiKeys({
-      openai: urlType !== "web",
+      openai: urlType !== "web" && opts.ai !== false,
       firecrawl: urlType === "web",
     });
     info(`Detected: ${DETECTION_LABELS[urlType]}. Converting...`);
@@ -270,7 +280,7 @@ async function handleAutoDetect(input: string): Promise<void> {
       return;
     }
 
-    assertRequiredApiKeys({ openai: true });
+    assertRequiredApiKeys({ openai: opts.ai !== false });
     info(`Detected: ${DETECTION_LABELS[fileType]}. Converting...`);
     await executeConversion(
       converter,
@@ -284,7 +294,7 @@ async function handleAutoDetect(input: string): Promise<void> {
   const fileType = classifyFile(normalizedInput);
   if (fileType !== "unknown") {
     const converter = fileConverters[fileType];
-    assertRequiredApiKeys({ openai: true });
+    assertRequiredApiKeys({ openai: opts.ai !== false });
     info(`Detected: ${DETECTION_LABELS[fileType]}. Converting...`);
     await executeConversion(converter, normalizedInput, conversionOpts, opts);
     return;

@@ -216,6 +216,16 @@ describe("convertVideo", () => {
     expect(mocks.transcribeAudioDiarized).toHaveBeenCalledTimes(3);
   });
 
+  it("fails fast when --no-ai is used", async () => {
+    const filePath = await writeTempFile(".mp3");
+
+    await expect(convertVideo(filePath, { ai: false })).rejects.toThrow(
+      "requires AI transcription"
+    );
+    expect(mocks.transcribeAudio).not.toHaveBeenCalled();
+    expect(mocks.transcribeAudioDiarized).not.toHaveBeenCalled();
+  });
+
   it("does not chunk short diarized audio under 1400s", async () => {
     audioMocks.isAudioOversized.mockReturnValue(false);
     audioMocks.getAudioDuration.mockResolvedValue(600);

@@ -174,19 +174,22 @@ export async function convertYoutube(
     options.verbose
   );
 
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawTranscript,
-      {
-        title: metadata.title,
-        source: url,
-        type: "YouTube video transcript",
-      },
-      options
-    )
-  );
+  const markdown =
+    options.ai === false
+      ? rawTranscript
+      : await trackProgress(
+          options.onProgress,
+          "Formatting with AI...",
+          formatAsMarkdown(
+            rawTranscript,
+            {
+              title: metadata.title,
+              source: url,
+              type: "YouTube video transcript",
+            },
+            options
+          )
+        );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
     title: metadata.title,

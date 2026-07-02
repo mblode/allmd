@@ -7,6 +7,7 @@ export interface ConversionResult {
 
 export interface ConversionOptions {
   abortSignal?: AbortSignal;
+  ai?: boolean;
   diarize?: boolean;
   frontmatter?: boolean;
   onProgress?: (message: string) => void;

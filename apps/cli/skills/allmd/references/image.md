@@ -32,7 +32,7 @@ The base64 image is sent to OpenAI GPT-4o with a prompt that handles multiple im
 
 The output is structured as clean markdown with appropriate headings.
 
-Vision AI is the only extraction method for images.
+Vision AI is the only extraction method for images. `--no-ai` is therefore not supported: it fails fast with an error explaining that image conversion requires AI vision.
 
 ### Step 4: Add frontmatter and output
 

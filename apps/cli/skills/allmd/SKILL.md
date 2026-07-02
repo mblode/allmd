@@ -50,7 +50,7 @@ Most converters follow this pattern:
 
 1. **Validate** input (URL format or file existence/extension)
 2. **Extract** content (fetch HTML, parse PDF, read image, transcribe audio, fetch captions)
-3. **AI format** — restructures into clean markdown via OpenAI GPT-5-mini
+3. **AI format** — restructures into clean markdown via OpenAI GPT-5-mini (skip with `--no-ai` on text-based converters to emit raw extracted text)
 4. **Add frontmatter** — YAML header with title, source, date, type, and type-specific fields
 5. **Output** — write to file (`-o`), directory (`-d`), clipboard (`--copy`), or stdout
 
@@ -83,3 +83,4 @@ Web page conversion differs at step 3: `allmd web` uses Firecrawl markdown direc
 - **Web conversion skips AI formatting**: `allmd web` uses Firecrawl markdown directly; other converters (PDF, image, video, etc.) run an OpenAI post-processing pass
 - **FIRECRAWL_API_KEY required for web**: if not set, `allmd web` fails with a clear error
 - **OPENAI_API_KEY required for non-web converters**: PDF, image, video, gdoc, youtube, tweet, docx, epub, csv, pptx, rss all use AI formatting
+- **`--no-ai` skips AI formatting**: text-based converters (youtube, pdf, gdoc, docx, epub, csv, pptx, tweet, rss) emit the raw extracted text with frontmatter and no longer require `OPENAI_API_KEY`. `image` and `video`/audio depend on AI (vision OCR and transcription) and reject `--no-ai` with a clear error

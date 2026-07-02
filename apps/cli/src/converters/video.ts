@@ -525,6 +525,12 @@ export async function convertVideo(
   filePath: string,
   options: ConversionOptions = {}
 ): Promise<ConversionResult> {
+  if (options.ai === false) {
+    throw new Error(
+      "Video and audio conversion requires AI transcription, so --no-ai is not supported. Remove --no-ai to transcribe."
+    );
+  }
+
   const { isAudio, isVideo, diarize } = parseVideoOptions(filePath, options);
 
   const ext = extname(filePath).toLowerCase();

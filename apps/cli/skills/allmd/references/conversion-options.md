@@ -5,6 +5,7 @@
 ```typescript
 interface ConversionOptions {
   abortSignal?: AbortSignal;
+  ai?: boolean;          // Run the AI formatting pass (default: true). Set false to emit raw text.
   diarize?: boolean;
   frontmatter?: boolean; // Add YAML frontmatter (default: true)
   onProgress?: (message: string) => void;
@@ -35,6 +36,8 @@ All `allmd` commands accept:
 | `-d, --output-dir <dir>` | Output directory for converted files |
 | `--parallel <n>` | Number of parallel conversions for batch mode (default: 3) |
 | `--no-frontmatter` | Skip YAML frontmatter in output |
+| `--no-ai` | Skip AI formatting; emit the raw extracted text (not supported for images or video/audio) |
+| `--ai` | Force AI formatting on (overrides `ai: false` in config) |
 
 ## Auto-Detection
 
@@ -68,6 +71,14 @@ Most converters use AI formatting. Raw extracted text is sent to OpenAI GPT-5-mi
 
 Web page conversion is the exception: `allmd web` uses Firecrawl markdown directly and only applies optional frontmatter.
 
+### Skipping AI with `--no-ai`
+
+Pass `--no-ai` (or `ai: false` in config/API) to skip the GPT formatting pass and write the raw extracted text with frontmatter still applied. It is faster, works offline, and does not require `OPENAI_API_KEY`.
+
+- Supported for text-based converters: `youtube`, `pdf`, `gdoc`, `docx`, `epub`, `csv`, `pptx`, `tweet`, `rss`.
+- `web` already skips AI regardless of the flag.
+- `image` and `video`/audio depend on AI (vision OCR and transcription) and reject `--no-ai` with a clear error.
+
 ## Configuration
 
 Supports `.allmdrc`, `.allmdrc.json`, `.allmdrc.yaml`, `allmd.config.js`, or `allmd` key in `package.json` via cosmiconfig.
@@ -78,6 +89,7 @@ Supports `.allmdrc`, `.allmdrc.json`, `.allmdrc.yaml`, `allmd.config.js`, or `al
   "outputDir": "docs",
   "verbose": true,
   "frontmatter": true,
+  "ai": true,
   "parallel": 3
 }
 ```
@@ -108,7 +120,7 @@ echo "https://example.com" | allmd web -
 
 | Variable | Required | Default |
 |----------|----------|---------|
-| `OPENAI_API_KEY` | Required for non-web converters | — |
+| `OPENAI_API_KEY` | Required for non-web converters, unless `--no-ai` is used with a text-based converter | — |
 | `FIRECRAWL_API_KEY` | Required for web page conversion | — |
 
 ## Output Handling

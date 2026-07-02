@@ -63,4 +63,14 @@ describe("mergeWithCliOpts", () => {
     expect(result.frontmatter).toBe(false);
     expect(result.output).toBe("/tmp/config.md");
   });
+
+  it("prefers the CLI ai flag over config", () => {
+    const result = mergeWithCliOpts({ ai: false }, { ai: true });
+    expect(result.ai).toBe(false);
+  });
+
+  it("falls back to config ai when the CLI flag is undefined", () => {
+    const result = mergeWithCliOpts({ ai: undefined }, { ai: false });
+    expect(result.ai).toBe(false);
+  });
 });

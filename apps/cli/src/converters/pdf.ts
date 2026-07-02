@@ -30,7 +30,10 @@ export async function convertPdf(
   let markdown: string;
   let title = filename;
 
-  if (hasText) {
+  if (options.ai === false) {
+    verbose("Skipping AI formatting (--no-ai)", options.verbose);
+    markdown = parsed.text;
+  } else if (hasText) {
     markdown = await trackProgress(
       options.onProgress,
       "Formatting with AI...",

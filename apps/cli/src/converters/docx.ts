@@ -37,19 +37,22 @@ export async function convertDocx(
     options.verbose
   );
 
-  const markdown = await trackProgress(
-    options.onProgress,
-    "Formatting with AI...",
-    formatAsMarkdown(
-      rawMarkdown,
-      {
-        title: titleFromFilename(filePath),
-        source: filePath,
-        type: "Word document",
-      },
-      options
-    )
-  );
+  const markdown =
+    options.ai === false
+      ? rawMarkdown
+      : await trackProgress(
+          options.onProgress,
+          "Formatting with AI...",
+          formatAsMarkdown(
+            rawMarkdown,
+            {
+              title: titleFromFilename(filePath),
+              source: filePath,
+              type: "Word document",
+            },
+            options
+          )
+        );
 
   const title = titleFromFilename(filePath);
 

@@ -95,6 +95,7 @@ async function handleBatchConversion(
         output: opts.output as string | undefined,
         verbose: opts.verbose as boolean | undefined,
         frontmatter: opts.frontmatter as boolean | undefined,
+        ai: opts.ai as boolean | undefined,
         diarize: opts.diarize as boolean | undefined,
         speakerReferences: opts.speakerReferences as string[] | undefined,
         speakers: opts.speakers as string[] | undefined,
@@ -141,6 +142,7 @@ async function runSingleConversion(
     output: opts.output as string | undefined,
     verbose: opts.verbose as boolean | undefined,
     frontmatter: opts.frontmatter as boolean | undefined,
+    ai: opts.ai as boolean | undefined,
     diarize: opts.diarize as boolean | undefined,
     speakerReferences: opts.speakerReferences as string[] | undefined,
     speakers: opts.speakers as string[] | undefined,
@@ -198,7 +200,7 @@ async function handleGlobInput(
     throw new Error(`No files matched pattern: ${input}`);
   }
   assertRequiredApiKeys({
-    openai: config.requiresOpenAI ?? true,
+    openai: (config.requiresOpenAI ?? true) && opts.ai !== false,
     firecrawl: config.requiresFirecrawl,
   });
   await handleBatchConversion(files, config.converter, opts);
@@ -225,7 +227,7 @@ async function handleSingleFileInput(
   }
 
   assertRequiredApiKeys({
-    openai: config.requiresOpenAI ?? true,
+    openai: (config.requiresOpenAI ?? true) && opts.ai !== false,
     firecrawl: config.requiresFirecrawl,
   });
 
@@ -305,7 +307,7 @@ export function createUrlCommand(
         }
 
         assertRequiredApiKeys({
-          openai: config.requiresOpenAI ?? true,
+          openai: (config.requiresOpenAI ?? true) && opts.ai !== false,
           firecrawl: config.requiresFirecrawl,
         });
 
