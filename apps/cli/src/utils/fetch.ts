@@ -12,9 +12,9 @@ export async function fetchWithTimeout(
   const timer = setTimeout(() => timeoutController.abort(), timeoutMs);
   try {
     return await fetch(url, { ...options, signal });
-  } catch (err) {
+  } catch (error) {
     if (
-      (err as Error).name === "AbortError" &&
+      (error as Error).name === "AbortError" &&
       timeoutController.signal.aborted
     ) {
       throw new Error(
@@ -23,7 +23,7 @@ export async function fetchWithTimeout(
           "Set FIRECRAWL_API_KEY in your environment for JS-heavy pages."
       );
     }
-    throw err;
+    throw error;
   } finally {
     clearTimeout(timer);
   }

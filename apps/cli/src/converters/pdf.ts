@@ -1,5 +1,7 @@
 import { readFile } from "node:fs/promises";
+
 import { PDFParse } from "pdf-parse";
+
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
@@ -51,8 +53,8 @@ export async function convertPdf(
       formatAsMarkdown(
         text,
         {
-          title: filename,
           source: filePath,
+          title: filename,
           type: "PDF document",
         },
         options
@@ -65,8 +67,9 @@ export async function convertPdf(
     );
     markdown =
       `# ${filename}\n\n` +
-      "> This PDF appears to be scanned/image-based. Text extraction may be incomplete.\n\n" +
-      text;
+      `> This PDF appears to be scanned/image-based. Text extraction may be incomplete.\n\n${
+        text
+      }`;
   }
 
   if (info?.Title && typeof info.Title === "string") {
@@ -74,10 +77,10 @@ export async function convertPdf(
   }
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title,
-    source: filePath,
-    type: "pdf",
     pages: numpages,
+    source: filePath,
+    title,
+    type: "pdf",
   });
 
   verbose(
@@ -86,12 +89,12 @@ export async function convertPdf(
   );
 
   return {
-    title,
     markdown: withFrontmatter,
-    rawContent: text,
     metadata: {
-      pages: numpages,
       info,
+      pages: numpages,
     },
+    rawContent: text,
+    title,
   };
 }

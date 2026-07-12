@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("clipboardy", () => ({
   default: {
     read: vi.fn().mockResolvedValue("  https://example.com  "),
-    write: vi.fn().mockResolvedValue(undefined),
+    write: vi.fn().mockResolvedValue(),
   },
 }));
 

@@ -29,13 +29,13 @@ describe("convertWeb", () => {
 
     process.env.FIRECRAWL_API_KEY = "test-key";
     scrapeUrl.mockResolvedValue({
-      success: true,
       markdown: "# Raw markdown",
       metadata: {
         description: "Example description",
         sourceURL: "https://example.com/article",
         title: "Example Article",
       },
+      success: true,
     });
 
     const result = await convertWeb("https://example.com/article", {
@@ -58,14 +58,14 @@ describe("convertWeb", () => {
     );
     expect(onProgress).toHaveBeenNthCalledWith(2, "Applying frontmatter...");
     expect(result).toEqual({
-      title: "Example Article",
       markdown: "# Raw markdown",
-      rawContent: "# Raw markdown",
       metadata: {
         excerpt: "Example description",
         provider: "firecrawl",
         siteName: "https://example.com/article",
       },
+      rawContent: "# Raw markdown",
+      title: "Example Article",
     });
   });
 });

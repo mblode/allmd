@@ -3,18 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("epub2", () => ({
   default: {
     createAsync: vi.fn().mockResolvedValue({
-      metadata: {
-        title: "Test Book",
-        creator: "Test Author",
-        publisher: "Test Publisher",
-        language: "en",
-      },
       flow: [
         { id: "ch1", title: "Chapter 1" },
         { id: "ch2", title: "Chapter 2" },
       ],
-      toc: [],
-      spine: { contents: [] },
       getChapterAsync: vi.fn().mockImplementation((id: string) => {
         if (id === "ch1") {
           return Promise.resolve("<p>Chapter one content</p>");
@@ -24,6 +16,14 @@ vi.mock("epub2", () => ({
         }
         return Promise.reject(new Error("Not found"));
       }),
+      metadata: {
+        creator: "Test Author",
+        language: "en",
+        publisher: "Test Publisher",
+        title: "Test Book",
+      },
+      spine: { contents: [] },
+      toc: [],
     }),
   },
 }));

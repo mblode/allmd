@@ -1,5 +1,7 @@
 import { readFile } from "node:fs/promises";
+
 import mammoth from "mammoth";
+
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
@@ -46,8 +48,8 @@ export async function convertDocx(
           formatAsMarkdown(
             rawMarkdown,
             {
-              title: titleFromFilename(filePath),
               source: filePath,
+              title: titleFromFilename(filePath),
               type: "Word document",
             },
             options
@@ -57,8 +59,8 @@ export async function convertDocx(
   const title = titleFromFilename(filePath);
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title,
     source: filePath,
+    title,
     type: "docx",
   });
 
@@ -68,9 +70,9 @@ export async function convertDocx(
   );
 
   return {
-    title,
     markdown: withFrontmatter,
-    rawContent: result.value,
     metadata: {},
+    rawContent: result.value,
+    title,
   };
 }

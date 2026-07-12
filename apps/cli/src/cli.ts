@@ -1,7 +1,9 @@
 import "dotenv/config";
 import { createRequire } from "node:module";
+
 import { Command } from "commander";
 import updateNotifier from "update-notifier";
+
 import {
   handleTabCompletion,
   registerCompletionCommand,
@@ -48,7 +50,7 @@ import { cleanFilePath } from "./utils/path.js";
 import { isStdinPiped, readStdin } from "./utils/stdin.js";
 import {
   createSpinner,
-  error,
+  error as logError,
   formatError,
   info,
   success,
@@ -151,44 +153,44 @@ program.hook("preAction", async () => {
 });
 
 const DETECTION_LABELS: Record<string, string> = {
-  youtube: "YouTube video",
-  gdoc: "Google Doc",
-  tweet: "Tweet / X post",
-  rss: "RSS / Atom feed",
-  web: "web page",
-  pdf: "PDF document",
-  image: "image",
-  video: "video file",
   audio: "audio file",
+  csv: "CSV / TSV file",
   docx: "Word document",
   epub: "EPUB ebook",
-  csv: "CSV / TSV file",
+  gdoc: "Google Doc",
+  image: "image",
+  pdf: "PDF document",
   pptx: "PowerPoint presentation",
+  rss: "RSS / Atom feed",
+  tweet: "Tweet / X post",
+  video: "video file",
+  web: "web page",
+  youtube: "YouTube video",
 };
 
 const urlConverters: Record<
   string,
   (input: string, opts: ConversionOptions) => Promise<ConversionResult>
 > = {
-  youtube: convertYoutube,
   gdoc: convertGdoc,
-  tweet: convertTweet,
   rss: convertRss,
+  tweet: convertTweet,
   web: convertWeb,
+  youtube: convertYoutube,
 };
 
 const fileConverters: Record<
   string,
   (input: string, opts: ConversionOptions) => Promise<ConversionResult>
 > = {
-  pdf: convertPdf,
-  image: convertImage,
-  video: convertVideo,
   audio: convertVideo,
+  csv: convertCsv,
   docx: convertDocx,
   epub: convertEpub,
-  csv: convertCsv,
+  image: convertImage,
+  pdf: convertPdf,
   pptx: convertPptx,
+  video: convertVideo,
 };
 
 async function executeConversion(
@@ -219,8 +221,8 @@ async function executeConversion(
       : ((opts.output as string | undefined) ??
         generateOutputPath(result.title, opts.outputDir as string | undefined));
     await writeOutput(result.markdown, {
-      output: outputPath,
       copy: opts.copy as boolean | undefined,
+      output: outputPath,
     });
     if (opts.copy) {
       success("Copied to clipboard");
@@ -228,12 +230,12 @@ async function executeConversion(
     if (outputPath) {
       success(`Saved to ${outputPath}`);
     }
-  } catch (err) {
+  } catch (error) {
     spinner.stop();
-    if (isInterruptedError(err)) {
+    if (isInterruptedError(error)) {
       process.exit(130);
     }
-    error(formatError(err));
+    logError(formatError(error));
     process.exit(1);
   } finally {
     clearInterruptibleOperation(abortController);
@@ -244,13 +246,13 @@ async function handleAutoDetect(input: string): Promise<void> {
   const opts = program.opts();
   const normalizedInput = cleanFilePath(input);
   const conversionOpts: ConversionOptions = {
-    output: opts.output,
-    verbose: opts.verbose,
-    frontmatter: opts.frontmatter,
     ai: opts.ai as boolean | undefined,
     diarize: opts.diarize as boolean | undefined,
+    frontmatter: opts.frontmatter,
+    output: opts.output,
     speakerReferences: opts.speakerReferences as string[] | undefined,
     speakers: opts.speakers as string[] | undefined,
+    verbose: opts.verbose,
   };
   const { type } = classifyInput(normalizedInput);
 
@@ -263,8 +265,8 @@ async function handleAutoDetect(input: string): Promise<void> {
     }
 
     assertRequiredApiKeys({
-      openai: urlType !== "web" && opts.ai !== false,
       firecrawl: urlType === "web",
+      openai: urlType !== "web" && opts.ai !== false,
     });
     info(`Detected: ${DETECTION_LABELS[urlType]}. Converting...`);
     await executeConversion(converter, normalizedInput, conversionOpts, opts);
@@ -323,10 +325,10 @@ if (handleTabCompletion()) {
   process.exit(0);
 }
 
-await program.parseAsync().catch((err: unknown) => {
-  if (isInterruptedError(err)) {
+await program.parseAsync().catch((error: unknown) => {
+  if (isInterruptedError(error)) {
     process.exit(130);
   }
-  error(formatError(err));
+  logError(formatError(error));
   process.exit(1);
 });

@@ -7,9 +7,9 @@ export function titleFromFilename(filename: string): string {
 export function slugify(text: string, maxLength = 80): string {
   let slug = text
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replaceAll(/[^a-z0-9]+/g, "-")
+    .replaceAll(/-+/g, "-")
+    .replaceAll(/^-|-$/g, "");
 
   if (slug.length > maxLength) {
     slug = slug.slice(0, maxLength);

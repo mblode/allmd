@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { cleanFilePath } from "./path.js";
 
 describe("cleanFilePath", () => {
@@ -15,11 +16,11 @@ describe("cleanFilePath", () => {
   });
 
   it("resolves \\u{xxxx} Unicode escapes", () => {
-    expect(cleanFilePath("file\\u{202f}name.txt")).toBe("file\u202fname.txt");
+    expect(cleanFilePath("file\\u{202f}name.txt")).toBe("file\u202Fname.txt");
   });
 
   it("resolves \\uXXXX Unicode escapes", () => {
-    expect(cleanFilePath("file\\u202Fname.txt")).toBe("file\u202fname.txt");
+    expect(cleanFilePath("file\\u202Fname.txt")).toBe("file\u202Fname.txt");
   });
 
   it("resolves shell backslash escapes", () => {
@@ -29,6 +30,6 @@ describe("cleanFilePath", () => {
   it("normalises to NFC", () => {
     // é as e + combining acute (NFD) should become single codepoint (NFC)
     const nfd = "e\u0301";
-    expect(cleanFilePath(nfd)).toBe("\u00e9");
+    expect(cleanFilePath(nfd)).toBe("\u00E9");
   });
 });

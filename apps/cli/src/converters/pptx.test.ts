@@ -34,11 +34,13 @@ const mockEntries = [
 ];
 
 vi.mock("adm-zip", () => ({
-  default: vi.fn().mockImplementation(function AdmZip() {
-    return {
-      getEntries: () => mockEntries,
-    };
-  }),
+  default: class MockAdmZip {
+    private entries = mockEntries;
+
+    getEntries() {
+      return this.entries;
+    }
+  },
 }));
 
 vi.mock("../ai/client.js", () => ({

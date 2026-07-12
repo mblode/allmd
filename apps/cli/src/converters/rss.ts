@@ -1,4 +1,5 @@
 import RssParser from "rss-parser";
+
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
@@ -18,7 +19,7 @@ interface RssItem {
 }
 
 function escapeMarkdownLink(url: string): string {
-  return url.replace(/\]/g, "%5D").replace(/\)/g, "%29");
+  return url.replaceAll(/\]/g, "%5D").replaceAll(/\)/g, "%29");
 }
 
 function formatItemMeta(item: RssItem): string[] {
@@ -102,8 +103,8 @@ export async function convertRss(
           formatAsMarkdown(
             rawMarkdown,
             {
-              title: feed.title ?? "RSS Feed",
               source: url,
+              title: feed.title ?? "RSS Feed",
               type: "RSS feed",
             },
             options
@@ -113,11 +114,11 @@ export async function convertRss(
   const title = feed.title ?? "RSS Feed";
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title,
-    source: url,
-    type: "rss",
-    items: feed.items.length,
     feedUrl: feed.feedUrl ?? url,
+    items: feed.items.length,
+    source: url,
+    title,
+    type: "rss",
   });
 
   verbose(
@@ -126,14 +127,14 @@ export async function convertRss(
   );
 
   return {
-    title,
     markdown: withFrontmatter,
-    rawContent: rawMarkdown,
     metadata: {
-      feedTitle: feed.title,
       feedDescription: feed.description,
+      feedTitle: feed.title,
       feedUrl: feed.feedUrl,
       itemCount: feed.items.length,
     },
+    rawContent: rawMarkdown,
+    title,
   };
 }

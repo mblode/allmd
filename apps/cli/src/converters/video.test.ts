@@ -1,6 +1,7 @@
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -15,7 +16,7 @@ const audioMocks = vi.hoisted(() => ({
   WHISPER_MAX_BYTES: 26_214_400,
   calculateChunkBoundaries: vi.fn(),
   calculateTargetBitrate: vi.fn().mockReturnValue(64),
-  compressAudio: vi.fn().mockResolvedValue(undefined),
+  compressAudio: vi.fn().mockResolvedValue(),
   extractAudioChunk: vi.fn(),
   extractAudioToMp3: vi.fn(),
   getAudioDuration: vi.fn().mockResolvedValue(300),
@@ -53,7 +54,7 @@ describe("convertVideo", () => {
     audioMocks.needsChunking.mockReturnValue(false);
     audioMocks.getAudioDuration.mockResolvedValue(300);
     audioMocks.calculateTargetBitrate.mockReturnValue(64);
-    audioMocks.compressAudio.mockResolvedValue(undefined);
+    audioMocks.compressAudio.mockResolvedValue();
   });
 
   afterEach(() => {
@@ -106,8 +107,8 @@ describe("convertVideo", () => {
     expect(mocks.transcribeAudioDiarized).toHaveBeenCalledWith(
       expect.any(Buffer),
       expect.objectContaining({
-        speakers: ["Alice"],
         speakerReferences: ["./alice.wav"],
+        speakers: ["Alice"],
       }),
       "input.mp3",
       ["./alice.wav"]
@@ -156,8 +157,8 @@ describe("convertVideo", () => {
     audioMocks.needsChunking.mockReturnValue(true);
     audioMocks.getAudioDuration.mockResolvedValue(7200);
     audioMocks.calculateChunkBoundaries.mockReturnValue([
-      { startSeconds: 0, durationSeconds: 1500, index: 0 },
-      { startSeconds: 1485, durationSeconds: 1500, index: 1 },
+      { durationSeconds: 1500, index: 0, startSeconds: 0 },
+      { durationSeconds: 1500, index: 1, startSeconds: 1485 },
     ]);
     audioMocks.extractAudioChunk.mockImplementation(
       async (_input: string, output: string) => {
@@ -177,8 +178,8 @@ describe("convertVideo", () => {
     audioMocks.needsChunking.mockReturnValue(true);
     audioMocks.getAudioDuration.mockResolvedValue(7200);
     audioMocks.calculateChunkBoundaries.mockReturnValue([
-      { startSeconds: 0, durationSeconds: 1500, index: 0 },
-      { startSeconds: 1485, durationSeconds: 1500, index: 1 },
+      { durationSeconds: 1500, index: 0, startSeconds: 0 },
+      { durationSeconds: 1500, index: 1, startSeconds: 1485 },
     ]);
     audioMocks.extractAudioChunk.mockImplementation(
       async (_input: string, output: string) => {
@@ -198,9 +199,9 @@ describe("convertVideo", () => {
     audioMocks.getAudioDuration.mockResolvedValue(3600);
     audioMocks.needsChunking.mockReturnValue(true);
     audioMocks.calculateChunkBoundaries.mockReturnValue([
-      { startSeconds: 0, durationSeconds: 1200, index: 0 },
-      { startSeconds: 1185, durationSeconds: 1200, index: 1 },
-      { startSeconds: 2370, durationSeconds: 1200, index: 2 },
+      { durationSeconds: 1200, index: 0, startSeconds: 0 },
+      { durationSeconds: 1200, index: 1, startSeconds: 1185 },
+      { durationSeconds: 1200, index: 2, startSeconds: 2370 },
     ]);
     audioMocks.extractAudioChunk.mockImplementation(
       async (_input: string, output: string) => {

@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
+
 import { addFrontmatter, parseFrontmatter } from "./frontmatter.js";
 
 describe("addFrontmatter", () => {
   it("adds YAML frontmatter to content", () => {
     const result = addFrontmatter("# Hello", {
-      title: "Test",
-      source: "https://example.com",
       date: "2025-01-01",
+      source: "https://example.com",
+      title: "Test",
       type: "web",
     });
     expect(result).toContain("---");

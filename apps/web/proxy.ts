@@ -1,4 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const DOCS_ORIGIN = "https://allmd.blode.md";
 const CURRENT_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID ?? "";

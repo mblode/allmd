@@ -1,16 +1,18 @@
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("clipboardy", () => ({
   default: {
     read: vi.fn().mockResolvedValue(""),
-    write: vi.fn().mockResolvedValue(undefined),
+    write: vi.fn().mockResolvedValue(),
   },
 }));
 
 import clipboardy from "clipboardy";
+
 import { generateOutputPath, writeOutput } from "./output.js";
 
 describe("generateOutputPath", () => {
@@ -68,7 +70,7 @@ describe("writeOutput", () => {
     const tempDir = await mkdtemp(join(tmpdir(), "allmd-output-test-"));
     const filePath = join(tempDir, "both.md");
 
-    await writeOutput("# Both", { output: filePath, copy: true });
+    await writeOutput("# Both", { copy: true, output: filePath });
 
     const content = await readFile(filePath, "utf-8");
     expect(content).toBe("# Both");

@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { basename, extname } from "node:path";
+
 import { describeImage } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
@@ -10,10 +11,10 @@ const SUPPORTED = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp"]);
 function getMimeType(filePath: string): string {
   const ext = extname(filePath).toLowerCase();
   const types: Record<string, string> = {
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".png": "image/png",
     ".gif": "image/gif",
+    ".jpeg": "image/jpeg",
+    ".jpg": "image/jpeg",
+    ".png": "image/png",
     ".webp": "image/webp",
   };
   return types[ext] ?? "image/png";
@@ -54,11 +55,11 @@ export async function convertImage(
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title: filename,
-    source: filePath,
-    type: "image",
-    mimeType: getMimeType(filePath),
     fileSize: imageBuffer.byteLength,
+    mimeType: getMimeType(filePath),
+    source: filePath,
+    title: filename,
+    type: "image",
   });
 
   verbose(
@@ -67,11 +68,11 @@ export async function convertImage(
   );
 
   return {
-    title: filename,
     markdown: withFrontmatter,
     metadata: {
-      mimeType: getMimeType(filePath),
       fileSize: imageBuffer.byteLength,
+      mimeType: getMimeType(filePath),
     },
+    title: filename,
   };
 }

@@ -1,5 +1,6 @@
 import { execFile as execFileCb } from "node:child_process";
 import { promisify } from "node:util";
+
 import ffmpegStatic from "ffmpeg-static";
 
 const execFile = promisify(execFileCb);
@@ -56,13 +57,13 @@ export async function getAudioDuration(
 
   try {
     await execFile(ffmpegPath, ["-hide_banner", "-i", filePath], {
-      timeout: 30_000,
       signal: abortSignal,
+      timeout: 30_000,
     });
-  } catch (err: unknown) {
+  } catch (error: unknown) {
     // ffmpeg exits with code 1 when no output is specified, but still
     // prints duration info to stderr — this is expected behaviour.
-    const stderr = (err as { stderr?: string }).stderr ?? "";
+    const stderr = (error as { stderr?: string }).stderr ?? "";
     const match = stderr.match(DURATION_REGEX);
     if (match) {
       const hours = Number.parseInt(match[1], 10);
@@ -71,7 +72,9 @@ export async function getAudioDuration(
       const centiseconds = Number.parseInt(match[4], 10);
       return hours * 3600 + minutes * 60 + seconds + centiseconds / 100;
     }
-    throw new Error(`Could not determine audio duration for ${filePath}`);
+    throw new Error(`Could not determine audio duration for ${filePath}`, {
+      cause: error,
+    });
   }
   throw new Error(`Could not determine audio duration for ${filePath}`);
 }
@@ -115,7 +118,7 @@ export function calculateChunkBoundaries(
   while (start < totalDurationSeconds) {
     const remaining = totalDurationSeconds - start;
     const duration = Math.min(chunkDurationSeconds, remaining);
-    chunks.push({ startSeconds: start, durationSeconds: duration, index });
+    chunks.push({ durationSeconds: duration, index, startSeconds: start });
     start += chunkDurationSeconds - CHUNK_OVERLAP_SECONDS;
     index++;
   }
@@ -149,7 +152,7 @@ export async function compressAudio(
       "mp3",
       outputPath,
     ],
-    { timeout: 300_000, signal: abortSignal }
+    { signal: abortSignal, timeout: 300_000 }
   );
 }
 
@@ -177,7 +180,7 @@ export async function extractAudioToMp3(
       "mp3",
       outputPath,
     ],
-    { timeout: 300_000, signal: abortSignal }
+    { signal: abortSignal, timeout: 300_000 }
   );
 }
 
@@ -213,6 +216,6 @@ export async function extractAudioChunk(
       "mp3",
       outputPath,
     ],
-    { timeout: 300_000, signal: abortSignal }
+    { signal: abortSignal, timeout: 300_000 }
   );
 }

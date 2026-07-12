@@ -67,8 +67,8 @@ export async function convertGdoc(
           formatAsMarkdown(
             rawMarkdown,
             {
-              title,
               source: url,
+              title,
               type: "Google Docs document",
             },
             options
@@ -76,10 +76,10 @@ export async function convertGdoc(
         );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title,
-    source: url,
-    type: "gdoc",
     docId,
+    source: url,
+    title,
+    type: "gdoc",
   });
 
   verbose(
@@ -88,9 +88,9 @@ export async function convertGdoc(
   );
 
   return {
-    title,
     markdown: withFrontmatter,
-    rawContent: rawMarkdown,
     metadata: { docId },
+    rawContent: rawMarkdown,
+    title,
   };
 }

@@ -18,11 +18,11 @@ export async function convertWeb(
 
   options.onProgress?.("Applying frontmatter...");
   const withFrontmatter = applyFrontmatter(article.content, options, {
-    title: article.title,
-    source: url,
-    type: "web",
     excerpt: article.excerpt,
     siteName: article.siteName,
+    source: url,
+    title: article.title,
+    type: "web",
   });
 
   verbose(
@@ -31,13 +31,13 @@ export async function convertWeb(
   );
 
   return {
-    title: article.title,
     markdown: withFrontmatter,
-    rawContent: article.content,
     metadata: {
       excerpt: article.excerpt,
       provider: "firecrawl",
       siteName: article.siteName,
     },
+    rawContent: article.content,
+    title: article.title,
   };
 }

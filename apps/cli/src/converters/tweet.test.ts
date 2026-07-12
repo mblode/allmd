@@ -14,7 +14,6 @@ import { convertTweet } from "./tweet.js";
 describe("convertTweet", () => {
   it("converts a tweet via oEmbed API", async () => {
     mockFetch.mockResolvedValueOnce({
-      ok: true,
       json: async () => ({
         html: "<blockquote><p>Hello from Twitter!</p>&mdash; Test User</blockquote>",
         author_name: "TestUser",
@@ -22,6 +21,7 @@ describe("convertTweet", () => {
         provider_name: "Twitter",
         url: "https://twitter.com/TestUser/status/123",
       }),
+      ok: true,
     });
 
     const result = await convertTweet(
@@ -36,7 +36,6 @@ describe("convertTweet", () => {
 
   it("normalizes x.com URLs", async () => {
     mockFetch.mockResolvedValueOnce({
-      ok: true,
       json: async () => ({
         html: "<blockquote><p>From X!</p></blockquote>",
         author_name: "XUser",
@@ -44,6 +43,7 @@ describe("convertTweet", () => {
         provider_name: "Twitter",
         url: "https://twitter.com/XUser/status/456",
       }),
+      ok: true,
     });
 
     const result = await convertTweet("https://x.com/XUser/status/456", {});
@@ -54,7 +54,6 @@ describe("convertTweet", () => {
 
   it("throws when tweet content is empty", async () => {
     mockFetch.mockResolvedValueOnce({
-      ok: true,
       json: async () => ({
         html: "<blockquote></blockquote>",
         author_name: "",
@@ -62,6 +61,7 @@ describe("convertTweet", () => {
         provider_name: "Twitter",
         url: "https://twitter.com/test/status/789",
       }),
+      ok: true,
     });
 
     await expect(
@@ -71,7 +71,6 @@ describe("convertTweet", () => {
 
   it("includes frontmatter in output", async () => {
     mockFetch.mockResolvedValueOnce({
-      ok: true,
       json: async () => ({
         html: "<blockquote><p>Tweet text</p></blockquote>",
         author_name: "Author",
@@ -79,6 +78,7 @@ describe("convertTweet", () => {
         provider_name: "Twitter",
         url: "https://twitter.com/Author/status/1",
       }),
+      ok: true,
     });
 
     const result = await convertTweet(

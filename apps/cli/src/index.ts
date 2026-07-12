@@ -15,11 +15,7 @@ export { convertWeb } from "./converters/web.js";
 export { convertYoutube, extractVideoId } from "./converters/youtube.js";
 export type { ConversionOptions, ConversionResult } from "./types.js";
 export type { FileType, InputType, URLType } from "./utils/detect.js";
-export {
-  classifyFile,
-  classifyInput,
-  classifyURL,
-} from "./utils/detect.js";
+export { classifyFile, classifyInput, classifyURL } from "./utils/detect.js";
 export type { FrontmatterData } from "./utils/frontmatter.js";
 export {
   addFrontmatter,

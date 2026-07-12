@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+
 import { assertRequiredApiKeys } from "./keys.js";
 
 const originalOpenAI = process.env.OPENAI_API_KEY;
@@ -38,7 +39,7 @@ describe("assertRequiredApiKeys", () => {
     process.env.FIRECRAWL_API_KEY = "firecrawl";
 
     expect(() =>
-      assertRequiredApiKeys({ openai: true, firecrawl: true })
+      assertRequiredApiKeys({ firecrawl: true, openai: true })
     ).not.toThrow();
   });
 });

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 let version = "0.0.0";
 try {
   ({ version } = JSON.parse(
-    readFileSync(new URL("../cli/package.json", import.meta.url), "utf8")
+    readFileSync(new URL("../cli/package.json", import.meta.url), "utf-8")
   ));
 } catch {
   // CLI package unavailable in standalone Vercel deployments
@@ -64,16 +64,21 @@ const nextConfig = {
     ALLMD_VERSION: version,
   },
   reactCompiler: true,
+  // TypeScript 7's CLI is the type gate (npm run check-types); Next's built-in
+  // check can't load TS7's relocated compiler API, so disable it here.
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   rewrites() {
     return {
       beforeFiles: [
         {
-          source: "/docs",
           destination: "https://allmd.blode.md/docs",
+          source: "/docs",
         },
         {
-          source: "/docs/:path*",
           destination: "https://allmd.blode.md/docs/:path*",
+          source: "/docs/:path*",
         },
       ],
     };

@@ -11,8 +11,8 @@ vi.mock("node:fs/promises", async (importOriginal) => {
 vi.mock("mammoth", () => ({
   default: {
     convertToHtml: vi.fn().mockResolvedValue({
-      value: "<h1>Test Doc</h1><p>Hello world</p>",
       messages: [],
+      value: "<h1>Test Doc</h1><p>Hello world</p>",
     }),
   },
 }));

@@ -11,8 +11,8 @@ import { mergeWithCliOpts } from "./config.js";
 describe("mergeWithCliOpts", () => {
   it("uses CLI opts when both are provided", () => {
     const result = mergeWithCliOpts(
-      { verbose: true, outputDir: "/cli/dir", parallel: "5" },
-      { verbose: false, outputDir: "/config/dir", parallel: 2 }
+      { outputDir: "/cli/dir", parallel: "5", verbose: true },
+      { outputDir: "/config/dir", parallel: 2, verbose: false }
     );
 
     expect(result.verbose).toBe(true);
@@ -22,8 +22,8 @@ describe("mergeWithCliOpts", () => {
 
   it("falls back to config when CLI opts are undefined", () => {
     const result = mergeWithCliOpts(
-      { verbose: undefined, outputDir: undefined, parallel: undefined },
-      { verbose: true, outputDir: "/config/dir", parallel: 4 }
+      { outputDir: undefined, parallel: undefined, verbose: undefined },
+      { outputDir: "/config/dir", parallel: 4, verbose: true }
     );
 
     expect(result.verbose).toBe(true);
@@ -33,7 +33,7 @@ describe("mergeWithCliOpts", () => {
 
   it("returns undefined for both undefined", () => {
     const result = mergeWithCliOpts(
-      { verbose: undefined, outputDir: undefined, parallel: undefined },
+      { outputDir: undefined, parallel: undefined, verbose: undefined },
       {}
     );
 

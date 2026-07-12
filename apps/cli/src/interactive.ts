@@ -10,6 +10,7 @@ import {
   text,
 } from "@clack/prompts";
 import chalk from "chalk";
+
 import { convertCsv } from "./converters/csv.js";
 import { convertDocx } from "./converters/docx.js";
 import { convertEpub } from "./converters/epub.js";
@@ -34,18 +35,18 @@ import { cleanFilePath } from "./utils/path.js";
 import { formatError } from "./utils/ui.js";
 
 const CONVERTERS = {
-  youtube: { label: "YouTube video", inputType: "url" as const },
-  web: { label: "Website", inputType: "url" as const },
-  video: { label: "Video / audio file", inputType: "file" as const },
-  image: { label: "Image file", inputType: "file" as const },
-  gdoc: { label: "Google Doc", inputType: "url" as const },
-  pdf: { label: "PDF file", inputType: "file" as const },
-  docx: { label: "Word document", inputType: "file" as const },
-  epub: { label: "EPUB ebook", inputType: "file" as const },
-  csv: { label: "CSV / TSV file", inputType: "file" as const },
-  pptx: { label: "PowerPoint presentation", inputType: "file" as const },
-  tweet: { label: "Tweet / X post", inputType: "url" as const },
-  rss: { label: "RSS / Atom feed", inputType: "url" as const },
+  csv: { inputType: "file" as const, label: "CSV / TSV file" },
+  docx: { inputType: "file" as const, label: "Word document" },
+  epub: { inputType: "file" as const, label: "EPUB ebook" },
+  gdoc: { inputType: "url" as const, label: "Google Doc" },
+  image: { inputType: "file" as const, label: "Image file" },
+  pdf: { inputType: "file" as const, label: "PDF file" },
+  pptx: { inputType: "file" as const, label: "PowerPoint presentation" },
+  rss: { inputType: "url" as const, label: "RSS / Atom feed" },
+  tweet: { inputType: "url" as const, label: "Tweet / X post" },
+  video: { inputType: "file" as const, label: "Video / audio file" },
+  web: { inputType: "url" as const, label: "Website" },
+  youtube: { inputType: "url" as const, label: "YouTube video" },
 } as const;
 
 type ConverterKey = keyof typeof CONVERTERS;
@@ -54,18 +55,18 @@ const converterFns: Record<
   ConverterKey,
   (input: string, opts: ConversionOptions) => Promise<ConversionResult>
 > = {
-  youtube: convertYoutube,
-  web: convertWeb,
-  video: convertVideo,
-  image: convertImage,
-  gdoc: convertGdoc,
-  pdf: convertPdf,
+  csv: convertCsv,
   docx: convertDocx,
   epub: convertEpub,
-  csv: convertCsv,
+  gdoc: convertGdoc,
+  image: convertImage,
+  pdf: convertPdf,
   pptx: convertPptx,
-  tweet: convertTweet,
   rss: convertRss,
+  tweet: convertTweet,
+  video: convertVideo,
+  web: convertWeb,
+  youtube: convertYoutube,
 };
 
 function cancelled(): never {
@@ -79,8 +80,8 @@ export async function runInteractive(): Promise<void> {
   const type = await select({
     message: "What would you like to convert?",
     options: Object.entries(CONVERTERS).map(([value, { label }]) => ({
-      value: value as ConverterKey,
       label,
+      value: value as ConverterKey,
     })),
   });
   if (isCancel(type)) {
@@ -113,8 +114,8 @@ export async function runInteractive(): Promise<void> {
 
   try {
     assertRequiredApiKeys({
-      openai: type !== "web",
       firecrawl: type === "web",
+      openai: type !== "web",
     });
 
     s.start("Converting...");
@@ -127,14 +128,14 @@ export async function runInteractive(): Promise<void> {
     const outputPath = generateOutputPath(result.title);
     await writeOutput(result.markdown, { output: outputPath });
     note(`Saved to ${outputPath}`, "Output");
-  } catch (err) {
+  } catch (error) {
     if (spinnerStarted) {
       s.stop("Conversion failed.");
     }
-    if (isInterruptedError(err)) {
+    if (isInterruptedError(error)) {
       process.exit(130);
     }
-    log.error(formatError(err));
+    log.error(formatError(error));
     process.exit(1);
   } finally {
     clearInterruptibleOperation(abortController);

@@ -1,4 +1,5 @@
 import EPub from "epub2";
+
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
@@ -19,9 +20,10 @@ export async function convertEpub(
   let epub: EPub;
   try {
     epub = await EPubClass.createAsync(filePath);
-  } catch (err) {
+  } catch (error) {
     throw new Error(
-      `Failed to parse EPUB file: ${err instanceof Error ? err.message : String(err)}`
+      `Failed to parse EPUB file: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error }
     );
   }
 
@@ -70,8 +72,8 @@ export async function convertEpub(
           formatAsMarkdown(
             rawMarkdown,
             {
-              title,
               source: filePath,
+              title,
               type: "EPUB ebook",
             },
             options
@@ -79,11 +81,11 @@ export async function convertEpub(
         );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title,
-    source: filePath,
-    type: "epub",
     author: author || undefined,
     chapters: epub.flow.length,
+    source: filePath,
+    title,
+    type: "epub",
   });
 
   verbose(
@@ -92,14 +94,14 @@ export async function convertEpub(
   );
 
   return {
-    title,
     markdown: withFrontmatter,
-    rawContent: rawMarkdown,
     metadata: {
       author,
       chapters: epub.flow.length,
-      publisher: epub.metadata?.publisher,
       language: epub.metadata?.language,
+      publisher: epub.metadata?.publisher,
     },
+    rawContent: rawMarkdown,
+    title,
   };
 }

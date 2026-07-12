@@ -15,9 +15,8 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = import.meta.dirname;
 const APP_ROOT = join(__dirname, "..");
 const OUTPUT_DIR = join(APP_ROOT, "public", ".well-known", "agent-skills");
 const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---/;
@@ -58,7 +57,7 @@ function parseFrontmatter(content) {
     throw new Error("SKILL.md frontmatter missing 'description' field");
   }
 
-  return { name: fields.name, description: fields.description };
+  return { description: fields.description, name: fields.name };
 }
 
 // --- SHA-256 digest ---
@@ -73,7 +72,7 @@ function main() {
   const t0 = performance.now();
 
   // Clean output
-  rmSync(OUTPUT_DIR, { recursive: true, force: true });
+  rmSync(OUTPUT_DIR, { force: true, recursive: true });
   mkdirSync(OUTPUT_DIR, { recursive: true });
 
   const skills = [];
@@ -87,7 +86,7 @@ function main() {
       process.exit(1);
     }
 
-    const content = readFileSync(skillMdPath, "utf8");
+    const content = readFileSync(skillMdPath, "utf-8");
     const { name, description } = parseFrontmatter(content);
 
     if (skill.type === "skill-md") {
@@ -98,11 +97,11 @@ function main() {
 
       const digest = sha256(destPath);
       skills.push({
+        description,
+        digest,
         name,
         type: "skill-md",
-        description,
         url: `/.well-known/agent-skills/${name}/SKILL.md`,
-        digest,
       });
 
       console.log(
@@ -121,11 +120,11 @@ function main() {
 
       const digest = sha256(archivePath);
       skills.push({
+        description,
+        digest,
         name,
         type: "archive",
-        description,
         url: `/.well-known/agent-skills/${archiveName}`,
-        digest,
       });
 
       console.log(

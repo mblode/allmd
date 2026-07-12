@@ -1,8 +1,10 @@
 import { readFile } from "node:fs/promises";
 import { basename, extname } from "node:path";
+
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, experimental_transcribe as transcribe } from "ai";
 import pLimit from "p-limit";
+
 import type { ConversionOptions } from "../types.js";
 import { verbose as log } from "../utils/ui.js";
 
@@ -98,11 +100,11 @@ async function formatChunk(
   }
 
   const { finishReason, text } = await generateText({
-    model: MODEL,
-    system: SYSTEM_PROMPT,
-    prompt: `Convert this ${context.type} content into clean markdown:\n\nTitle: ${context.title ?? "Unknown"}\nSource: ${context.source ?? "Unknown"}${chunkLabel}\n\n---\n\n${rawText}`,
-    timeout: AI_FORMAT_TIMEOUT_MS,
     abortSignal: options.abortSignal,
+    model: MODEL,
+    prompt: `Convert this ${context.type} content into clean markdown:\n\nTitle: ${context.title ?? "Unknown"}\nSource: ${context.source ?? "Unknown"}${chunkLabel}\n\n---\n\n${rawText}`,
+    system: SYSTEM_PROMPT,
+    timeout: AI_FORMAT_TIMEOUT_MS,
   }).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
 
@@ -208,8 +210,7 @@ export async function describeImage(
   log(`Analyzing image (${sizeKB} KB) with vision model`, options.verbose);
 
   const { text } = await generateText({
-    model: MODEL,
-    system: IMAGE_SYSTEM_PROMPT,
+    abortSignal: options.abortSignal,
     messages: [
       {
         role: "user",
@@ -219,7 +220,8 @@ export async function describeImage(
         ],
       },
     ],
-    abortSignal: options.abortSignal,
+    model: MODEL,
+    system: IMAGE_SYSTEM_PROMPT,
   });
 
   log(
@@ -234,7 +236,7 @@ export async function transcribeAudio(
   options: ConversionOptions
 ): Promise<{
   text: string;
-  segments?: Array<{ start: number; text: string }>;
+  segments?: { start: number; text: string }[];
 }> {
   const sizeKB = Math.round(audioData.byteLength / 1024);
   log(
@@ -250,14 +252,15 @@ export async function transcribeAudio(
   let result: Awaited<ReturnType<typeof transcribe>>;
   try {
     result = await transcribe({
-      model: openai.transcription("gpt-4o-mini-transcribe"),
-      audio: audioData,
       abortSignal: combinedSignal,
+      audio: audioData,
+      model: openai.transcription("gpt-4o-mini-transcribe"),
     });
   } catch (error) {
     if (timeoutSignal.aborted) {
       throw new Error(
-        `Audio transcription timed out after ${TRANSCRIPTION_TIMEOUT_MS / 1000}s`
+        `Audio transcription timed out after ${TRANSCRIPTION_TIMEOUT_MS / 1000}s`,
+        { cause: error }
       );
     }
     throw error;
@@ -269,11 +272,11 @@ export async function transcribeAudio(
   );
 
   return {
-    text: result.text,
     segments: result.segments?.map((s) => ({
       start: s.startSecond,
       text: s.text,
     })),
+    text: result.text,
   };
 }
 
@@ -294,8 +297,8 @@ const AUDIO_MIME_TYPES: Record<string, string> = {
   ".m4a": "audio/mp4",
   ".mp3": "audio/mpeg",
   ".mp4": "audio/mp4",
-  ".mpga": "audio/mpeg",
   ".mpeg": "audio/mpeg",
+  ".mpga": "audio/mpeg",
   ".wav": "audio/wav",
   ".webm": "audio/webm",
 };
@@ -388,17 +391,19 @@ export async function transcribeAudioDiarized(
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
   const { filename, mimeType } = getAudioUploadMetadata(audioFilename);
-  const file = new File([audioData], filename, { type: mimeType });
+  const file = new File([new Uint8Array(audioData)], filename, {
+    type: mimeType,
+  });
   const normalizedSpeakerNames = normalizeSpeakerNames(options.speakers);
   const normalizedSpeakerReferences = (speakerReferences ?? [])
     .map((reference) => reference.trim())
     .filter(Boolean);
 
   const params: Record<string, unknown> = {
+    chunking_strategy: "auto",
     file,
     model: "gpt-4o-transcribe-diarize",
     response_format: "diarized_json",
-    chunking_strategy: "auto",
   };
 
   if (normalizedSpeakerReferences.length > 0) {
@@ -436,13 +441,13 @@ export async function transcribeAudioDiarized(
   }
 
   interface DiarizedApiResponse {
-    segments: Array<{
+    segments: {
       end: number;
       id: string;
       speaker: string;
       start: number;
       text: string;
-    }>;
+    }[];
     text: string;
   }
 
@@ -462,17 +467,18 @@ export async function transcribeAudioDiarized(
   } catch (error) {
     if (timeoutSignal.aborted) {
       throw new Error(
-        `Audio transcription timed out after ${TRANSCRIPTION_TIMEOUT_MS / 1000}s`
+        `Audio transcription timed out after ${TRANSCRIPTION_TIMEOUT_MS / 1000}s`,
+        { cause: error }
       );
     }
     throw error;
   }
 
   const segments: DiarizedSegment[] = (response.segments ?? []).map((s) => ({
-    start: s.start,
     end: s.end,
-    text: s.text.trim(),
     speaker: s.speaker ?? "Speaker",
+    start: s.start,
+    text: s.text.trim(),
   }));
 
   const labeledSegments =
@@ -488,8 +494,8 @@ export async function transcribeAudioDiarized(
   );
 
   return {
-    text: response.text ?? segments.map((s) => s.text).join(" "),
     segments: labeledSegments,
     speakers: uniqueSpeakers,
+    text: response.text ?? segments.map((s) => s.text).join(" "),
   };
 }

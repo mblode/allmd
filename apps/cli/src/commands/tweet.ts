@@ -1,4 +1,5 @@
 import type { Command } from "commander";
+
 import { convertTweet } from "../converters/tweet.js";
 import { createUrlCommand } from "../utils/command.js";
 
@@ -23,14 +24,14 @@ function validateTweetUrl(url: string): string | null {
 
 export function registerTweetCommand(program: Command): void {
   createUrlCommand({
-    name: "tweet",
-    description: "Convert a tweet/X post to markdown",
     argument: "url",
     converter: convertTweet,
-    spinnerText: "Fetching tweet...",
-    validate: validateTweetUrl,
+    description: "Convert a tweet/X post to markdown",
     helpText: `Examples:
   allmd tweet https://twitter.com/user/status/123456
   allmd tweet https://x.com/user/status/123456 -o tweet.md`,
+    name: "tweet",
+    spinnerText: "Fetching tweet...",
+    validate: validateTweetUrl,
   })(program);
 }

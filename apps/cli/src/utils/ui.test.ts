@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { info, success, warn } from "./ui.js";
 
 describe("decorative output", () => {

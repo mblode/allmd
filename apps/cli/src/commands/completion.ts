@@ -1,37 +1,38 @@
 import type { Command } from "commander";
 import tabtab from "tabtab";
+
 import { error as errorMsg, success } from "../utils/ui.js";
 
 const SUBCOMMANDS = [
-  { name: "web", description: "Convert a website to markdown" },
-  { name: "youtube", description: "Convert a YouTube video transcript" },
-  { name: "yt", description: "Alias for youtube" },
-  { name: "pdf", description: "Convert a PDF to markdown" },
-  { name: "image", description: "Convert an image via AI vision" },
-  { name: "video", description: "Convert video/audio via transcription" },
-  { name: "gdoc", description: "Convert a Google Doc to markdown" },
-  { name: "docx", description: "Convert a Word document to markdown" },
-  { name: "epub", description: "Convert an EPUB ebook to markdown" },
-  { name: "csv", description: "Convert a CSV/TSV file to markdown" },
-  { name: "pptx", description: "Convert a PowerPoint to markdown" },
-  { name: "tweet", description: "Convert a Tweet/X post to markdown" },
-  { name: "rss", description: "Convert an RSS/Atom feed to markdown" },
-  { name: "completion", description: "Manage shell completions" },
+  { description: "Convert a website to markdown", name: "web" },
+  { description: "Convert a YouTube video transcript", name: "youtube" },
+  { description: "Alias for youtube", name: "yt" },
+  { description: "Convert a PDF to markdown", name: "pdf" },
+  { description: "Convert an image via AI vision", name: "image" },
+  { description: "Convert video/audio via transcription", name: "video" },
+  { description: "Convert a Google Doc to markdown", name: "gdoc" },
+  { description: "Convert a Word document to markdown", name: "docx" },
+  { description: "Convert an EPUB ebook to markdown", name: "epub" },
+  { description: "Convert a CSV/TSV file to markdown", name: "csv" },
+  { description: "Convert a PowerPoint to markdown", name: "pptx" },
+  { description: "Convert a Tweet/X post to markdown", name: "tweet" },
+  { description: "Convert an RSS/Atom feed to markdown", name: "rss" },
+  { description: "Manage shell completions", name: "completion" },
 ];
 
 const GLOBAL_FLAGS = [
-  { name: "--output", description: "Write output to file" },
-  { name: "--verbose", description: "Enable verbose output" },
-  { name: "--clipboard", description: "Read input from clipboard" },
-  { name: "--copy", description: "Copy output to clipboard" },
+  { description: "Write output to file", name: "--output" },
+  { description: "Enable verbose output", name: "--verbose" },
+  { description: "Read input from clipboard", name: "--clipboard" },
+  { description: "Copy output to clipboard", name: "--copy" },
   {
-    name: "--output-dir",
     description: "Output directory for batch processing",
+    name: "--output-dir",
   },
-  { name: "--parallel", description: "Number of parallel conversions" },
-  { name: "--no-frontmatter", description: "Skip YAML frontmatter" },
-  { name: "--help", description: "Show help" },
-  { name: "--version", description: "Show version" },
+  { description: "Number of parallel conversions", name: "--parallel" },
+  { description: "Skip YAML frontmatter", name: "--no-frontmatter" },
+  { description: "Show help", name: "--help" },
+  { description: "Show version", name: "--version" },
 ];
 
 export function registerCompletionCommand(program: Command): void {
@@ -44,10 +45,10 @@ export function registerCompletionCommand(program: Command): void {
     .description("Install shell completions for bash/zsh/fish")
     .action(async () => {
       try {
-        await tabtab.install({ name: "allmd", completer: "allmd" });
+        await tabtab.install({ completer: "allmd", name: "allmd" });
         success("Shell completions installed. Restart your shell to activate.");
-      } catch (err) {
-        errorMsg(err instanceof Error ? err.message : String(err));
+      } catch (error) {
+        errorMsg(error instanceof Error ? error.message : String(error));
         process.exit(1);
       }
     });
@@ -59,8 +60,8 @@ export function registerCompletionCommand(program: Command): void {
       try {
         await tabtab.uninstall({ name: "allmd" });
         success("Shell completions removed.");
-      } catch (err) {
-        errorMsg(err instanceof Error ? err.message : String(err));
+      } catch (error) {
+        errorMsg(error instanceof Error ? error.message : String(error));
         process.exit(1);
       }
     });

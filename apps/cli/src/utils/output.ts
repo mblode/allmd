@@ -1,7 +1,9 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
+
 import clipboardy from "clipboardy";
+
 import { slugify } from "./slug.js";
 
 export interface OutputOptions {

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { slugify } from "./slug.js";
 
 const TRAILING_HYPHEN = /-$/;

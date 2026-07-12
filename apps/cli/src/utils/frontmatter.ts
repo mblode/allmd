@@ -1,4 +1,5 @@
 import matter from "gray-matter";
+
 import type { ConversionOptions } from "../types.js";
 
 export interface FrontmatterData {

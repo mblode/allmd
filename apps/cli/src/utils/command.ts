@@ -1,5 +1,7 @@
 import { access } from "node:fs/promises";
+
 import type { Command } from "commander";
+
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { expandGlob, isGlobPattern, processBatch } from "./batch.js";
 import { readClipboard } from "./clipboard.js";
@@ -12,7 +14,13 @@ import { assertRequiredApiKeys } from "./keys.js";
 import { generateOutputPath, writeOutput } from "./output.js";
 import { cleanFilePath } from "./path.js";
 import { isStdinPiped, readStdin } from "./stdin.js";
-import { createSpinner, error, formatError, info, success } from "./ui.js";
+import {
+  createSpinner,
+  error as logError,
+  formatError,
+  info,
+  success,
+} from "./ui.js";
 
 type Converter = (
   input: string,
@@ -61,7 +69,7 @@ function resolveInput(
   if (isStdinPiped()) {
     return readStdin();
   }
-  error(errorMsg);
+  logError(errorMsg);
   process.exit(1);
 }
 
@@ -69,7 +77,7 @@ function exitWithFormattedError(err: unknown): never {
   if (isInterruptedError(err)) {
     process.exit(130);
   }
-  error(formatError(err));
+  logError(formatError(err));
   process.exit(1);
 }
 
@@ -92,19 +100,19 @@ async function handleBatchConversion(
       files,
       converter,
       {
-        output: opts.output as string | undefined,
-        verbose: opts.verbose as boolean | undefined,
-        frontmatter: opts.frontmatter as boolean | undefined,
+        abortSignal: abortController.signal,
         ai: opts.ai as boolean | undefined,
         diarize: opts.diarize as boolean | undefined,
+        frontmatter: opts.frontmatter as boolean | undefined,
+        output: opts.output as string | undefined,
         speakerReferences: opts.speakerReferences as string[] | undefined,
         speakers: opts.speakers as string[] | undefined,
-        abortSignal: abortController.signal,
+        verbose: opts.verbose as boolean | undefined,
       },
       {
-        parallel,
-        outputDir: opts.outputDir as string | undefined,
         copy: opts.copy as boolean | undefined,
+        outputDir: opts.outputDir as string | undefined,
+        parallel,
       },
       (completed, total) => {
         spinner.text = `Converting ${completed}/${total} files...`;
@@ -121,9 +129,9 @@ async function handleBatchConversion(
     if (result.failed > 0) {
       process.exitCode = 1;
     }
-  } catch (err) {
+  } catch (error) {
     spinner.stop();
-    exitWithFormattedError(err);
+    exitWithFormattedError(error);
   } finally {
     clearInterruptibleOperation(abortController);
   }
@@ -139,16 +147,16 @@ async function runSingleConversion(
   const abortController = beginInterruptibleOperation();
   const conversionOpts: ConversionOptions = {
     abortSignal: abortController.signal,
-    output: opts.output as string | undefined,
-    verbose: opts.verbose as boolean | undefined,
-    frontmatter: opts.frontmatter as boolean | undefined,
     ai: opts.ai as boolean | undefined,
     diarize: opts.diarize as boolean | undefined,
-    speakerReferences: opts.speakerReferences as string[] | undefined,
-    speakers: opts.speakers as string[] | undefined,
+    frontmatter: opts.frontmatter as boolean | undefined,
     onProgress: (message) => {
       spinner.text = message;
     },
+    output: opts.output as string | undefined,
+    speakerReferences: opts.speakerReferences as string[] | undefined,
+    speakers: opts.speakers as string[] | undefined,
+    verbose: opts.verbose as boolean | undefined,
   };
 
   try {
@@ -161,8 +169,8 @@ async function runSingleConversion(
       : ((opts.output as string | undefined) ??
         generateOutputPath(result.title, opts.outputDir as string | undefined));
     await writeOutput(result.markdown, {
-      output: outputPath,
       copy: opts.copy as boolean | undefined,
+      output: outputPath,
     });
     if (opts.copy) {
       success("Copied to clipboard");
@@ -170,12 +178,12 @@ async function runSingleConversion(
     if (outputPath) {
       success(`Saved to ${outputPath}`);
     }
-  } catch (err) {
+  } catch (error) {
     spinner.stop();
-    if (isInterruptedError(err)) {
+    if (isInterruptedError(error)) {
       process.exit(130);
     }
-    error(formatError(err));
+    logError(formatError(error));
     process.exit(1);
   } finally {
     clearInterruptibleOperation(abortController);
@@ -200,8 +208,8 @@ async function handleGlobInput(
     throw new Error(`No files matched pattern: ${input}`);
   }
   assertRequiredApiKeys({
-    openai: (config.requiresOpenAI ?? true) && opts.ai !== false,
     firecrawl: config.requiresFirecrawl,
+    openai: (config.requiresOpenAI ?? true) && opts.ai !== false,
   });
   await handleBatchConversion(files, config.converter, opts);
   return true;
@@ -227,8 +235,8 @@ async function handleSingleFileInput(
   }
 
   assertRequiredApiKeys({
-    openai: (config.requiresOpenAI ?? true) && opts.ai !== false,
     firecrawl: config.requiresFirecrawl,
+    openai: (config.requiresOpenAI ?? true) && opts.ai !== false,
   });
 
   await runSingleConversion(
@@ -266,8 +274,8 @@ export function createFileCommand(
           }
 
           await handleSingleFileInput(input, opts, config);
-        } catch (err) {
-          exitWithFormattedError(err);
+        } catch (error) {
+          exitWithFormattedError(error);
         }
       });
   };
@@ -307,8 +315,8 @@ export function createUrlCommand(
         }
 
         assertRequiredApiKeys({
-          openai: (config.requiresOpenAI ?? true) && opts.ai !== false,
           firecrawl: config.requiresFirecrawl,
+          openai: (config.requiresOpenAI ?? true) && opts.ai !== false,
         });
 
         await runSingleConversion(
@@ -317,8 +325,8 @@ export function createUrlCommand(
           opts,
           config.spinnerText ?? "Converting..."
         );
-      } catch (err) {
-        exitWithFormattedError(err);
+      } catch (error) {
+        exitWithFormattedError(error);
       }
     });
   };

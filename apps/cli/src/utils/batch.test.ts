@@ -1,12 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
+
 import { isGlobPattern, processBatch } from "./batch.js";
 
-const writeOutputMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const writeOutputMock = vi.hoisted(() => vi.fn().mockResolvedValue());
 
 vi.mock("clipboardy", () => ({
   default: {
     read: vi.fn().mockResolvedValue(""),
-    write: vi.fn().mockResolvedValue(undefined),
+    write: vi.fn().mockResolvedValue(),
   },
 }));
 
@@ -42,10 +43,10 @@ describe("isGlobPattern", () => {
 describe("processBatch", () => {
   it("processes files with a converter function", async () => {
     const converter = vi.fn().mockResolvedValue({
-      title: "Test",
       markdown: "# Test",
-      rawContent: "test",
       metadata: {},
+      rawContent: "test",
+      title: "Test",
     });
 
     const result = await processBatch(
@@ -65,10 +66,10 @@ describe("processBatch", () => {
     const converter = vi
       .fn()
       .mockResolvedValueOnce({
-        title: "OK",
         markdown: "# OK",
-        rawContent: "ok",
         metadata: {},
+        rawContent: "ok",
+        title: "OK",
       })
       .mockRejectedValueOnce(new Error("conversion failed"));
 
@@ -86,10 +87,10 @@ describe("processBatch", () => {
 
   it("calls progress callback", async () => {
     const converter = vi.fn().mockResolvedValue({
-      title: "Test",
       markdown: "# Test",
-      rawContent: "test",
       metadata: {},
+      rawContent: "test",
+      title: "Test",
     });
     const onProgress = vi.fn();
 
@@ -117,10 +118,10 @@ describe("processBatch", () => {
       await new Promise((r) => setTimeout(r, 10));
       currentConcurrent--;
       return {
-        title: "Test",
         markdown: "# Test",
-        rawContent: "test",
         metadata: {},
+        rawContent: "test",
+        title: "Test",
       };
     });
 
@@ -136,10 +137,10 @@ describe("processBatch", () => {
 
   it("generates unique output paths for duplicate titles", async () => {
     const converter = vi.fn().mockResolvedValue({
-      title: "Duplicate",
       markdown: "# Test",
-      rawContent: "test",
       metadata: {},
+      rawContent: "test",
+      title: "Duplicate",
     });
 
     await processBatch(

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { classifyFile, classifyInput, classifyURL } from "./detect.js";
 
 describe("classifyInput", () => {

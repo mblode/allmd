@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { extractDocId } from "./gdoc.js";
 
 describe("extractDocId", () => {

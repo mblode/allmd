@@ -1,12 +1,11 @@
 import { mkdtemp, readFile, rm, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, extname, join } from "node:path";
+
 import pLimit from "p-limit";
-import {
-  type DiarizedSegment,
-  transcribeAudio,
-  transcribeAudioDiarized,
-} from "../ai/client.js";
+
+import { transcribeAudio, transcribeAudioDiarized } from "../ai/client.js";
+import type { DiarizedSegment } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import {
   calculateChunkBoundaries,
@@ -58,7 +57,7 @@ function formatTimestamp(seconds: number): string {
 }
 
 function formatDiarizedSegments(
-  segments: Array<{ start: number; text: string; speaker: string }>
+  segments: { start: number; text: string; speaker: string }[]
 ): string {
   const lines: string[] = [];
   let currentSpeaker: string | undefined;
@@ -133,12 +132,12 @@ async function transcribeDiarized(
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title: filename,
-    source: filePath,
-    type: "video",
     diarized: true,
+    source: filePath,
     speakers: transcription.speakers,
+    title: filename,
     transcriptionModel: "gpt-4o-transcribe-diarize",
+    type: "video",
   });
 
   verbose(
@@ -146,14 +145,14 @@ async function transcribeDiarized(
     options.verbose
   );
   return {
-    title: filename,
     markdown: withFrontmatter,
-    rawContent: markdown,
     metadata: {
       diarized: true,
       speakers: transcription.speakers,
       transcriptionModel: "gpt-4o-transcribe-diarize",
     },
+    rawContent: markdown,
+    title: filename,
   };
 }
 
@@ -176,8 +175,8 @@ async function transcribePlain(
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title: filename,
     source: filePath,
+    title: filename,
     type: "video",
   });
 
@@ -186,10 +185,10 @@ async function transcribePlain(
     options.verbose
   );
   return {
-    title: filename,
     markdown: withFrontmatter,
-    rawContent: markdown,
     metadata: {},
+    rawContent: markdown,
+    title: filename,
   };
 }
 
@@ -207,12 +206,12 @@ function formatChunkedDiarizedResult(
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title: filename,
-    source: filePath,
-    type: "video",
     diarized: true,
+    source: filePath,
     speakers,
+    title: filename,
     transcriptionModel: "gpt-4o-transcribe-diarize",
+    type: "video",
   });
 
   verbose(
@@ -220,14 +219,14 @@ function formatChunkedDiarizedResult(
     options.verbose
   );
   return {
-    title: filename,
     markdown: withFrontmatter,
-    rawContent: markdown,
     metadata: {
       diarized: true,
       speakers,
       transcriptionModel: "gpt-4o-transcribe-diarize",
     },
+    rawContent: markdown,
+    title: filename,
   };
 }
 
@@ -243,8 +242,8 @@ function formatChunkedPlainResult(
   );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title: filename,
     source: filePath,
+    title: filename,
     type: "video",
   });
 
@@ -253,10 +252,10 @@ function formatChunkedPlainResult(
     options.verbose
   );
   return {
-    title: filename,
     markdown: withFrontmatter,
-    rawContent: markdown,
     metadata: {},
+    rawContent: markdown,
+    title: filename,
   };
 }
 
@@ -324,8 +323,8 @@ async function transcribeChunkedDiarized(
 
           return transcription.segments.map((seg) => ({
             ...seg,
-            start: seg.start + chunk.startSeconds,
             end: seg.end + chunk.startSeconds,
+            start: seg.start + chunk.startSeconds,
           }));
         })
       )
@@ -466,7 +465,7 @@ function parseVideoOptions(
     );
   }
 
-  return { isAudio, isVideo, speakerNames, speakerReferences, diarize };
+  return { diarize, isAudio, isVideo, speakerNames, speakerReferences };
 }
 
 async function compressAndTranscribe(

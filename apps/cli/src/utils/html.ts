@@ -3,9 +3,9 @@ import { gfm } from "turndown-plugin-gfm";
 
 function createTurndown(): TurndownService {
   const td = new TurndownService({
-    headingStyle: "atx",
-    codeBlockStyle: "fenced",
     bulletListMarker: "-",
+    codeBlockStyle: "fenced",
+    headingStyle: "atx",
   });
   td.use(gfm);
   return td;

@@ -1,14 +1,15 @@
 import chalk from "chalk";
-import ora, { type Ora } from "ora";
+import ora from "ora";
+import type { Ora } from "ora";
 
 export function createSpinner(text: string): Ora {
   // Render decoration on stderr so piped stdout stays clean, and disable the
   // spinner entirely when stderr is not a TTY (piped/redirected/CI).
   return ora({
-    text,
     color: "cyan",
-    stream: process.stderr,
     isEnabled: process.stderr.isTTY === true,
+    stream: process.stderr,
+    text,
   });
 }
 

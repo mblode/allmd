@@ -1,4 +1,5 @@
 import { FirecrawlAppV1 as FirecrawlApp } from "@mendable/firecrawl-js";
+
 import { getRequiredApiKey } from "./keys.js";
 import { verbose } from "./ui.js";
 
@@ -102,9 +103,9 @@ export async function scrapeMarkdownWithFirecrawl(
   );
 
   return {
-    title: metadata?.title ?? "",
     content: markdown,
     excerpt: metadata?.description ?? "",
     siteName: metadata?.sourceURL ?? url,
+    title: metadata?.title ?? "",
   };
 }

@@ -1,5 +1,7 @@
 import { readFile } from "node:fs/promises";
+
 import AdmZip from "adm-zip";
+
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
@@ -13,11 +15,11 @@ const NOTES_ENTRY_RE = /^ppt\/notesSlides\/notesSlide(\d+)\.xml$/;
 
 function decodeXmlEntities(text: string): string {
   return text
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'");
+    .replaceAll(/&amp;/g, "&")
+    .replaceAll(/&lt;/g, "<")
+    .replaceAll(/&gt;/g, ">")
+    .replaceAll(/&quot;/g, '"')
+    .replaceAll(/&apos;/g, "'");
 }
 
 function extractTextFromXml(xml: string): string {
@@ -136,8 +138,8 @@ export async function convertPptx(
           formatAsMarkdown(
             rawMarkdown,
             {
-              title: titleFromFilename(filePath),
               source: filePath,
+              title: titleFromFilename(filePath),
               type: "PowerPoint presentation",
             },
             options
@@ -147,10 +149,10 @@ export async function convertPptx(
   const title = titleFromFilename(filePath);
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title,
-    source: filePath,
-    type: "pptx",
     slides: slideEntries.length,
+    source: filePath,
+    title,
+    type: "pptx",
   });
 
   verbose(
@@ -159,12 +161,12 @@ export async function convertPptx(
   );
 
   return {
-    title,
     markdown: withFrontmatter,
-    rawContent: rawMarkdown,
     metadata: {
-      slides: slideEntries.length,
       hasNotes: notesMap.size > 0,
+      slides: slideEntries.length,
     },
+    rawContent: rawMarkdown,
+    title,
   };
 }

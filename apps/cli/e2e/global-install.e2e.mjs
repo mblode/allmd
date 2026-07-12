@@ -2,22 +2,22 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, delimiter as pathDelimiter, resolve } from "node:path";
+import { join, delimiter as pathDelimiter, resolve } from "node:path";
 import { after, before, describe, it } from "node:test";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
+
 import dotenv from "dotenv";
 
-const testFile = fileURLToPath(import.meta.url);
-const packageRoot = resolve(dirname(testFile), "..");
+const packageRoot = resolve(import.meta.dirname, "..");
 const repoRoot = resolve(packageRoot, "../..");
 const packageJson = JSON.parse(
-  await readFile(join(packageRoot, "package.json"), "utf8")
+  await readFile(join(packageRoot, "package.json"), "utf-8")
 );
 
 dotenv.config({ path: join(repoRoot, ".env"), quiet: true });
 dotenv.config({
-  path: join(packageRoot, ".env"),
   override: false,
+  path: join(packageRoot, ".env"),
   quiet: true,
 });
 
@@ -86,8 +86,8 @@ async function run(command, args, options = {}) {
       );
     }, timeoutMs);
 
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
+    child.stdout.setEncoding("utf-8");
+    child.stderr.setEncoding("utf-8");
     child.stdout.on("data", (chunk) => {
       stdout += chunk;
     });
@@ -100,7 +100,7 @@ async function run(command, args, options = {}) {
     });
     child.on("close", (code, signal) => {
       clearTimeout(timer);
-      resolveResult({ code, signal, stdout, stderr });
+      resolveResult({ code, signal, stderr, stdout });
     });
 
     if (input === undefined) {
@@ -262,41 +262,49 @@ describe("optional live conversion smoke tests", () => {
     );
   });
 
-  it("converts a live web page through the globally installed binary", {
-    skip: !liveMode,
-  }, async () => {
-    const result = await runAllmd(
-      ["web", "https://example.com", "--stdout", "--no-frontmatter"],
-      {
-        env: testEnv(),
-        timeoutMs: 120_000,
-      }
-    );
+  it(
+    "converts a live web page through the globally installed binary",
+    {
+      skip: !liveMode,
+    },
+    async () => {
+      const result = await runAllmd(
+        ["web", "https://example.com", "--stdout", "--no-frontmatter"],
+        {
+          env: testEnv(),
+          timeoutMs: 120_000,
+        }
+      );
 
-    assertExitOk(result, "live web conversion should succeed");
-    assert.match(result.stdout, exampleDomainPattern);
-  });
+      assertExitOk(result, "live web conversion should succeed");
+      assert.match(result.stdout, exampleDomainPattern);
+    }
+  );
 
-  it("converts a local CSV through the globally installed binary and OpenAI path", {
-    skip: !liveMode,
-  }, async () => {
-    const fixture = join(tempDir, "sales.csv");
-    await writeFile(
-      fixture,
-      'name,notes\nAda,"first line\nsecond line"\nGrace,"uses | pipes"\n',
-      "utf8"
-    );
+  it(
+    "converts a local CSV through the globally installed binary and OpenAI path",
+    {
+      skip: !liveMode,
+    },
+    async () => {
+      const fixture = join(tempDir, "sales.csv");
+      await writeFile(
+        fixture,
+        'name,notes\nAda,"first line\nsecond line"\nGrace,"uses | pipes"\n',
+        "utf-8"
+      );
 
-    const result = await runAllmd(
-      ["csv", fixture, "--stdout", "--no-frontmatter"],
-      {
-        env: testEnv(),
-        timeoutMs: 120_000,
-      }
-    );
+      const result = await runAllmd(
+        ["csv", fixture, "--stdout", "--no-frontmatter"],
+        {
+          env: testEnv(),
+          timeoutMs: 120_000,
+        }
+      );
 
-    assertExitOk(result, "live CSV conversion should succeed");
-    assert.match(result.stdout, adaPattern);
-    assert.match(result.stdout, gracePattern);
-  });
+      assertExitOk(result, "live CSV conversion should succeed");
+      assert.match(result.stdout, adaPattern);
+      assert.match(result.stdout, gracePattern);
+    }
+  );
 });

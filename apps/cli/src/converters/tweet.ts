@@ -17,15 +17,15 @@ function extractTextFromOEmbed(html: string): string {
   // The oEmbed HTML is a blockquote with the tweet text
   // Strip HTML tags to get plain text
   return html
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&mdash;/g, "\u2014")
-    .replace(/&nbsp;/g, " ")
-    .replace(/pic\.twitter\.com\/\w+/g, "")
+    .replaceAll(/<br\s*\/?>/gi, "\n")
+    .replaceAll(/<[^>]+>/g, "")
+    .replaceAll(/&amp;/g, "&")
+    .replaceAll(/&lt;/g, "<")
+    .replaceAll(/&gt;/g, ">")
+    .replaceAll(/&quot;/g, '"')
+    .replaceAll(/&mdash;/g, "\u2014")
+    .replaceAll(/&nbsp;/g, " ")
+    .replaceAll(/pic\.twitter\.com\/\w+/g, "")
     .trim();
 }
 
@@ -68,9 +68,9 @@ export async function convertTweet(
     } else {
       throw new Error(`oEmbed API returned ${response.status}`);
     }
-  } catch (err) {
+  } catch (error) {
     verbose(
-      `oEmbed failed: ${err instanceof Error ? err.message : String(err)}`,
+      `oEmbed failed: ${error instanceof Error ? error.message : String(error)}`,
       options.verbose
     );
     options.onProgress?.("Fetching with Firecrawl...");
@@ -82,9 +82,10 @@ export async function convertTweet(
         verbose: options.verbose,
       });
       tweetText = article.content;
-    } catch (fallbackErr) {
+    } catch (error) {
       throw new Error(
-        `Could not extract tweet content from ${url}. ${fallbackErr instanceof Error ? fallbackErr.message : "The tweet may be private or deleted."}`
+        `Could not extract tweet content from ${url}. ${error instanceof Error ? error.message : "The tweet may be private or deleted."}`,
+        { cause: error }
       );
     }
   }
@@ -108,8 +109,8 @@ export async function convertTweet(
           formatAsMarkdown(
             rawMarkdown,
             {
-              title: author ? `Tweet by ${author}` : "Tweet",
               source: url,
+              title: author ? `Tweet by ${author}` : "Tweet",
               type: "tweet",
             },
             options
@@ -119,10 +120,10 @@ export async function convertTweet(
   const title = author ? `Tweet by ${author}` : "Tweet";
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title,
-    source: url,
-    type: "tweet",
     author: author || undefined,
+    source: url,
+    title,
+    type: "tweet",
   });
 
   verbose(
@@ -131,9 +132,9 @@ export async function convertTweet(
   );
 
   return {
-    title,
     markdown: withFrontmatter,
-    rawContent: tweetText,
     metadata: { author, authorUrl },
+    rawContent: tweetText,
+    title,
   };
 }

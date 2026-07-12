@@ -1,6 +1,6 @@
 declare module "mammoth" {
   interface MammothResult {
-    messages: Array<{ type: string; message: string }>;
+    messages: { type: string; message: string }[];
     value: string;
   }
   interface Mammoth {

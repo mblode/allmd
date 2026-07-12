@@ -1,8 +1,10 @@
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { basename, extname, join, resolve } from "node:path";
+
 import fg from "fast-glob";
 import pLimit from "p-limit";
+
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { isInterruptedError } from "./interrupt.js";
 import { writeOutput } from "./output.js";
@@ -80,17 +82,17 @@ export async function processBatch(
         const outputPath = getOutputPath(file, result);
 
         await writeOutput(result.markdown, {
-          output: outputPath ?? conversionOpts.output,
           copy: batchOpts.copy,
+          output: outputPath ?? conversionOpts.output,
         });
         succeeded++;
-      } catch (err) {
-        if (isInterruptedError(err)) {
-          throw err;
+      } catch (error) {
+        if (isInterruptedError(error)) {
+          throw error;
         }
         failed++;
         warn(
-          `Failed: ${file} - ${err instanceof Error ? err.message : String(err)}`
+          `Failed: ${file} - ${error instanceof Error ? error.message : String(error)}`
         );
       }
       onProgress?.(succeeded + failed, total);
@@ -99,5 +101,5 @@ export async function processBatch(
 
   await Promise.all(tasks);
 
-  return { succeeded, failed, total };
+  return { failed, succeeded, total };
 }

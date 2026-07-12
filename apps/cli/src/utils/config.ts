@@ -36,16 +36,16 @@ export function mergeWithCliOpts(
   config: AllmdConfig
 ): Record<string, unknown> {
   return {
-    outputDir: cliOpts.outputDir ?? config.outputDir,
-    verbose: cliOpts.verbose ?? config.verbose,
-    frontmatter: cliOpts.frontmatter ?? config.frontmatter,
     ai: cliOpts.ai ?? config.ai,
+    clipboard: cliOpts.clipboard,
+    copy: cliOpts.copy,
+    frontmatter: cliOpts.frontmatter ?? config.frontmatter,
+    openai: config.openai,
+    output: cliOpts.output ?? config.output,
+    outputDir: cliOpts.outputDir ?? config.outputDir,
     parallel:
       cliOpts.parallel ??
       (config.parallel == null ? undefined : String(config.parallel)),
-    openai: config.openai,
-    output: cliOpts.output ?? config.output,
-    clipboard: cliOpts.clipboard,
-    copy: cliOpts.copy,
+    verbose: cliOpts.verbose ?? config.verbose,
   };
 }

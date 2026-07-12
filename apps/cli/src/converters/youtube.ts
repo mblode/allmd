@@ -1,5 +1,4 @@
 import {
-  type TranscriptResponse,
   YoutubeTranscript,
   YoutubeTranscriptDisabledError,
   YoutubeTranscriptNotAvailableError,
@@ -7,6 +6,8 @@ import {
   YoutubeTranscriptTooManyRequestError,
   YoutubeTranscriptVideoUnavailableError,
 } from "youtube-transcript";
+import type { TranscriptResponse } from "youtube-transcript";
+
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { fetchWithTimeout } from "../utils/fetch.js";
@@ -49,8 +50,8 @@ async function fetchVideoMetadata(
   };
 
   return {
-    title: data.title ?? "Untitled Video",
     author: data.author_name ?? "",
+    title: data.title ?? "Untitled Video",
   };
 }
 
@@ -123,17 +124,22 @@ async function fetchTranscript(
       });
     }
     if (error instanceof YoutubeTranscriptDisabledError) {
-      throw new Error("Captions are disabled for this video");
+      throw new TypeError("Captions are disabled for this video", {
+        cause: error,
+      });
     }
     if (error instanceof YoutubeTranscriptNotAvailableError) {
-      throw new Error("No captions available for this video");
+      throw new TypeError("No captions available for this video", {
+        cause: error,
+      });
     }
     if (error instanceof YoutubeTranscriptVideoUnavailableError) {
-      throw new Error("Video is unavailable or private");
+      throw new TypeError("Video is unavailable or private", { cause: error });
     }
     if (error instanceof YoutubeTranscriptTooManyRequestError) {
-      throw new Error(
-        "YouTube rate limit hit — try again in a few minutes or from a different IP"
+      throw new TypeError(
+        "YouTube rate limit hit — try again in a few minutes or from a different IP",
+        { cause: error }
       );
     }
     throw error;
@@ -152,8 +158,8 @@ export async function convertYoutube(
   const [metadata, segments] = await Promise.all([
     fetchVideoMetadata(videoId, options.abortSignal).catch(
       (): VideoMetadata => ({
-        title: "Untitled Video",
         author: "",
+        title: "Untitled Video",
       })
     ),
     fetchTranscript(videoId, options.abortSignal),
@@ -183,8 +189,8 @@ export async function convertYoutube(
           formatAsMarkdown(
             rawTranscript,
             {
-              title: metadata.title,
               source: url,
+              title: metadata.title,
               type: "YouTube video transcript",
             },
             options
@@ -192,11 +198,11 @@ export async function convertYoutube(
         );
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title: metadata.title,
+    author: metadata.author,
     source: url,
+    title: metadata.title,
     type: "youtube",
     videoId,
-    author: metadata.author,
   });
 
   verbose(
@@ -205,13 +211,13 @@ export async function convertYoutube(
   );
 
   return {
-    title: metadata.title,
     markdown: withFrontmatter,
-    rawContent: rawTranscript,
     metadata: {
-      videoId,
       author: metadata.author,
       captionCount: segments.length,
+      videoId,
     },
+    rawContent: rawTranscript,
+    title: metadata.title,
   };
 }

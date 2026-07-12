@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { extname } from "node:path";
+
 import { formatAsMarkdown } from "../ai/client.js";
 import type { ConversionOptions, ConversionResult } from "../types.js";
 import { applyFrontmatter } from "../utils/frontmatter.js";
@@ -119,7 +120,7 @@ function readUnquotedChar(
 }
 
 function escapeMarkdownTableCell(cell: string): string {
-  return cell.replace(/\|/g, "\\|").replace(/\r?\n/g, "<br>");
+  return cell.replaceAll(/\|/g, "\\|").replaceAll(/\r?\n/g, "<br>");
 }
 
 function csvToMarkdownTable(text: string, delimiter: string): string {
@@ -184,8 +185,8 @@ export async function convertCsv(
           formatAsMarkdown(
             markdownTable,
             {
-              title: titleFromFilename(filePath),
               source: filePath,
+              title: titleFromFilename(filePath),
               type: isTsv ? "TSV spreadsheet" : "CSV spreadsheet",
             },
             options
@@ -195,11 +196,11 @@ export async function convertCsv(
   const title = titleFromFilename(filePath);
 
   const withFrontmatter = applyFrontmatter(markdown, options, {
-    title,
-    source: filePath,
-    type: "csv",
-    rows: rowCount,
     delimiter: delimiter === "\t" ? "tab" : "comma",
+    rows: rowCount,
+    source: filePath,
+    title,
+    type: "csv",
   });
 
   verbose(
@@ -208,9 +209,9 @@ export async function convertCsv(
   );
 
   return {
-    title,
     markdown: withFrontmatter,
+    metadata: { delimiter, rows: rowCount },
     rawContent: content,
-    metadata: { rows: rowCount, delimiter },
+    title,
   };
 }
