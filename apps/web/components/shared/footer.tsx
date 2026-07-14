@@ -11,13 +11,13 @@ export const Footer = (): React.JSX.Element => (
         rel="author noopener"
         target="_blank"
       >
-        {/* biome-ignore lint/performance/noImgElement: external avatar from matthewblode.com, not a local asset */}
+        {/* biome-ignore lint/performance/noImgElement: self-hosted 20px avatar, plain img avoids next/image overhead */}
         <img
           alt="Avatar of Matthew Blode"
           className="rounded-full"
           height={20}
           loading="lazy"
-          src="https://matthewblode.com/avatar-sm.png"
+          src="/avatar-sm.png"
           width={20}
         />
         Matthew Blode
