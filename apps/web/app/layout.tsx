@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   alternates: {
-    canonical: "/",
+    canonical: siteConfig.url,
   },
   description: siteConfig.description,
   keywords: [
@@ -113,7 +113,7 @@ export default function RootLayout({
         {children}
         <Analytics />
         <SpeedInsights />
-        <GoogleAnalytics gaId="G-SSFCC1ZF38" />
+        <GoogleAnalytics gaId="G-DZD6C8C6HT" />
       </body>
     </html>
   );

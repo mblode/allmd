@@ -28,8 +28,8 @@ Root lint/format is driven by ultracite (Biome) via `biome.jsonc`; `npm run lint
 
 ```bash
 cd apps/cli
-npm run build            # tsup → dist/
-npm run dev              # tsup --watch
+npm run build            # tsdown → dist/
+npm run dev              # tsdown --watch
 npm run test             # vitest run
 npm run check-types      # tsc --noEmit
 ```

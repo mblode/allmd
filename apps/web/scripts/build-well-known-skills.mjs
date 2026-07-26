@@ -16,6 +16,8 @@ import {
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
+import { basePath } from "../lib/config.ts";
+
 const __dirname = import.meta.dirname;
 const APP_ROOT = join(__dirname, "..");
 const OUTPUT_DIR = join(APP_ROOT, "public", ".well-known", "agent-skills");
@@ -101,7 +103,7 @@ function main() {
         digest,
         name,
         type: "skill-md",
-        url: `/.well-known/agent-skills/${name}/SKILL.md`,
+        url: `${basePath}/.well-known/agent-skills/${name}/SKILL.md`,
       });
 
       console.log(
@@ -124,7 +126,7 @@ function main() {
         digest,
         name,
         type: "archive",
-        url: `/.well-known/agent-skills/${archiveName}`,
+        url: `${basePath}/.well-known/agent-skills/${archiveName}`,
       });
 
       console.log(

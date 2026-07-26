@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
 
+import { basePath } from "./lib/config.ts";
+
 let version = "0.0.0";
 try {
   ({ version } = JSON.parse(
@@ -22,7 +24,7 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com${devAnalyticsScriptSrc}`,
   `connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com${devAnalyticsConnectSrc}`,
-  "img-src 'self' data: https://www.google-analytics.com https://matthewblode.com",
+  "img-src 'self' data: https://www.google-analytics.com",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
   "object-src 'none'",
@@ -52,36 +54,58 @@ const securityHeaders = [
 
 // RFC 8288 Link headers advertising agent-discoverable resources.
 const homepageLinkHeader = [
-  '</.well-known/agent-skills/index.json>; rel="agent-skills"; type="application/json"',
-  '</docs>; rel="service-doc"',
-  '</>; rel="alternate"; type="text/markdown"',
+  `<${basePath}/.well-known/agent-skills/index.json>; rel="agent-skills"; type="application/json"`,
+  `<${basePath}/docs>; rel="service-doc"`,
+  `<${basePath}>; rel="alternate"; type="text/markdown"`,
   '<https://github.com/mblode/allmd>; rel="vcs-github"',
 ].join(", ");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  assetPrefix: basePath,
+  basePath,
   env: {
     ALLMD_VERSION: version,
   },
-  reactCompiler: true,
-  // TypeScript 7's CLI is the type gate (npm run check-types); Next's built-in
-  // check can't load TS7's relocated compiler API, so disable it here.
-  typescript: {
-    ignoreBuildErrors: true,
+  // TypeScript 7 dropped the JavaScript compiler API Next's default checker
+  // uses, so point Next at the project-local tsc CLI instead.
+  experimental: {
+    useTypeScriptCli: true,
   },
+  reactCompiler: true,
   rewrites() {
     return {
       beforeFiles: [
         {
+          basePath: false,
           destination: "https://allmd.blode.md/docs",
-          source: "/docs",
+          source: `${basePath}/docs`,
         },
         {
+          basePath: false,
           destination: "https://allmd.blode.md/docs/:path*",
-          source: "/docs/:path*",
+          source: `${basePath}/docs/:path*`,
         },
       ],
     };
+  },
+  redirects() {
+    return [
+      {
+        basePath: false,
+        destination: `https://blode.co${basePath}`,
+        has: [{ type: "host", value: "allmd.blode.co" }],
+        permanent: true,
+        source: "/",
+      },
+      {
+        basePath: false,
+        destination: `https://blode.co${basePath}/:path*`,
+        has: [{ type: "host", value: "allmd.blode.co" }],
+        permanent: true,
+        source: "/:path*",
+      },
+    ];
   },
   headers() {
     // All matching rules apply in array order and later values win per header

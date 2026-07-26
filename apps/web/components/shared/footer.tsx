@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/config";
+import { asset, siteConfig } from "@/lib/config";
 import { version } from "@/package.json";
 
 export const Footer = (): React.JSX.Element => (
@@ -17,7 +17,7 @@ export const Footer = (): React.JSX.Element => (
           className="rounded-full"
           height={20}
           loading="lazy"
-          src="/avatar-sm.png"
+          src={asset("/avatar-sm.png")}
           width={20}
         />
         Matthew Blode

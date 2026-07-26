@@ -10,7 +10,7 @@
     "web",
     "youtube"
   ],
-  "homepage": "https://allmd.blode.co",
+  "homepage": "https://blode.co/allmd",
   "bugs": {
     "url": "https://github.com/mblode/allmd/issues"
   },
@@ -39,8 +39,8 @@
     }
   },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "start": "node dist/cli.js",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
@@ -84,8 +84,8 @@
     "@types/turndown": "^5.0.6",
     "oxfmt": "^0.58.0",
     "oxlint": "^1.73.0",
-    "tsup": "^8.5.1",
-    "typescript": "6.0.3",
+    "tsdown": "^0.22.14",
+    "typescript": "7.0.2",
     "vitest": "^4.1.10"
   },
   "engines": {
