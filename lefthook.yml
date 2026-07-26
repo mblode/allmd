@@ -1,7 +1,16 @@
+# `ultracite fix` runs oxfmt then oxlint, and oxlint exits non-zero when it is
+# handed no lintable files. Passing it a JSON/CSS-only staged set — as the
+# changesets bot does when it commits "Version Packages" — therefore failed the
+# commit and broke the release workflow. Lint only what oxlint can lint, and
+# format the rest with oxfmt directly.
 pre-commit:
   parallel: true
   jobs:
     - name: ultracite
-      glob: "*.{js,jsx,ts,tsx,json,jsonc,css}"
+      glob: "*.{js,jsx,ts,tsx}"
       run: npx ultracite fix {staged_files}
+      stage_fixed: true
+    - name: oxfmt
+      glob: "*.{json,jsonc,css}"
+      run: npx oxfmt --write {staged_files}
       stage_fixed: true
