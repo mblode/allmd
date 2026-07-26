@@ -1,6 +1,6 @@
 {
   "name": "allmd",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "CLI tool to convert various content types to markdown",
   "keywords": [
     "cli",
