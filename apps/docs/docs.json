@@ -1,6 +1,9 @@
 {
   "$schema": "https://blode.md/docs.json",
   "name": "allmd",
+  "seo": {
+    "siteUrl": "https://blode.co/allmd/docs"
+  },
   "description": "Universal content-to-markdown converter",
   "navbar": {
     "links": [
