@@ -74,22 +74,6 @@ const nextConfig = {
     useTypeScriptCli: true,
   },
   reactCompiler: true,
-  rewrites() {
-    return {
-      beforeFiles: [
-        {
-          basePath: false,
-          destination: "https://allmd.blode.md/docs",
-          source: `${basePath}/docs`,
-        },
-        {
-          basePath: false,
-          destination: "https://allmd.blode.md/docs/:path*",
-          source: `${basePath}/docs/:path*`,
-        },
-      ],
-    };
-  },
   redirects() {
     return [
       {
