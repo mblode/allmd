@@ -1,4 +1,3 @@
-import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GeistMono } from "geist/font/mono";
@@ -106,6 +105,10 @@ export default function RootLayout({
       className={`${glide.variable} ${GeistMono.variable} min-h-screen font-sans antialiased`}
       lang="en"
     >
+      <head>
+        <link href="https://us.i.posthog.com" rel="preconnect" />
+        <link href="https://us-assets.i.posthog.com" rel="dns-prefetch" />
+      </head>
       <body className="flex min-h-screen flex-col">
         <JsonLd data={organizationJsonLd} />
         <JsonLd data={webSiteJsonLd} />
@@ -113,7 +116,6 @@ export default function RootLayout({
         {children}
         <Analytics />
         <SpeedInsights />
-        <GoogleAnalytics gaId="G-DZD6C8C6HT" />
       </body>
     </html>
   );

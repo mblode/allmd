@@ -22,11 +22,12 @@ const devAnalyticsConnectSrc = isDev
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com${devAnalyticsScriptSrc}`,
-  `connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com${devAnalyticsConnectSrc}`,
-  "img-src 'self' data: https://www.google-analytics.com",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://us-assets.i.posthog.com${devAnalyticsScriptSrc}`,
+  `connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com${devAnalyticsConnectSrc}`,
+  "img-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
+  "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
