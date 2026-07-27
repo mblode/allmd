@@ -20,10 +20,11 @@ const devAnalyticsConnectSrc = isDev
   ? " https://vitals.vercel-insights.com"
   : "";
 
+const posthogOrigin = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "";
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://r.blode.co${devAnalyticsScriptSrc}`,
-  `connect-src 'self' https://r.blode.co${devAnalyticsConnectSrc}`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} ${posthogOrigin}${devAnalyticsScriptSrc}`,
+  `connect-src 'self' ${posthogOrigin}${devAnalyticsConnectSrc}`,
   "img-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
