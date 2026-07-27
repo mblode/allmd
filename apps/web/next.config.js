@@ -22,8 +22,8 @@ const devAnalyticsConnectSrc = isDev
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://us-assets.i.posthog.com${devAnalyticsScriptSrc}`,
-  `connect-src 'self' https://us.i.posthog.com https://us-assets.i.posthog.com${devAnalyticsConnectSrc}`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://r.blode.co${devAnalyticsScriptSrc}`,
+  `connect-src 'self' https://r.blode.co${devAnalyticsConnectSrc}`,
   "img-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
