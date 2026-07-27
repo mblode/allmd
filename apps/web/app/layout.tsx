@@ -72,17 +72,21 @@ const webSiteJsonLd = {
   url: siteConfig.url,
 };
 
+// Typed as SoftwareSourceCode, not SoftwareApplication. Google's Software App
+// rich result requires `offers` plus one of `aggregateRating` or `review`, and
+// its review guidelines forbid ratings we author about our own package, so a
+// SoftwareApplication node could only ever fail validation.
 const softwareJsonLd = {
   "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  applicationCategory: "DeveloperApplication",
+  "@type": "SoftwareSourceCode",
   author: {
     "@type": "Person",
     name: "Matthew Blode",
     url: siteConfig.links.author,
   },
+  codeRepository: siteConfig.links.github,
   description: siteConfig.description,
-  downloadUrl: siteConfig.links.npm,
+  isAccessibleForFree: true,
   license: "https://opensource.org/licenses/MIT",
   name: siteConfig.name,
   offers: {
@@ -90,9 +94,10 @@ const softwareJsonLd = {
     price: "0",
     priceCurrency: "USD",
   },
-  operatingSystem: "macOS, Windows, Linux",
-  softwareVersion: process.env.ALLMD_VERSION,
+  programmingLanguage: "TypeScript",
+  runtimePlatform: "Node.js",
   url: siteConfig.links.npm,
+  version: process.env.ALLMD_VERSION,
 };
 
 export default function RootLayout({
