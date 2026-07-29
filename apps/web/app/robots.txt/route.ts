@@ -1,12 +1,11 @@
 import { siteConfig } from "@/lib/config";
 
-const body = `# Content-Signal directives declare AI usage preferences (https://contentsignals.org/).
-# search: allow indexing for traditional search engines.
-# ai-input: allow grounding/RAG for AI assistant answers (with citation).
-# ai-train: disallow use of this content to train AI models.
-Content-Signal: search=yes, ai-input=yes, ai-train=no
-
-User-agent: *
+// AI-open on purpose: crawl, index, ground and train are all permitted, so a
+// single `*` group states the whole policy. No `Content-Signal:` line: signals
+// are a reservation mechanism, so silence already means no restriction is
+// expressed, and an all-yes signal only adds an unknown-directive warning in
+// Search Console.
+const body = `User-agent: *
 Allow: /
 
 Sitemap: ${siteConfig.url}/sitemap.xml
