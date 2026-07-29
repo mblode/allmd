@@ -25,7 +25,13 @@
       "dependsOn": ["^build"]
     },
     "test": {
-      "inputs": ["src/**", "vitest.config.*", "tsconfig.json", "package.json"]
+      "inputs": [
+        "src/**",
+        "lib/**",
+        "vitest.config.*",
+        "tsconfig.json",
+        "package.json"
+      ]
     }
   }
 }
