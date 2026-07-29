@@ -66,6 +66,7 @@ Most converters follow: validate → extract → AI format → add frontmatter �
 - **`vendor.d.ts`**: `pdf-parse`, `mammoth`, `epub2`, `rss-parser`, `update-notifier`, `tabtab`, and `turndown-plugin-gfm` ship without usable published types, so hand-written declarations live in `apps/cli/src/vendor.d.ts`. Update these if you upgrade those packages.
 - **AI is on by default for most converters**: Web pages use Firecrawl markdown directly. Other converters run AI formatting by default; pass `--no-ai` to skip it and emit raw extracted text for text-based sources (PDF, docx, epub, csv, pptx, gdoc, etc.). Image and video/audio inherently need AI (vision / transcription) and reject `--no-ai` with an error. Tests that exercise converters will make API calls unless mocked.
 - **Skill structure changed**: The old per-converter skill directories were consolidated into a single `skills/allmd/` directory. Don't recreate per-converter skill directories.
+- **No Vercel Analytics in `apps/web`**: the app is served at `blode.co/allmd` through the host site's zone rewrite. `@vercel/analytics` and `@vercel/speed-insights` inject root-absolute script paths, so behind the prefix they resolve to `blode.co/<id>/script.js` and 404 against the host site. PostHog is configured with an absolute `api_host` (`r.blode.co`) and already records page views and web vitals.
 - **Publishing**: The `allmd` npm package is published from `apps/cli/`. Run `npm run release` from root to build and publish via changesets.
 
 ## Working with allmd

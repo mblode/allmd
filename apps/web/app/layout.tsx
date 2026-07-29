@@ -1,5 +1,3 @@
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GeistMono } from "geist/font/mono";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
@@ -118,8 +116,6 @@ export default function RootLayout({
         <JsonLd data={webSiteJsonLd} />
         <JsonLd data={softwareJsonLd} />
         {children}
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );
