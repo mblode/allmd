@@ -69,11 +69,8 @@ const nextConfig = {
   env: {
     ALLMD_VERSION: version,
   },
-  // TypeScript 7 dropped the JavaScript compiler API Next's default checker
-  // uses, so point Next at the project-local tsc CLI instead.
   experimental: {
     turbopackRustReactCompiler: true,
-    useTypeScriptCli: true,
   },
   reactCompiler: true,
   redirects() {
