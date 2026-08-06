@@ -1,94 +1,106 @@
-# allmd
+<div align="center">
 
-Monorepo for `allmd`, a CLI that converts web pages, YouTube videos, PDFs, Google Docs, video and audio, images, Word docs, EPUBs, CSVs, PowerPoints, tweets, and RSS feeds into markdown.
+# [allmd](https://blode.co/allmd)
 
-## Workspaces
+**Turn any URL or file into clean markdown with YAML frontmatter**
 
-| Path | What it contains | Notes |
-| --- | --- | --- |
-| [`apps/cli`](apps/cli) | Published `allmd` npm package and programmatic API | See [`apps/cli/README.md`](apps/cli/README.md) for install and converter usage. |
-| [`apps/web`](apps/web) | Next.js 16 marketing site | Landing page for allmd and redirect layer for hosted docs. |
-| [`apps/docs`](apps/docs) | MDX docs source | Installation, usage, API, skills, and per-converter docs. |
+One command covers twelve source types, from web pages and YouTube transcripts to PDFs, images, and audio.
 
-## Getting Started
+<p align="center">
+  <a href="https://www.npmjs.com/package/allmd">
+    <img src="https://img.shields.io/npm/v/allmd?style=flat&colorA=000000&colorB=000000" />
+  </a>
+  <a href="https://github.com/mblode/allmd/blob/main/LICENSE.md">
+    <img src="https://img.shields.io/github/license/mblode/allmd?style=flat&colorA=000000&colorB=000000" />
+  </a>
+</p>
 
-```bash
-git clone https://github.com/mblode/allmd.git
-cd allmd
-npm install
-npm run build
-```
+</div>
 
-Requires Node.js 22.12+.
+## Demo
 
-## Development
+See what each converter produces, or read the full reference in the docs.
 
-Run these commands from the repository root:
+<p>
+<a href="https://blode.co/allmd">
+<img alt="View demo" src=".github/assets/demo.svg" width="200" />
+</a>
+<a href="https://blode.co/allmd/docs">
+<img alt="Read the docs" src=".github/assets/documentation.svg" width="200" />
+</a>
+</p>
 
-```bash
-npm run dev
-npm run build
-npm run test
-npm run check
-npm run fix
-```
-
-CLI package commands:
+## Install
 
 ```bash
-cd apps/cli
-npm run build
-npm run test
-npm run test:e2e
-npm run check-types
+npm install -g allmd
 ```
 
-The CLI E2E suite builds and packs `apps/cli`, installs the tarball into an isolated temporary global npm prefix, and exercises the installed `allmd` binary. Use `npm run test:e2e:live` with `OPENAI_API_KEY` and `FIRECRAWL_API_KEY` to include live conversion smoke tests.
+Requires Node 24 or newer. Set `OPENAI_API_KEY` for the AI-backed converters and
+`FIRECRAWL_API_KEY` for web pages, in your environment or a `.env` file. Video and audio
+transcription uses the bundled `ffmpeg-static` binary, so there is nothing else to install.
 
-Web app commands:
+## Quickstart
 
 ```bash
-cd apps/web
-npm run dev
-npm run build
-npm run check
+# Auto-detect the input type from a URL or a file path
+allmd https://blode.co/marx
+
+# A YouTube transcript, with timestamps, written to a file you name
+allmd youtube https://www.youtube.com/watch?v=dQw4w9WgXcQ -o transcript.md
+
+# A PDF, raw extracted text with no AI pass, printed instead of saved
+allmd pdf report.pdf --no-ai --stdout
 ```
 
-## Environment
+Output is markdown with YAML frontmatter, written into the current directory unless `-o` or `-d`
+says otherwise. Run `allmd` with no arguments for interactive mode, or `allmd examples` for more.
 
-- `OPENAI_API_KEY` is required for AI-backed converters. `apps/cli/src/ai/client.ts` reads it from the environment or `apps/cli/.env`.
-- `FIRECRAWL_API_KEY` is required for web page conversion.
-- Video and audio conversion uses the bundled `ffmpeg-static` binary.
+## Converters
 
-## Architecture
+| Command | Input |
+|---|---|
+| `web` | Any URL, fetched and cleaned through Firecrawl. |
+| `youtube` | A video transcript with timestamps. |
+| `video` | An audio or video file, transcribed with optional speaker diarization. |
+| `image` | A screenshot or photo, described with GPT vision. |
+| `gdoc` | A published Google Doc. |
+| `pdf`, `docx`, `epub`, `pptx` | Local documents. |
+| `csv` | Tabular data, as a markdown table. |
+| `tweet`, `rss` | An X post, or the entries in a feed. |
 
-- CLI entry point: `apps/cli/src/cli.ts`
-- Public API: `apps/cli/src/index.ts`
-- Converter commands live in `apps/cli/src/commands/`
-- Converter implementations live in `apps/cli/src/converters/`
-- Input auto-detection lives in `apps/cli/src/utils/detect.ts`
-- Most converters follow `validate -> extract -> AI format -> frontmatter -> output`
-- Web conversion skips the AI formatting step and uses Firecrawl markdown directly
+Pass a URL or file with no command and allmd picks the converter for you.
 
-## Release
+## Options
 
-Publish the CLI from the repo root with:
+| Flag | Description |
+|---|---|
+| `-o, --output <file>` | Write to a specific file. |
+| `-d, --output-dir <dir>` | Write into a directory. |
+| `--stdout` | Print the markdown instead of writing a file. |
+| `-c, --clipboard` / `--copy` | Read the input from the clipboard, or copy the output to it. |
+| `--no-ai` | Skip the AI formatting pass and emit the raw extracted text. |
+| `--no-frontmatter` | Leave the YAML frontmatter off. |
+| `--parallel <n>` | Conversions to run at once, 3 by default. |
+| `--speakers <names>` | Comma-separated speaker names for a diarized transcript. |
 
-```bash
-npm run release
-```
+Text-based converters run an AI formatting pass by default. `--no-ai` turns it off, which is
+faster, works offline, and needs no `OPENAI_API_KEY`. Web pages already skip it, and `image` and
+`video` cannot, since vision and transcription are the conversion.
 
-That runs the filtered Turbo build and publishes via Changesets from `apps/cli`.
+## Notes
 
-## Links
-
-- npm: [allmd](https://www.npmjs.com/package/allmd)
-- GitHub: [mblode/allmd](https://github.com/mblode/allmd)
-- Package docs: [`apps/cli/README.md`](apps/cli/README.md)
+- **Programmatic API:** `import { convertWeb } from "allmd"` returns the markdown along with the
+  title and extracted metadata. Every converter has a matching `convert*` export.
+- **Config file:** defaults for `ai`, `frontmatter`, `outputDir`, `parallel`, and the OpenAI model
+  can live in an `.allmdrc`, an `allmd.config.js`, or an `allmd` key in `package.json`.
+- **Agent skill:** `npx skills add mblode/allmd` installs allmd as a skill for Claude Code, Cursor,
+  and Codex, so an agent reaches for it instead of scraping.
+- **Shell completion:** `allmd completion install` sets up completions for bash, zsh, or fish.
 
 ## License
 
-[MIT](LICENSE.md)
+MIT
 
 ---
 
