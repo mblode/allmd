@@ -50,7 +50,7 @@ allmd image photo.webp -o description.md
 ## Best Practices
 
 - Higher resolution images produce better OCR and descriptions
-- For multi-page documents, use the `allmd pdf` command instead — image only processes a single file
+- For multi-page documents, use the `allmd pdf` command instead; image only processes a single file
 - Screenshots with clear text and minimal noise transcribe most accurately
 - For complex diagrams, the AI will describe the structure rather than recreate it in markdown
 
@@ -64,7 +64,7 @@ allmd image photo.webp -o description.md
 
 ## Troubleshooting
 
-- **"Unsupported image format"** — check the extension is one of: jpg, jpeg, png, gif, webp
-- **"File not found"** — verify the file path; quotes may be needed for paths with spaces
-- **Poor transcription quality** — try a higher resolution source image
-- **Empty or minimal output** — the image may contain very little recognizable content
+- **"Unsupported image format"**: check the extension is one of: jpg, jpeg, png, gif, webp
+- **"File not found"**: verify the file path; quotes may be needed for paths with spaces
+- **Poor transcription quality**: try a higher resolution source image
+- **Empty or minimal output**: the image may contain very little recognizable content

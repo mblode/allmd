@@ -50,9 +50,9 @@ allmd gdoc "https://docs.google.com/document/d/abc123/edit" -o doc.md
 
 - **Private documents**: Return 404; the doc must be shared as "Anyone with the link"
 - **Complex formatting**: Text boxes, columns, and drawing elements may not convert cleanly to markdown
-- **Comments and suggestions**: Not included in the export — only accepted content appears
+- **Comments and suggestions**: Not included in the export; only accepted content appears
 
 ## Troubleshooting
 
-- **"Google Doc not found"** — verify the document is publicly shared (not just "anyone in your org")
-- **"Could not extract document ID"** — the URL must contain `docs.google.com/document/d/<id>`; spreadsheets, slides, and forms are not supported
+- **"Google Doc not found"**: verify the document is publicly shared (not just "anyone in your org")
+- **"Could not extract document ID"**: the URL must contain `docs.google.com/document/d/<id>`; spreadsheets, slides, and forms are not supported

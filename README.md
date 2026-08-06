@@ -2,9 +2,9 @@
 
 # [allmd](https://blode.co/allmd)
 
-**Turn any URL or file into clean markdown with YAML frontmatter**
+**Turn anything into context your agent can read**
 
-One command covers twelve source types, from web pages and YouTube transcripts to PDFs, images, and audio.
+Point it at a URL or a file. Twelve source types, markdown out.
 
 <p align="center">
   <a href="https://www.npmjs.com/package/allmd">
@@ -56,6 +56,14 @@ allmd pdf report.pdf --no-ai --stdout
 Output is markdown with YAML frontmatter, written into the current directory unless `-o` or `-d`
 says otherwise. Run `allmd` with no arguments for interactive mode, or `allmd examples` for more.
 
+## Agents
+
+```bash
+npx skills add mblode/allmd
+```
+
+Adds allmd as a skill in Claude Code, Cursor, and Codex. The agent converts instead of scraping.
+
 ## Converters
 
 | Command | Input |
@@ -94,8 +102,6 @@ faster, works offline, and needs no `OPENAI_API_KEY`. Web pages already skip it,
   title and extracted metadata. Every converter has a matching `convert*` export.
 - **Config file:** defaults for `ai`, `frontmatter`, `outputDir`, `parallel`, and the OpenAI model
   can live in an `.allmdrc`, an `allmd.config.js`, or an `allmd` key in `package.json`.
-- **Agent skill:** `npx skills add mblode/allmd` installs allmd as a skill for Claude Code, Cursor,
-  and Codex, so an agent reaches for it instead of scraping.
 - **Shell completion:** `allmd completion install` sets up completions for bash, zsh, or fish.
 
 ## License

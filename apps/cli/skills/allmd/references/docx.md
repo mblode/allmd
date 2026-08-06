@@ -7,7 +7,7 @@ Reads a `.docx` file, converts HTML content via mammoth, then converts to markdo
 1. **Validate** file exists and has a `.docx` extension
 2. **Extract** HTML content using mammoth
 3. **Convert** HTML to markdown via Turndown (same engine as web converter)
-4. **AI format** — restructures into clean markdown via GPT-5-mini
+4. **AI format:** restructures into clean markdown via GPT-5-mini
 5. **Add frontmatter** and output
 
 ## Key Details

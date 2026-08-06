@@ -2,9 +2,9 @@ import { siteConfig } from "@/lib/config";
 
 const body = `# ${siteConfig.name}
 
-> Turn the whole universe into markdown. ${siteConfig.description}
+> Everything is context. ${siteConfig.description}
 
-allmd is a command-line tool and Node.js library that converts almost any URL or file into clean markdown with YAML frontmatter. It auto-detects the input type, uses AI to tidy the output, and can write to a file, directory, clipboard, or stdout. It also ships as an agent skill for Claude Code, Cursor, and other AI coding agents.
+A talk, a post, a PDF, a recording. allmd is a command-line tool and Node.js library that converts any of it into clean markdown. It auto-detects the input type, uses AI to tidy the output, and writes to a file, directory, clipboard, or stdout. It also ships as a skill for Claude Code, Cursor, and Codex, so the agent converts instead of scraping.
 
 ## Documentation
 

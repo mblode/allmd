@@ -6,8 +6,8 @@ Fetches an RSS or Atom feed URL, parses it with rss-parser, and converts all ite
 
 1. **Validate** URL (auto-detected for URLs containing `/feed`, `/rss`, `.xml`, `.atom`)
 2. **Fetch and parse** feed using `rss-parser` library
-3. **Build markdown** — feed description as blockquote, each item as a `## Heading` section
-4. **AI format** — restructures into clean markdown via GPT-5-mini
+3. **Build markdown:** feed description as blockquote, each item as a `## Heading` section
+4. **AI format:** restructures into clean markdown via GPT-5-mini
 5. **Add frontmatter** and output
 
 ## Key Details

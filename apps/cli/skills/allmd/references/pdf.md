@@ -51,7 +51,7 @@ allmd pdf "docs/*.pdf" -d output/
 
 ## Best Practices
 
-- AI formatting is most valuable for PDFs with complex layouts — it restructures columns, headers, and footers into linear markdown
+- AI formatting is most valuable for PDFs with complex layouts: it restructures columns, headers, and footers into linear markdown
 - Check the page count in frontmatter to verify the full document was processed
 
 ## Edge Cases
@@ -64,7 +64,7 @@ allmd pdf "docs/*.pdf" -d output/
 
 ## Troubleshooting
 
-- **Empty or garbage output** — the PDF is likely scanned; use `allmd image` on page screenshots instead
-- **"File not found"** — verify the file path exists
-- **Jumbled text ordering** — PDFs with multi-column layouts may extract text in unexpected order; AI formatting can help reorder
-- **Missing title** — the PDF metadata may not include a Title field; the filename is used as fallback
+- **Empty or garbage output**: the PDF is likely scanned; use `allmd image` on page screenshots instead
+- **"File not found"**: verify the file path exists
+- **Jumbled text ordering**: PDFs with multi-column layouts may extract text in unexpected order; AI formatting can help reorder
+- **Missing title**: the PDF metadata may not include a Title field; the filename is used as fallback

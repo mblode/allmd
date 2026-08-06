@@ -1,5 +1,18 @@
 # Conversion Options and Output Format
 
+## Contents
+
+- [TypeScript Types](#typescript-types)
+- [CLI Global Flags](#cli-global-flags)
+- [Auto-Detection](#auto-detection)
+- [YAML Frontmatter](#yaml-frontmatter)
+- [AI Formatting](#ai-formatting)
+- [Configuration](#configuration)
+- [Batch Processing](#batch-processing)
+- [Clipboard and Stdin](#clipboard-and-stdin)
+- [Environment Variables](#environment-variables)
+- [Output Handling](#output-handling)
+
 ## TypeScript Types
 
 ```typescript
@@ -34,10 +47,14 @@ All `allmd` commands accept:
 | `-c, --clipboard` | Read input from clipboard |
 | `--copy` | Copy output to clipboard |
 | `-d, --output-dir <dir>` | Output directory for converted files |
+| `--stdout` | Print markdown to stdout instead of writing a file |
 | `--parallel <n>` | Number of parallel conversions for batch mode (default: 3) |
 | `--no-frontmatter` | Skip YAML frontmatter in output |
 | `--no-ai` | Skip AI formatting; emit the raw extracted text (not supported for images or video/audio) |
 | `--ai` | Force AI formatting on (overrides `ai: false` in config) |
+| `--no-diarize` | Disable speaker diarization (video/audio only) |
+| `--speakers <names>` | Comma-separated speaker names. Implies `--diarize` |
+| `--speaker-references <ref>` | Known-speaker reference clip, a file path or data URL. Repeatable up to 4 times. Requires `--speakers` |
 
 ## Auto-Detection
 
@@ -118,10 +135,10 @@ echo "https://example.com" | allmd web -
 
 ## Environment Variables
 
-| Variable | Required | Default |
-|----------|----------|---------|
-| `OPENAI_API_KEY` | Required for non-web converters, unless `--no-ai` is used with a text-based converter | — |
-| `FIRECRAWL_API_KEY` | Required for web page conversion | — |
+| Variable | Required for |
+|----------|--------------|
+| `OPENAI_API_KEY` | Every non-web converter, unless `--no-ai` is used with a text-based converter |
+| `FIRECRAWL_API_KEY` | Web page conversion |
 
 ## Output Handling
 

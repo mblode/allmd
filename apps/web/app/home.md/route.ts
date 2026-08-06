@@ -2,9 +2,30 @@ import { siteConfig } from "@/lib/config";
 
 const markdown = `# ${siteConfig.name}
 
-Turn the whole universe into markdown.
+Everything is context.
 
-${siteConfig.description}
+A talk, a post, a PDF, a recording. One command turns any of it into markdown.
+
+## Agent skill
+
+Install once. Your agent converts instead of scraping. Claude Code, Cursor, Codex.
+
+\`\`\`bash
+npx skills add mblode/allmd
+\`\`\`
+
+\`\`\`bash
+/allmd https://youtu.be/dQw4w9WgXcQ
+\`\`\`
+
+## Twelve sources, one command
+
+- **Auto-detect:** pass any URL or file path. allmd figures out the type.
+- **AI formatting:** AI cleans up the output into consistent, readable markdown.
+- **12 formats:** web, YouTube, PDF, Google Docs, video and audio, images, Word, EPUB, CSV, PowerPoint, tweets, RSS.
+- **Flexible output:** write to file, directory, clipboard, or stdout.
+- **Frontmatter:** a YAML header on every file with the title, source, date, and type.
+- **No API key:** \`--no-ai\` emits the raw extracted text. Faster, offline, and no \`OPENAI_API_KEY\`.
 
 ## Install
 
@@ -18,33 +39,12 @@ npm install -g allmd
 allmd https://example.com
 \`\`\`
 
-## Features
-
-- **Auto-detect** — pass any URL or file path. allmd figures out the type.
-- **AI formatting** — AI cleans up the output into consistent, readable markdown.
-- **12 formats** — web, YouTube, PDF, Google Docs, video, audio, images, Word, EPUB, CSV, PowerPoint, tweets, RSS.
-- **Flexible output** — write to file, directory, clipboard, or stdout.
-- **Frontmatter** — every file gets a YAML header with title, source, date, and more.
-- **Agent skill** — works with Claude Code, Cursor, and other AI coding agents.
-
 ## Node.js API
 
 \`\`\`ts
 import { convertWeb } from "allmd";
 
 const { markdown } = await convertWeb("https://example.com");
-\`\`\`
-
-## AI agent skill
-
-Give your AI coding agent the ability to convert anything to markdown.
-
-\`\`\`bash
-npx skills add mblode/allmd
-\`\`\`
-
-\`\`\`bash
-/allmd https://youtu.be/dQw4w9WgXcQ
 \`\`\`
 
 ## Links

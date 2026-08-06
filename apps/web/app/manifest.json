@@ -1,7 +1,7 @@
 {
   "name": "allmd",
   "short_name": "allmd",
-  "description": "Convert anything to markdown with one CLI command.",
+  "description": "Turn anything into context your agent can read.",
   "start_url": "/allmd",
   "categories": ["developer tools", "productivity"],
   "icons": [

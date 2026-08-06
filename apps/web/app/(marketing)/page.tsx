@@ -13,7 +13,13 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { CopyButton } from "@/components/ui/copy-button";
 import { siteConfig } from "@/lib/config";
 
-const heroWords = "Turn the whole universe into markdown.".split(" ");
+const heroWords = "Everything is context.".split(" ");
+
+const heroSubhead =
+  "A talk, a post, a PDF, a recording. One command turns any of it into markdown.";
+
+const skillKicker =
+  'Now the answer to "what brings you here tonight" is context for my bot.';
 
 const features = [
   {
@@ -28,7 +34,7 @@ const features = [
   },
   {
     description:
-      "Web, YouTube, PDF, Google Docs, video, audio, images, Word, EPUB, CSV, PowerPoint, tweets, RSS.",
+      "Web, YouTube, PDF, Google Docs, video and audio, images, Word, EPUB, CSV, PowerPoint, tweets, RSS.",
     icon: LayoutGrid1Icon,
     title: "12 formats",
   },
@@ -39,14 +45,15 @@ const features = [
   },
   {
     description:
-      "Every file gets a YAML header with title, source, date, and more.",
+      "A YAML header on every file with the title, source, date, and type.",
     icon: FileTextIcon,
     title: "Frontmatter",
   },
   {
-    description: "Works with Claude Code, Cursor, and other AI coding agents.",
+    description:
+      "--no-ai emits the raw extracted text. Faster, offline, and no OPENAI_API_KEY.",
     icon: ConsoleIcon,
-    title: "Agent skill",
+    title: "No API key",
   },
 ];
 
@@ -73,8 +80,7 @@ export default function HomePage(): React.JSX.Element {
             className="mx-auto mt-4 max-w-[60ch] text-lg text-muted-foreground leading-relaxed blur-up"
             style={{ animationDelay: "0.35s" }}
           >
-            Convert anything to markdown. Web pages, YouTube, PDFs, images,
-            audio, and more.
+            {heroSubhead}
           </p>
           <div
             className="mt-8 flex flex-wrap items-center justify-center gap-3 blur-up"
@@ -82,11 +88,11 @@ export default function HomePage(): React.JSX.Element {
           >
             <a
               className={buttonVariants({ size: "lg" })}
-              href={`${siteConfig.links.docs}/cli`}
+              href={`${siteConfig.links.docs}/skills`}
               rel="noopener noreferrer"
               target="_blank"
             >
-              Get started
+              Install the skill
             </a>
           </div>
           <code
@@ -99,14 +105,64 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
 
-      {/* Features */}
-      <section
-        className="@container pt-8 pb-16 sm:pt-16 sm:pb-24"
-        id="features"
-      >
+      {/* Agent skill */}
+      <section className="@container pt-8 pb-16 sm:pt-16 sm:pb-24" id="skill">
+        <div className="mx-auto grid max-w-3xl @2xl:grid-cols-2 @2xl:gap-12 gap-6 px-6">
+          <div className="space-y-4">
+            <h2 className="text-balance font-medium text-3xl leading-[1.15] tracking-tight">
+              Agent skill
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Install once. Your agent converts instead of scraping. Claude
+              Code, Cursor, Codex.
+            </p>
+            <a
+              className={buttonVariants()}
+              href={`${siteConfig.links.docs}/skills`}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Add the skill
+              <ArrowRightIcon aria-hidden="true" data-icon="inline-end" />
+            </a>
+          </div>
+          <div className="grid @2xl:grid-cols-1 @sm:grid-cols-2 grid-cols-1 gap-6 text-sm">
+            <div className="feature-card space-y-3 border-t pt-6">
+              <FileDownloadIcon
+                aria-hidden="true"
+                className="size-4 text-muted-foreground"
+              />
+              <p className="text-muted-foreground leading-5">
+                <span className="font-medium text-foreground">Install</span>
+              </p>
+              <code className="block font-mono text-muted-foreground text-xs">
+                npx skills add mblode/allmd
+              </code>
+            </div>
+            <div className="feature-card space-y-3 border-t pt-6">
+              <SparkleIcon
+                aria-hidden="true"
+                className="size-4 text-muted-foreground"
+              />
+              <p className="text-muted-foreground leading-5">
+                <span className="font-medium text-foreground">Use</span>
+              </p>
+              <code className="block font-mono text-muted-foreground text-xs">
+                /allmd https://youtu.be/dQw4w9WgXcQ
+              </code>
+            </div>
+            <p className="@2xl:col-span-1 @sm:col-span-2 text-muted-foreground text-xs leading-5">
+              {skillKicker}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Sources */}
+      <section className="@container py-16 sm:py-24" id="features">
         <div className="mx-auto max-w-3xl px-6">
           <h2 className="text-balance font-medium text-3xl leading-[1.15] tracking-tight">
-            Features
+            Twelve sources, one command
           </h2>
           <div className="mt-12 grid @sm:grid-cols-2 @xl:grid-cols-3 grid-cols-1 gap-6 text-sm">
             {features.map((feature) => (
@@ -222,56 +278,6 @@ export default function HomePage(): React.JSX.Element {
               </p>
               <code className="block font-mono text-muted-foreground text-xs">
                 {`const { markdown } = await convertWeb("https://example.com");`}
-              </code>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* AI agent skill */}
-      <section className="@container py-16 sm:py-24" id="skill">
-        <div className="mx-auto grid max-w-3xl @2xl:grid-cols-2 @2xl:gap-12 gap-6 px-6">
-          <div className="space-y-4">
-            <h2 className="text-balance font-medium text-3xl leading-[1.15] tracking-tight">
-              AI agent skill
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Give your AI coding agent the ability to convert anything to
-              markdown.
-            </p>
-            <a
-              className={buttonVariants()}
-              href={`${siteConfig.links.docs}/skills`}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Add the skill
-              <ArrowRightIcon aria-hidden="true" data-icon="inline-end" />
-            </a>
-          </div>
-          <div className="grid @2xl:grid-cols-1 @sm:grid-cols-2 grid-cols-1 gap-6 text-sm">
-            <div className="feature-card space-y-3 border-t pt-6">
-              <FileDownloadIcon
-                aria-hidden="true"
-                className="size-4 text-muted-foreground"
-              />
-              <p className="text-muted-foreground leading-5">
-                <span className="font-medium text-foreground">Install</span>
-              </p>
-              <code className="block font-mono text-muted-foreground text-xs">
-                npx skills add mblode/allmd
-              </code>
-            </div>
-            <div className="feature-card space-y-3 border-t pt-6">
-              <SparkleIcon
-                aria-hidden="true"
-                className="size-4 text-muted-foreground"
-              />
-              <p className="text-muted-foreground leading-5">
-                <span className="font-medium text-foreground">Use</span>
-              </p>
-              <code className="block font-mono text-muted-foreground text-xs">
-                /allmd https://youtu.be/dQw4w9WgXcQ
               </code>
             </div>
           </div>

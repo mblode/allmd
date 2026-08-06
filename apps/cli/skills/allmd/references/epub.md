@@ -8,7 +8,7 @@ Reads an `.epub` file, extracts chapter HTML content via epub2, converts each ch
 2. **Parse** EPUB structure using `epub2` library
 3. **Extract** each chapter's HTML and convert to markdown via Turndown
 4. **Join** chapters with `---` separators, adding chapter headings where available
-5. **AI format** — restructures into clean markdown via GPT-5-mini
+5. **AI format:** restructures into clean markdown via GPT-5-mini
 6. **Add frontmatter** and output
 
 ## Key Details

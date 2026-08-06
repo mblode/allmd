@@ -50,19 +50,19 @@ allmd youtube <url> -o transcript.md
 
 ## Best Practices
 
-- AI formatting works best for talks and lectures — it adds paragraph breaks at topic changes
+- AI formatting works best for talks and lectures: it adds paragraph breaks at topic changes
 - The oEmbed metadata provides the video title and channel name without any API key
 
 ## Edge Cases
 
 - **No captions available**: Video may be too new, have captions disabled, or be region-locked
-- **Auto-generated captions**: No punctuation, potential word errors — AI formatting helps significantly
+- **Auto-generated captions**: No punctuation, potential word errors, so AI formatting helps significantly
 - **Non-English videos**: Defaults to `lang: 'en'`; non-English captions may not be fetched
 - **Live stream transcripts**: May have gaps or lower quality auto-captions
 - **Music videos**: Lyrics may be available as captions, but instrumental sections have no text
 
 ## Troubleshooting
 
-- **"No captions available"** — check if the video has captions enabled; very new uploads may not have them yet
-- **"Could not extract video ID"** — verify the URL matches one of the 4 supported patterns
-- **Garbled or incorrect text** — auto-generated captions have known accuracy issues; AI formatting can help clean them up
+- **"No captions available"**: check if the video has captions enabled; very new uploads may not have them yet
+- **"Could not extract video ID"**: verify the URL matches one of the 4 supported patterns
+- **Garbled or incorrect text**: auto-generated captions have known accuracy issues; AI formatting can help clean them up

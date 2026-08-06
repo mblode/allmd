@@ -6,10 +6,10 @@ Reads a `.pptx` file, extracts text and speaker notes from slide XML using adm-z
 
 1. **Validate** file exists and has `.pptx` extension
 2. **Unzip** PPTX (which is a ZIP archive) using `adm-zip`
-3. **Extract slides** — parse `ppt/slides/slide*.xml` files, sorted by slide number
-4. **Extract notes** — parse `ppt/notesSlides/notesSlide*.xml` files
-5. **Build markdown** — each slide becomes a `## Slide N` section with text and optional speaker notes
-6. **AI format** — restructures into clean markdown via GPT-5-mini
+3. **Extract slides:** parse `ppt/slides/slide*.xml` files, sorted by slide number
+4. **Extract notes:** parse `ppt/notesSlides/notesSlide*.xml` files
+5. **Build markdown:** each slide becomes a `## Slide N` section with text and optional speaker notes
+6. **AI format:** restructures into clean markdown via GPT-5-mini
 7. **Add frontmatter** and output
 
 ## Key Details

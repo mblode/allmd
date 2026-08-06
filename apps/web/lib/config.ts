@@ -6,7 +6,7 @@ export const siteUrl = `https://blode.co${basePath}`;
 
 export const siteConfig = {
   description:
-    "Convert anything to markdown with one CLI command. Web pages, YouTube, PDFs, Google Docs, images, audio, Word, EPUB, CSV, PowerPoint, tweets, and RSS feeds.",
+    "Turn anything into context your agent can read. A talk, a post, a PDF, a recording. Twelve source types, one command, markdown out.",
   links: {
     author: "https://blode.co",
     docs: "https://allmd.blode.md/docs",

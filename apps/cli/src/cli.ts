@@ -72,7 +72,7 @@ const program = new Command();
 
 program
   .name("allmd")
-  .description("Convert various content types to markdown")
+  .description("Turn anything into markdown your agent can read")
   .version(packageJson.version)
   .addHelpText(
     "after",

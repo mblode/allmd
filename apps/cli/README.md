@@ -1,129 +1,101 @@
-<h1 align="center">allmd</h1>
+<div align="center">
 
-<p align="center">Turn the whole universe into markdown.</p>
+# [allmd](https://blode.co/allmd)
+
+**Turn anything into context your agent can read**
+
+Point it at a URL or a file. Twelve source types, markdown out.
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/allmd"><img src="https://img.shields.io/npm/v/allmd.svg" alt="npm version"></a>
-  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
+  <a href="https://www.npmjs.com/package/allmd">
+    <img src="https://img.shields.io/npm/v/allmd?style=flat&colorA=000000&colorB=000000" />
+  </a>
+  <a href="https://github.com/mblode/allmd/blob/main/LICENSE.md">
+    <img src="https://img.shields.io/github/license/mblode/allmd?style=flat&colorA=000000&colorB=000000" />
+  </a>
 </p>
 
+</div>
 
-
-- **Web pages:** fetch any URL and convert to clean markdown with Firecrawl.
-- **YouTube videos:** extract transcripts with timestamps.
-- **PDFs:** parse text content from PDF files.
-- **Google Docs:** convert published Google Docs to markdown.
-- **Video/audio:** transcribe media files with OpenAI transcription models and optional speaker controls.
-- **Images:** describe images using GPT vision.
-- **Word documents:** convert `.docx` files to markdown.
-- **EPUB ebooks:** convert `.epub` files to markdown.
-- **CSV/TSV files:** convert tabular data to markdown tables.
-- **PowerPoint:** convert `.pptx` presentations to markdown.
-- **Tweets:** capture tweets/X posts as markdown.
-- **RSS/Atom feeds:** convert feed entries to markdown.
-- **Auto-detect:** pass any URL or file — allmd figures out the type automatically.
-- **AI formatting:** non-web output is polished with GPT for consistent, readable markdown (opt out with `--no-ai`).
-- **Interactive mode:** run `allmd` with no arguments to pick a converter.
-
-## Installation
+## Install
 
 ```bash
 npm install -g allmd
 ```
 
-Set the API keys for the converters you use:
+Requires Node 24 or newer. Set `OPENAI_API_KEY` for the AI-backed converters and
+`FIRECRAWL_API_KEY` for web pages, in your environment or a `.env` file. Video and audio
+transcription uses the bundled `ffmpeg-static` binary, so there is nothing else to install.
+
+## Quickstart
 
 ```bash
-export OPENAI_API_KEY=your-key
-export FIRECRAWL_API_KEY=your-key
-```
+# Auto-detect the input type from a URL or a file path
+allmd https://blode.co/marx
 
-`OPENAI_API_KEY` is required for AI-backed converters. `FIRECRAWL_API_KEY` is required for web page conversion. Web pages use Firecrawl markdown directly and do not require `OPENAI_API_KEY`.
+# A YouTube transcript, with timestamps, written to a file you name
+allmd youtube https://www.youtube.com/watch?v=dQw4w9WgXcQ -o transcript.md
 
-Requires Node.js 22.12+. Video/audio conversion uses the bundled `ffmpeg-static` binary.
-
-## Testing
-
-```bash
-npm run test
-npm run test:e2e
-```
-
-`npm run test:e2e` builds the package, runs `npm pack`, installs the packed tarball into an isolated temporary global npm prefix, and tests the installed `allmd` binary. It does not modify your real global npm packages.
-
-Live converter smoke tests are opt-in because they use network APIs:
-
-```bash
-OPENAI_API_KEY=... FIRECRAWL_API_KEY=... npm run test:e2e:live
-```
-
-## Usage
-
-Run `allmd` with no arguments for interactive mode, or pass any URL/file for auto-detection.
-
-```bash
-allmd https://example.com                       # auto-detect input type
-allmd web https://example.com -o article.md
-allmd youtube https://youtube.com/watch?v=dQw4w9WgXcQ -o transcript.md
-allmd pdf document.pdf -o document.md
-allmd gdoc https://docs.google.com/document/d/... -o doc.md
-allmd video recording.mp4 -o transcript.md
-allmd image screenshot.png -o description.md
-allmd docx report.docx -o report.md
-allmd epub book.epub -o book.md
-allmd csv data.csv -o data.md
-allmd pptx slides.pptx -o slides.md
-allmd tweet https://x.com/user/status/123 -o tweet.md
-allmd rss https://blog.example.com/feed -o feed.md
-allmd examples                                  # show more usage examples
-```
-
-## Options
-
-```
--o, --output <file>      Write output to a specific file
--d, --output-dir <dir>   Output directory for converted files
--v, --verbose            Enable verbose output
--c, --clipboard          Read input from clipboard
-    --copy               Copy output to clipboard
-    --stdout             Print output to stdout instead of writing a file
-    --parallel <n>       Number of parallel conversions (default: 3)
-    --no-frontmatter     Skip YAML frontmatter in output
-    --no-ai              Skip AI formatting; emit the raw extracted text
-    --ai                 Force AI formatting on (overrides ai: false in config)
--V, --version            Show version
--h, --help               Show help
-```
-
-### `--no-ai`
-
-By default, text-based converters send the extracted text to GPT for a formatting pass. Pass `--no-ai` to skip that step and write the raw extracted text (still wrapped in frontmatter). This is faster, offline-friendly, and does not require `OPENAI_API_KEY`.
-
-```bash
+# A PDF, raw extracted text with no AI pass, printed instead of saved
 allmd pdf report.pdf --no-ai --stdout
 ```
 
-`--no-ai` applies to `youtube`, `pdf`, `gdoc`, `docx`, `epub`, `csv`, `pptx`, `tweet`, and `rss`. Web pages already skip AI (Firecrawl markdown is used directly). Image and video/audio conversion depend on AI (vision OCR and transcription), so `--no-ai` is rejected with a clear error for those. If your config file sets `ai: false`, pass `--ai` to force AI formatting back on for a single run.
+Output is markdown with YAML frontmatter, written into the current directory unless `-o` or `-d`
+says otherwise. Run `allmd` with no arguments for interactive mode, or `allmd examples` for more.
 
-## API
-
-```typescript
-import { convertWeb, convertPdf, convertYoutube } from "allmd";
-
-const result = await convertWeb("https://example.com");
-console.log(result.markdown);
-```
-
-Available converters: `convertWeb`, `convertYoutube`, `convertPdf`, `convertGdoc`, `convertVideo`, `convertImage`, `convertDocx`, `convertEpub`, `convertCsv`, `convertPptx`, `convertTweet`, `convertRss`.
-
-## AI Agents
-
-Add allmd as a skill for Claude Code, Cursor, Codex, and other AI coding assistants:
+## Agents
 
 ```bash
 npx skills add mblode/allmd
 ```
 
+Adds allmd as a skill in Claude Code, Cursor, and Codex. The agent converts instead of scraping.
+
+## Converters
+
+| Command | Input |
+|---|---|
+| `web` | Any URL, fetched and cleaned through Firecrawl. |
+| `youtube` | A video transcript with timestamps. |
+| `video` | An audio or video file, transcribed with optional speaker diarization. |
+| `image` | A screenshot or photo, described with GPT vision. |
+| `gdoc` | A published Google Doc. |
+| `pdf`, `docx`, `epub`, `pptx` | Local documents. |
+| `csv` | Tabular data, as a markdown table. |
+| `tweet`, `rss` | An X post, or the entries in a feed. |
+
+Pass a URL or file with no command and allmd picks the converter for you.
+
+## Options
+
+| Flag | Description |
+|---|---|
+| `-o, --output <file>` | Write to a specific file. |
+| `-d, --output-dir <dir>` | Write into a directory. |
+| `--stdout` | Print the markdown instead of writing a file. |
+| `-c, --clipboard` / `--copy` | Read the input from the clipboard, or copy the output to it. |
+| `--no-ai` | Skip the AI formatting pass and emit the raw extracted text. |
+| `--no-frontmatter` | Leave the YAML frontmatter off. |
+| `--parallel <n>` | Conversions to run at once, 3 by default. |
+| `--speakers <names>` | Comma-separated speaker names for a diarized transcript. |
+
+Text-based converters run an AI formatting pass by default. `--no-ai` turns it off, which is
+faster, works offline, and needs no `OPENAI_API_KEY`. Web pages already skip it, and `image` and
+`video` cannot, since vision and transcription are the conversion.
+
+## Notes
+
+- **Programmatic API:** `import { convertWeb } from "allmd"` returns the markdown along with the
+  title and extracted metadata. Every converter has a matching `convert*` export.
+- **Config file:** defaults for `ai`, `frontmatter`, `outputDir`, `parallel`, and the OpenAI model
+  can live in an `.allmdrc`, an `allmd.config.js`, or an `allmd` key in `package.json`.
+- **Shell completion:** `allmd completion install` sets up completions for bash, zsh, or fish.
+- **Docs:** the full reference lives at [blode.co/allmd/docs](https://blode.co/allmd/docs).
+
 ## License
 
-[MIT](LICENSE.md)
+MIT
+
+---
+
+Crafted by [<img src="https://blode.co/avatar-circle.png" width="20" align="top" />](https://blode.co) [Matthew Blode](https://blode.co)

@@ -1,12 +1,16 @@
 {
   "name": "allmd",
   "version": "2.0.1",
-  "description": "CLI tool to convert various content types to markdown",
+  "description": "Turn anything into clean markdown your agent can read",
   "keywords": [
+    "agent",
+    "ai",
+    "claude",
     "cli",
     "converter",
     "markdown",
     "pdf",
+    "transcript",
     "web",
     "youtube"
   ],

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 import { siteConfig } from "@/lib/config";
 
-export const alt = `${siteConfig.name} — Turn the whole universe into markdown`;
+export const alt = `${siteConfig.name}: everything is context`;
 export const contentType = "image/png";
 export const size = { height: 630, width: 1200 };
 
@@ -53,7 +53,7 @@ export default function OpengraphImage() {
           textAlign: "center",
         }}
       >
-        Turn the whole universe into markdown.
+        Everything is context.
       </div>
       <div
         style={{

@@ -8,7 +8,7 @@ Fetches a tweet/X post via the Twitter oEmbed API and converts it to markdown.
 2. **Normalize** URL to `twitter.com` format for oEmbed API
 3. **Fetch** tweet content via Twitter oEmbed API (`publish.twitter.com/oembed`)
 4. **Fallback** to web extraction via Readability if oEmbed fails
-5. **AI format** — restructures into clean markdown via GPT-5-mini
+5. **AI format:** restructures into clean markdown via GPT-5-mini
 6. **Add frontmatter** and output
 
 ## Key Details

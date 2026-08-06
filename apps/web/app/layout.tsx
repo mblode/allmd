@@ -14,7 +14,7 @@ const glide = localFont({
   weight: "400 900",
 });
 
-const siteTitle = `${siteConfig.name} | Turn the whole universe into markdown`;
+const siteTitle = `${siteConfig.name} | Turn anything into markdown your agent can read`;
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -31,6 +31,8 @@ export const metadata: Metadata = {
     "web to markdown",
     "pdf to markdown",
     "youtube to markdown",
+    "markdown for ai agents",
+    "claude code skill",
     "cli tool",
     "allmd",
   ],

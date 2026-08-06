@@ -17,7 +17,7 @@ Fetches a URL, renders and extracts the main page content with Firecrawl, then u
 - The page must be publicly accessible (no authentication)
 - Uses Firecrawl, which can render JavaScript before extracting content
 
-### Step 2: Extract readable content
+### Step 2: Extract markdown with Firecrawl
 
 - Requires `FIRECRAWL_API_KEY`
 - Uses Firecrawl's markdown extraction with `onlyMainContent: true`
@@ -25,9 +25,9 @@ Fetches a URL, renders and extracts the main page content with Firecrawl, then u
 - Extracts: `title`, `content` (markdown), `excerpt`, `siteName`
 - Uses an explicit timeout for the Firecrawl scrape request
 
-### Step 3: Convert HTML to markdown
+### Step 3: Use Firecrawl markdown directly
 
-Firecrawl returns markdown directly, so the web converter no longer runs a separate HTML-to-markdown pass.
+Firecrawl returns markdown, so the web converter runs no separate HTML-to-markdown pass and no AI formatting pass.
 
 ### Step 4: Add frontmatter and output
 
@@ -53,11 +53,11 @@ allmd web <url> --no-frontmatter
 - **Paywalled content**: Firecrawl can only extract what the service can access; paywalled output may still be partial
 - **Very dynamic pages**: Some sites may still require longer render time or site-specific handling
 - **Large pages**: Output can still be large even without an AI post-processing pass
-- **Hosted dependency**: Web conversion now depends on Firecrawl availability and your API quota
+- **Hosted dependency**: Web conversion depends on Firecrawl availability and your API quota
 
 ## Troubleshooting
 
-- **"Web conversion requires FIRECRAWL_API_KEY"** — set `FIRECRAWL_API_KEY` in your environment or `.env`
-- **"Firecrawl timed out"** — the page may need more render time or Firecrawl may be under load
-- **Need to stop a long-running conversion** — press `Ctrl+C` to cancel the active Firecrawl request
-- **Empty or very short output** — inspect the raw page in Firecrawl directly and retry with `-v`
+- **"Web conversion requires FIRECRAWL_API_KEY"**: set `FIRECRAWL_API_KEY` in your environment or `.env`
+- **"Firecrawl timed out"**: the page may need more render time or Firecrawl may be under load
+- **Need to stop a long-running conversion**: press `Ctrl+C` to cancel the active Firecrawl request
+- **Empty or very short output**: inspect the raw page in Firecrawl directly and retry with `-v`

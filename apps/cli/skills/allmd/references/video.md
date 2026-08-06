@@ -59,8 +59,8 @@ allmd video recording.mp4 --no-diarize
 
 ## Best Practices
 
-- Audio files (mp3, wav, etc.) are fully supported — not just video
-- AI formatting works best for talks and interviews — it adds paragraph breaks and structure
+- Audio files (mp3, wav, etc.) are fully supported, not just video
+- AI formatting works best for talks and interviews: it adds paragraph breaks and structure
 - For best transcription quality, use source files with clear audio and minimal background noise
 
 ## Edge Cases
@@ -74,7 +74,7 @@ allmd video recording.mp4 --no-diarize
 
 ## Troubleshooting
 
-- **"Unsupported format"** — check the file extension is in the supported list above
-- **ffmpeg errors** — ensure ffmpeg is available; the `ffmpeg-static` npm package bundles it, but system-level issues can interfere
-- **Empty transcription** — the audio may be silent, corrupted, or contain only music
-- **Garbled output** — audio quality is too low; try a higher bitrate source
+- **"Unsupported format"**: check the file extension is in the supported list above
+- **ffmpeg errors**: ensure ffmpeg is available; the `ffmpeg-static` npm package bundles it, but system-level issues can interfere
+- **Empty transcription**: the audio may be silent, corrupted, or contain only music
+- **Garbled output**: audio quality is too low; try a higher bitrate source

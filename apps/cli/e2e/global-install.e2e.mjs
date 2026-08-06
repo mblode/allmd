@@ -25,7 +25,8 @@ const isWindows = process.platform === "win32";
 const npmCommand = isWindows ? "npm.cmd" : "npm";
 const nodeCommand = process.execPath;
 const liveMode = process.env.ALLMD_E2E_LIVE === "1";
-const helpDescriptionPattern = /Convert various content types to markdown/;
+const helpDescriptionPattern =
+  /Turn anything into markdown your agent can read/;
 const helpExamplesPattern = /allmd examples/;
 const stdoutFlagPattern = /--stdout/;
 const examplesHeadingPattern = /Common Workflows/;

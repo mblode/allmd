@@ -11,7 +11,7 @@
   </defs>
   <rect width="800" height="400" fill="url(#bg)" rx="12"/>
   <text x="400" y="160" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="72" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="-2">allmd</text>
-  <text x="400" y="210" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="400" fill="#a1a1aa" text-anchor="middle">Convert anything to markdown</text>
+  <text x="400" y="210" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="400" fill="#a1a1aa" text-anchor="middle">Everything is context</text>
   <g transform="translate(175, 250)">
     <rect width="90" height="32" rx="6" fill="#18181b" stroke="#27272a" stroke-width="1"/>
     <text x="45" y="21" font-family="monospace" font-size="13" fill="#a78bfa" text-anchor="middle">Web</text>

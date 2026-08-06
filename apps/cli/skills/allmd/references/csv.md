@@ -5,10 +5,10 @@ Reads a `.csv` or `.tsv` file, converts to a markdown table, and applies AI form
 ## Conversion Workflow
 
 1. **Validate** file exists and has `.csv` or `.tsv` extension
-2. **Detect delimiter** — tabs vs commas (auto-detected for `.csv`, forced tab for `.tsv`)
+2. **Detect delimiter:** tabs vs commas (auto-detected for `.csv`, forced tab for `.tsv`)
 3. **Parse** CSV with RFC 4180-compliant parser (handles quoted fields, escaped quotes)
 4. **Build** markdown pipe table with header and separator rows
-5. **AI format** — restructures into clean markdown via GPT-5-mini
+5. **AI format:** restructures into clean markdown via GPT-5-mini
 6. **Add frontmatter** and output
 
 ## Key Details
