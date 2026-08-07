@@ -29,8 +29,10 @@ jobs:
       - name: Install
         run: npm ci
 
+      # Skipped on the changesets bot PR: that PR consumes the changeset, so the
+      # check can only ever fail there and would block every release.
       - name: Changeset status
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
         run: npx changeset status --since origin/main
 
       - name: Lint
