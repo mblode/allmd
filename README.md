@@ -23,7 +23,7 @@ See what each converter produces, or read the full reference in the docs.
 
 <p>
 <a href="https://blode.co/allmd">
-<img alt="View demo" src=".github/assets/demo.svg" width="200" />
+<img alt="Try it" src=".github/assets/demo.svg" width="200" />
 </a>
 <a href="https://blode.co/allmd/docs">
 <img alt="Read the docs" src=".github/assets/documentation.svg" width="200" />
