@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 
 import { JsonLd } from "@/components/shared/json-ld";
 import { siteConfig } from "@/lib/config";
+import { siteGraph } from "@/lib/schema";
 
 import "./globals.css";
 
@@ -56,50 +57,6 @@ export const metadata: Metadata = {
   },
 };
 
-const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  logo: `${siteConfig.url}/icon0.svg`,
-  name: siteConfig.name,
-  sameAs: [siteConfig.links.github],
-  url: siteConfig.url,
-};
-
-const webSiteJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: siteConfig.name,
-  url: siteConfig.url,
-};
-
-// Typed as SoftwareSourceCode, not SoftwareApplication. Google's Software App
-// rich result requires `offers` plus one of `aggregateRating` or `review`, and
-// its review guidelines forbid ratings we author about our own package, so a
-// SoftwareApplication node could only ever fail validation.
-const softwareJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareSourceCode",
-  author: {
-    "@type": "Person",
-    name: "Matthew Blode",
-    url: siteConfig.links.author,
-  },
-  codeRepository: siteConfig.links.github,
-  description: siteConfig.description,
-  isAccessibleForFree: true,
-  license: "https://opensource.org/licenses/MIT",
-  name: siteConfig.name,
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD",
-  },
-  programmingLanguage: "TypeScript",
-  runtimePlatform: "Node.js",
-  url: siteConfig.links.npm,
-  version: process.env.ALLMD_VERSION,
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -114,9 +71,7 @@ export default function RootLayout({
         <link href={process.env.NEXT_PUBLIC_POSTHOG_HOST} rel="preconnect" />
       </head>
       <body className="flex min-h-screen flex-col">
-        <JsonLd data={organizationJsonLd} />
-        <JsonLd data={webSiteJsonLd} />
-        <JsonLd data={softwareJsonLd} />
+        <JsonLd data={siteGraph} />
         {children}
       </body>
     </html>
