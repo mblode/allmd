@@ -73,10 +73,13 @@ test("asset URLs round-trip between the public and upstream segments", () => {
   );
 
   expect(publicUrl).toBeDefined();
-  expect(publicUrl).toContain("/allmd/docs/_chunks/_next/");
+  // `_next` must not survive into the public path: Vercel would resolve it
+  // against this app's own build output instead of reaching the handler.
+  expect(publicUrl).not.toContain("_next");
+  expect(publicUrl).toContain("/allmd/docs/_chunks/static/");
 
   const slug = (publicUrl as string).replace("/allmd/docs/", "").split("/");
-  expect(toUpstreamPath(slug)).toBe(`/_docs/${slug.slice(1).join("/")}`);
+  expect(toUpstreamPath(slug)).toBe(`/_docs/_next/${slug.slice(1).join("/")}`);
 });
 
 test.runIf(process.env.DOCS_PROXY_LIVE)(

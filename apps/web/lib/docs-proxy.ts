@@ -21,15 +21,20 @@ const PUBLIC_DOCS_PATH = `${basePath}/docs`;
  * up. If the docs render unstyled again, check what the upstream HTML actually
  * asks for before looking anywhere else.
  *
- * The public segment is ours to name, and deliberately is not `_docs`. Chunk
- * URLs are cached `immutable` for a year, so a bad response pinned against one
- * outlives the deploy that fixed it and survives a cache purge; renaming the
- * segment is the only way to retire a poisoned key. Rename it again if that
- * ever happens.
+ * The public side swallows `_next` as well, and that part is load-bearing:
+ * Vercel resolves `_next/static/immutable/**` against this app's own build
+ * output wherever those segments appear in a path, not just at the root. Leave
+ * them in and the request never reaches this handler -- it comes back as a
+ * bodiless 404 that the browser reports as `MIME type ('')`, which reads like a
+ * proxy bug and is not one.
+ *
+ * The public segment is also deliberately not `_docs`. Chunk URLs are cached
+ * `immutable` for a year, so a bad response pinned against one outlives the
+ * deploy that fixed it and survives a cache purge; renaming the segment is the
+ * only way to retire a poisoned key. Rename it again if that ever happens.
  */
-const UPSTREAM_ASSET_SEGMENT = "_docs";
+const UPSTREAM_ASSET_PREFIX = "/_docs/_next/";
 const PUBLIC_ASSET_SEGMENT = "_chunks";
-const UPSTREAM_ASSET_PREFIX = `/${UPSTREAM_ASSET_SEGMENT}/`;
 const PUBLIC_ASSET_PREFIX = `${PUBLIC_DOCS_PATH}/${PUBLIC_ASSET_SEGMENT}/`;
 
 const isAssetSlug = (slug: string[]): boolean =>
