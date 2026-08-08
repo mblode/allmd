@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { expect, test } from "vitest";
 
-import { rewriteDocsHtml } from "./docs-proxy";
+import { rewriteDocsHtml, toUpstreamPath } from "./docs-proxy";
 
 /**
  * `docs-proxy.fixture.html` is a snapshot of https://allmd.blode.md/docs taken
@@ -58,6 +58,25 @@ test("the llms files point at the docs index, not the marketing one", () => {
     expect(out).toContain(`\\"href\\":\\"/allmd/docs/${name}`);
     expect(out).not.toContain(`\\"href\\":\\"/${name}`);
   }
+});
+
+/**
+ * The public asset segment and the upstream one are deliberately different
+ * names, so the rewrite and the fetch have to agree on the mapping in both
+ * directions. Get one side wrong and every chunk 404s while the HTML still
+ * looks right.
+ */
+test("asset URLs round-trip between the public and upstream segments", () => {
+  const out = rewriteDocsHtml(FIXTURE);
+  const [publicUrl] = rootAbsoluteUrls(out).filter((url) =>
+    url.includes("/_chunks/")
+  );
+
+  expect(publicUrl).toBeDefined();
+  expect(publicUrl).toContain("/allmd/docs/_chunks/_next/");
+
+  const slug = (publicUrl as string).replace("/allmd/docs/", "").split("/");
+  expect(toUpstreamPath(slug)).toBe(`/_docs/${slug.slice(1).join("/")}`);
 });
 
 test.runIf(process.env.DOCS_PROXY_LIVE)(

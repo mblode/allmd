@@ -15,22 +15,30 @@ const PUBLIC_DOCS_PATH = `${basePath}/docs`;
  * blode.co already forwards to us, and map them back on the way out. A plain
  * rewrite cannot do this: it has no access to the response body.
  *
- * The segment is the platform's Next.js `assetPrefix`, so it tracks blode.md
- * rather than anything in this repo. It moved from `/_next` to `/_docs`
- * silently, and every docs page lost its CSS and JS until this caught up. If
- * the docs render unstyled again, check what the upstream HTML actually asks
- * for before looking anywhere else.
+ * The upstream segment is the platform's Next.js `assetPrefix`, so it tracks
+ * blode.md rather than anything in this repo. It moved from `/_next` to
+ * `/_docs` silently, and every docs page lost its CSS and JS until this caught
+ * up. If the docs render unstyled again, check what the upstream HTML actually
+ * asks for before looking anywhere else.
+ *
+ * The public segment is ours to name, and deliberately is not `_docs`. Chunk
+ * URLs are cached `immutable` for a year, so a bad response pinned against one
+ * outlives the deploy that fixed it and survives a cache purge; renaming the
+ * segment is the only way to retire a poisoned key. Rename it again if that
+ * ever happens.
  */
-const ASSET_SEGMENT = "_docs";
-const UPSTREAM_ASSET_PREFIX = `/${ASSET_SEGMENT}/`;
-const PUBLIC_ASSET_PREFIX = `${PUBLIC_DOCS_PATH}${UPSTREAM_ASSET_PREFIX}`;
+const UPSTREAM_ASSET_SEGMENT = "_docs";
+const PUBLIC_ASSET_SEGMENT = "_chunks";
+const UPSTREAM_ASSET_PREFIX = `/${UPSTREAM_ASSET_SEGMENT}/`;
+const PUBLIC_ASSET_PREFIX = `${PUBLIC_DOCS_PATH}/${PUBLIC_ASSET_SEGMENT}/`;
 
-const isAssetSlug = (slug: string[]): boolean => slug[0] === ASSET_SEGMENT;
+const isAssetSlug = (slug: string[]): boolean =>
+  slug[0] === PUBLIC_ASSET_SEGMENT;
 
 /** Map a public path onto the path the docs origin actually serves. */
 export const toUpstreamPath = (slug: string[]): string => {
   if (isAssetSlug(slug)) {
-    return `/${slug.join("/")}`;
+    return `${UPSTREAM_ASSET_PREFIX}${slug.slice(1).join("/")}`;
   }
   return slug.length ? `/docs/${slug.join("/")}` : "/docs";
 };
