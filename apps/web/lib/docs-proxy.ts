@@ -2,12 +2,6 @@ import { basePath } from "./config";
 
 const DOCS_ORIGIN = "https://allmd.blode.md";
 
-/**
- * Static chunks are served only from the apex, not from the per-tenant host:
- * `allmd.blode.md` emits the asset URLs but 404s on them.
- */
-const DOCS_ASSET_ORIGIN = "https://blode.md";
-
 /** Where the docs are published, from a reader's point of view. */
 const PUBLIC_DOCS_PATH = `${basePath}/docs`;
 
@@ -107,9 +101,13 @@ const ROOT_URL_REWRITES: readonly (readonly [string, string])[] = [
   ["/llms.txt", `${PUBLIC_DOCS_PATH}/llms.txt`],
   ["/llms-full.txt", `${PUBLIC_DOCS_PATH}/llms-full.txt`],
   ["/manifest.json", `${basePath}/manifest.json`],
-  ["/favicon.ico", `${basePath}/favicon.ico`],
-  ["/icon0.svg", `${basePath}/icon0.svg`],
-  ["/icon1.png", `${basePath}/icon1.png`],
+  // The left column is whatever the platform's `<head>` emits, not what this
+  // zone serves, so it keeps naming three icons after this app collapsed down
+  // to two. Renaming ours does not rename theirs; drop a source and it escapes
+  // to blode.co again.
+  ["/favicon.ico", `${basePath}/icon.svg`],
+  ["/icon0.svg", `${basePath}/icon.svg`],
+  ["/icon1.png", `${basePath}/apple-icon.png`],
   ["/apple-icon.png", `${basePath}/apple-icon.png`],
 ];
 
@@ -159,10 +157,7 @@ export const proxyDocsRequest = async (
   slug: string[]
 ): Promise<Response> => {
   const { search } = new URL(request.url);
-  const upstream = new URL(
-    `${toUpstreamPath(slug)}${search}`,
-    isAssetSlug(slug) ? DOCS_ASSET_ORIGIN : DOCS_ORIGIN
-  );
+  const upstream = new URL(`${toUpstreamPath(slug)}${search}`, DOCS_ORIGIN);
 
   const response = await fetch(upstream, {
     headers: getForwardHeaders(request),
