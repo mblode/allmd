@@ -61,13 +61,24 @@ const getForwardHeaders = (request: Request): Headers => {
  * makes the browser fail to decode an otherwise healthy 200. The upstream Link
  * header advertises preloads at un-prefixed `/_next/...` paths that do not
  * exist here. Neither survives the hop.
+ *
+ * A HEAD carries the upstream's headers with no body, and those headers say
+ * `immutable, max-age=31536000` for a chunk. The edge stores that against a key
+ * a GET also reads, so one HEAD -- a curl -I, a link checker, an uptime probe --
+ * pins an empty 200 in front of a real stylesheet for a year, and the page
+ * renders unstyled with `MIME type ('')` in the console. Only a response that
+ * actually carries the bytes is allowed to be stored.
  */
-const normaliseHeaders = (source: Headers, ok: boolean): Headers => {
+const normaliseHeaders = (
+  source: Headers,
+  ok: boolean,
+  cacheable: boolean
+): Headers => {
   const headers = new Headers(source);
   for (const header of ["content-encoding", "content-length", "link"]) {
     headers.delete(header);
   }
-  if (!ok) {
+  if (!(ok && cacheable)) {
     // Never let a transient upstream failure get pinned at the edge.
     for (const header of ["cdn-cache-control", "vercel-cdn-cache-control"]) {
       headers.delete(header);
@@ -165,7 +176,11 @@ export const proxyDocsRequest = async (
     redirect: "manual",
   });
 
-  const headers = normaliseHeaders(response.headers, response.ok);
+  const headers = normaliseHeaders(
+    response.headers,
+    response.ok,
+    request.method === "GET"
+  );
 
   const location = response.headers.get("location");
   if (location) {
